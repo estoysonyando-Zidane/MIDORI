@@ -48,24 +48,35 @@ Directive 02) — no World-specific value is hardcoded in `src/`.
 `scripts/` holds CLI tooling for bringing in real data: `validate-reality-data.mjs`,
 `import-geojson.mjs`, `convert-dem-asc.mjs` (see "Data status" below).
 
-## Data status: DATA_ACQUISITION_BLOCKED
+## Data status: PARTIALLY_ACQUIRED
 
-This sandboxed environment cannot reach any GIS/authority host (GSI, MLIT,
-OSM/Overpass, Wikipedia, Wikidata — all `EGRESS_BLOCKED` or DNS failure).
-Directive 02 ("Reality Data Acquisition & Historical Reconstruction") is
-therefore implemented in its **network-failure-protocol** state: the
-acquisition pipeline, converters, and validator all exist and work, but real
-GSI/MLIT geometry has not been fetched.
+The sandboxed environment's network policy was later opened to Full access,
+and real data was fetched from official sources:
 
-- **1 real, indirectly-sourced point**: Midori Station (緑駅), `confidence: B`.
-- **1 low-confidence structural inference**: the station plaza POI, `confidence: C`.
-- **1 operator-asserted event**: みどりのフェスティバル (2010-05-30), `confidence: B`
-  — deliberately *not* the confidence `A` shown in Directive 02's own example,
-  since this session could not independently corroborate it.
-- **Everything else** (terrain, railway alignment, roads, building footprints,
-  and 5 of 6 named §20 facilities) is either unchanged Directive 01
-  `SYNTHETIC_TEST_DATA` or simply absent — no coordinates were invented for
-  facilities with no available source.
+- **Station** (`confidence: A`) — MLIT KSJ N02 railway dataset, byte-identical
+  between the 2008 and 2011 editions (bracketing 2010-05-30).
+- **Railway** near the station (`confidence: A`) — same MLIT KSJ N02 source,
+  same 2008/2011 bracket. Replaces the Directive 01 synthetic line.
+- **Terrain** (`confidence: B`) — real GSI DEM10B elevation grid (10m
+  nationwide baseline; no finer DEM5A/5B/5C/1A LiDAR coverage exists for this
+  rural tile). Replaces the Directive 01 flat ~130m synthetic guess with real
+  99.5m-298.3m relief.
+- **Roads** (`confidence: B`, `historical_status: current-only`) — real MLIT
+  KSJ N13 road centerlines (2024 edition — the only vintage available; no
+  2010-adjacent edition exists for this dataset). Real current shape,
+  explicitly not asserted as 2010 fact.
+- **緑の湯 facility** (`confidence: B`) — real address + a documented 1999
+  opening date from the town's official site; geometry is a rough
+  walking-distance estimate only (no published coordinate).
+- **みどりのフェスティバル event** (`confidence: B`) — independently
+  corroborated as a real, 21-year-old (by 2010) recurring town event via the
+  town's own history page, but *not* the confidence `A` shown in Directive
+  02's own example: no source dated specifically to 2010-05-30 was found.
+- **Buildings and 4 of 6 named §20 facilities** (緑町小学校, 緑センター,
+  緑郵便局, 緑スキー場) are still unavailable — `fgd.gsi.go.jp` (基盤地図情報)
+  and `mapps.gsi.go.jp` (aerial photo viewer) remained unreachable even under
+  Full network access. Buildings remain unchanged Directive 01
+  `SYNTHETIC_TEST_DATA`; no coordinates were invented for the 4 facilities.
 
 Full picture:
 - `public/data/worlds/<world_id>/evidence/acquisition_manifest.json` — what's
@@ -86,7 +97,7 @@ All are also visible live in **Debug Mode (F1)**, per-feature.
 node scripts/import-geojson.mjs <input.geojson> <out.geojson> --id-prefix ROAD \
   --confidence B --historical-status unknown --source-ids SRC_GSI_FGD_MENU
 node scripts/convert-dem-asc.mjs <input.asc> <out dem.json> --confidence B \
-  --source-ids SRC_GSI_DEM5_TILES --terrain-evidence-date 2023
+  --source-ids SRC_GSI_DEM10B --terrain-evidence-date 2023
 npm run validate   # scripts/validate-reality-data.mjs
 ```
 

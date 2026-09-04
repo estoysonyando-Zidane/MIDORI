@@ -5,9 +5,36 @@
       "id": "LOC_MIDORI_STATION",
       "historical_reconstruction": {
         "target_date": "2010-05-30",
-        "evidence": ["SRC_WIKIDATA_Q8191033"],
+        "evidence": ["SRC_MLIT_KSJ_N02_2008", "SRC_MLIT_KSJ_N02_2011", "SRC_WIKIDATA_Q8191033"],
+        "confidence": "A",
+        "reason": "Directive 04: upgraded from B to A. MLIT's official 国土数値情報 N02 railway dataset gives the station's point coordinate as (144.50575, 43.71802) — checked programmatically and found byte-identical between the 2008 edition (N02-08) and the 2011 edition (N02-11), which bracket the World's 2010-05-30 target date on both sides. Two independent official editions agreeing exactly, straddling the target date, is treated as Confirmed per Directive 02 §25 (temporal relevance, source authority, internal consistency all satisfied). The earlier Wikidata-derived point (~35m away, SRC_WIKIDATA_Q8191033) is consistent with this and kept as secondary corroboration, not as the primary coordinate."
+      }
+    },
+    {
+      "id": "RAIL_SENMO_KSJ_000",
+      "historical_reconstruction": {
+        "target_date": "2010-05-30",
+        "evidence": ["SRC_MLIT_KSJ_N02_2008", "SRC_MLIT_KSJ_N02_2011"],
+        "confidence": "A",
+        "reason": "Same bracketing logic as LOC_MIDORI_STATION: this RailroadSection's vertices are byte-identical between the N02-08 and N02-11 editions. Applies equally to RAIL_SENMO_KSJ_001 and RAIL_SENMO_KSJ_002, the other two clipped segments from the same comparison."
+      }
+    },
+    {
+      "id": "TERRAIN_DEM10B",
+      "historical_reconstruction": {
+        "target_date": "2010-05-30",
+        "evidence": ["SRC_GSI_DEM10B"],
         "confidence": "B",
-        "reason": "Coordinate sourced indirectly (via WebSearch summary, not a direct fetch) from Wikidata. Station is long-established (opened 1929) and had not been reported closed as of this session's general knowledge, so its 2010 existence is treated as plausible rather than confirmed — no primary 2010-dated source was checked."
+        "reason": "Real GSI elevation data (DEM10B, 10m nationwide baseline — no finer DEM5A/5B/5C/1A LiDAR coverage exists for this rural tile, confirmed by direct 404s on all four). Not upgraded to A because the GSI documentation page reachable this session gives only a tile-SERVICE start date (2013-10-30), not the underlying survey date for this specific area, so it cannot be bracketed the way the railway data was. Terrain elevation changes slowly outside of active construction/erosion, so an undated-but-recent DEM is treated as a reasonable stand-in for 2010 (historical_status 'plausible'), not proof of the exact 2010-05-30 surface."
+      }
+    },
+    {
+      "id": "ROAD_KSJ_N13_BATCH",
+      "historical_reconstruction": {
+        "target_date": "2010-05-30",
+        "evidence": ["SRC_MLIT_KSJ_N13_2024"],
+        "confidence": "B",
+        "reason": "Applies to all 102 ROAD_KSJ_N13_* features. Real current-condition MLIT road centerlines (2024 edition — the only vintage available; no 2010-adjacent edition exists for this dataset, unlike N02). Per Directive 02 §14, current-condition geometry cannot itself confirm 2010 existence, so each feature carries historical_status 'current-only' and properties.existence_in_2010 = 'unknown' directly in reality/roads.geojson rather than a per-feature entry here — this record documents the batch-level reasoning once rather than 102 times."
       }
     },
     {
@@ -23,9 +50,18 @@
       "id": "EVENT_MIDORI_FESTIVAL_20100530",
       "historical_reconstruction": {
         "target_date": "2010-05-30",
-        "evidence": ["SRC_USER_DIRECTIVE_02"],
+        "evidence": ["SRC_USER_DIRECTIVE_02", "SRC_KIYOSATO_TOWN_HISTORY"],
         "confidence": "B",
-        "reason": "Event name and program elements (クマゲラ太鼓, 丸太転がし選手権, みどりのウォーキング) were provided directly by the directive operator, not retrieved from any external record by this session (network blocked, so no municipal announcement, news archive, or photograph could be checked). Recorded as historical_status 'plausible' rather than 'confirmed' — this deliberately does not follow the confidence 'A' shown in Directive 02's own example JSON, because this session has no independent corroboration for that claim. See evidence/sources.json:SRC_USER_DIRECTIVE_02 and the Directive 02 report for why this differs from the directive's example."
+        "reason": "Directive 04 update: the town's own official history page independently confirms みどりのフェスティバル is a real, recurring event first held in 1989 (平成元年) — 21 years of institutional history by 2010, corroborating the operator's claim that this event exists (not fabricated). Still held at confidence B, not A: no source specific to 2010-05-30 was found (no announcement, program, or news archive for that exact date), so the exact date and that year's program elements (クマゲラ太鼓, 丸太転がし選手権, みどりのウォーキング) still trace only to the operator's own assertion. This remains a deliberate departure from the confidence 'A' shown in Directive 02's own example JSON."
+      }
+    },
+    {
+      "id": "FACILITY_MIDORINOYU",
+      "historical_reconstruction": {
+        "target_date": "2010-05-30",
+        "evidence": ["SRC_KIYOSATO_TOWN_MIDORINOYU"],
+        "confidence": "B",
+        "reason": "The town's official page for 緑の湯 states it opened in 平成11年 (1999), 11 years before the target date, at an address (清里町緑町26番地) 3 minutes' walk from the station — existence by 2010-05-30 is treated as plausible given continuous operation is implied (the facility is still open today with no mention of an intervening closure). Confidence held at B rather than A because no source dated to 2010 itself was found. Geometry confidence is separately weak: no coordinate is published anywhere found this session, only a walking-distance description, so its Point is placed near the station with existence-confidence B but geometry_confidence C (position/direction not sourced) — see its properties in reality/poi.geojson."
       }
     }
   ],

@@ -2,9 +2,9 @@
   "world_id": "JP_HOKKAIDO_KIYOSATO_MIDORI_20100530",
   "reality_mode": "historical_reconstruction",
   "target_date": "2010-05-30",
-  "manifest_status": "DATA_ACQUISITION_BLOCKED",
-  "manifest_status_reason": "This session's execution environment enforces an outbound network allowlist (npm/pypi/github/anthropic and a few others only). Every candidate GIS/authority host below returned EGRESS_BLOCKED / proxy 403 or DNS failure when probed on 2026-09-04, both under Directive 02 and again under Directive 04 (which additionally cross-checked via both raw curl and the WebFetch tool as an alternate route, per Directive 04 Step 1 — same result both ways). No GSI/MLIT/OSM/aerial-photo data could be retrieved. This is an organization-level egress policy on the environment itself, not something retriable from inside a session — see evidence/sources.json entries with status 'not_acquired' for the per-host probe results, and the Directive 04 report for the escalation path (environment network-policy setting, changeable only outside this session).",
-  "last_probed_at": "2026-09-04T22:40:28Z",
+  "manifest_status": "PARTIALLY_ACQUIRED",
+  "manifest_status_reason": "The environment's network policy was changed to Full access after the initial DATA_ACQUISITION_BLOCKED pass. Under Full access: cyberjapandata.gsi.go.jp, maps.gsi.go.jp, and nlftp.mlit.go.jp (MLIT KSJ) became reachable and real data was acquired from them (railway + station: MLIT KSJ N02, bracketed 2008/2011 editions; terrain: GSI DEM10B; roads: MLIT KSJ N13, 2024-only). fgd.gsi.go.jp and mapps.gsi.go.jp remained unreachable (502) even under Full access, on repeated attempts — so 基盤地図情報 (building footprints, road edges/curbs as a distinct dataset from KSJ N13, and the GSI aerial-photo viewer UI) are still not acquired. Buildings and historical aerial photo review remain blocked/unavailable; buildings are still Directive 01 SYNTHETIC placeholders. See evidence/sources.json for per-host status and evidence/reconstruction.json for how each new item's confidence was derived.",
+  "last_probed_at": "2026-09-04T23:00:00Z",
   "evidence_hierarchy": [
     "1: public/municipal authority, contemporaneous primary sources",
     "2: contemporaneous photographs / aerial photographs / official tourism material",
@@ -18,89 +18,68 @@
     {
       "id": "DEM",
       "category": "01_terrain_dem",
-      "status": "blocked",
-      "acquired": false,
+      "status": "acquired",
+      "acquired": true,
       "priority_sources": [
         {
-          "name": "GSI 基盤地図情報数値標高モデル (DEM5A / DEM5B)",
+          "name": "GSI 基盤地図情報数値標高モデル DEM5A/5B/5C/1A (XYZ tiles, z=15)",
           "priority": 3,
-          "acquisition_url": "https://fgd.gsi.go.jp/download/menu.php",
-          "expected_format": "JPGIS2.0 GML (elevation grid) — 5m mesh",
-          "probe_result": "DNS resolution failed for fgd.gsi.go.jp from this session"
+          "acquisition_url": "https://cyberjapandata.gsi.go.jp/xyz/{dem5a,dem5b,dem5c,dem1a}/15/{x}/{y}.txt",
+          "expected_format": "CSV height grid per tile",
+          "probe_result": "404 on all four for this location — no high-resolution LiDAR-derived DEM coverage exists for this rural Kiyosato tile"
         },
         {
-          "name": "GSI 標高タイル (cyberjapandata, DEM5A XYZ tiles)",
+          "name": "GSI 標高タイル DEM10B (cyberjapandata, z=14 — native/max zoom for this tier)",
           "priority": 3,
-          "acquisition_url": "https://cyberjapandata.gsi.go.jp/xyz/dem5a/{z}/{x}/{y}.txt",
-          "expected_format": "CSV height grid per tile",
-          "probe_result": "EGRESS_BLOCKED"
+          "acquisition_url": "https://cyberjapandata.gsi.go.jp/xyz/dem/14/{x}/{y}.txt",
+          "expected_format": "CSV height grid per tile, 256x256 values, meters",
+          "probe_result": "200 on all 9 tiles fetched (3x3 grid around the station), no NODATA cells"
         }
       ],
-      "target_terrain_evidence_date": "closest available to 2010; terrain_evidence_date must be stored separately from target_world_date per Directive 02 §11",
-      "converter": "scripts/convert-dem-asc.mjs (ESRI ASCII Grid -> dem.json; GML DEM5 parsing NOT yet implemented — see note)",
-      "note": "GSI DEM5 is distributed as JPGIS2.0/GML, not documented against a real downloaded sample in this session (network blocked). Implementing a GML parser untested against real GSI output risks silent structural bugs, which Directive 02 §27 forbids passing off as real. scripts/convert-dem-asc.mjs instead supports the well-specified ESRI ASCII Grid (.asc) format, which GSI DEM can be converted to with standard GIS tooling (e.g. QGIS) before import. A GML importer is left as a manifest TODO, not a guessed implementation."
+      "target_terrain_evidence_date": "unknown — see evidence/sources.json:SRC_GSI_DEM10B",
+      "converter": "one-off Python script this session (not committed as a repo script — see note); scripts/convert-dem-asc.mjs remains available for ESRI ASCII Grid input",
+      "note": "Acquired via direct GSI DEM10B XYZ tile requests (dem5a/5b/5c/1a all 404 here — no finer coverage). 9 z=14 tiles stitched into a 768x768 grid, then cropped to ~2.5km of the World origin and downsampled (stride 3, ~30m spacing) to 240x240 for reality/dem.json. Elevation range 99.5m-298.3m — real, meaningfully varied terrain, replacing Directive 01's flat ~130m synthetic guess. confidence B / historical_status 'plausible' (see reconstruction.json:TERRAIN_DEM10B). GML DEM5 parsing is still not implemented (moot here since DEM5 has no coverage at this location anyway)."
     },
     {
       "id": "RAILWAY",
       "category": "02_railway",
-      "status": "blocked",
-      "acquired": false,
+      "status": "acquired",
+      "acquired": true,
       "priority_sources": [
         {
-          "name": "国土数値情報 N02 鉄道データ（2008-2009年度版, 現行版）",
+          "name": "国土数値情報 N02 鉄道データ（2008年度版 N02-08 および 2011年度版 N02-11 — no exact-2010 vintage exists; these bracket it）",
           "priority": 3,
-          "acquisition_url": "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N02.html",
-          "expected_format": "Shapefile / GML, per-year historical vintages available",
-          "probe_result": "EGRESS_BLOCKED"
-        },
-        {
-          "name": "GSI 基盤地図情報 軌道の中心線",
-          "priority": 3,
-          "acquisition_url": "https://fgd.gsi.go.jp/download/menu.php",
-          "expected_format": "JPGIS2.0 GML",
-          "probe_result": "DNS resolution failed"
-        },
-        {
-          "name": "OpenStreetMap 釧網本線 way data (current geometry only — NOT usable as 2010 evidence per Directive 02 §12)",
-          "priority": 5,
-          "acquisition_url": "https://overpass-api.de/api/interpreter",
-          "expected_format": "Overpass JSON / GeoJSON",
-          "probe_result": "EGRESS_BLOCKED (also confirmed blocked during Directive 01)"
+          "acquisition_url": "https://nlftp.mlit.go.jp/ksj/gml/data/N02/{N02-08,N02-11}/{filename}_GML.zip",
+          "expected_format": "Shapefile (zip), EUC-encoded DBF (cp932)",
+          "probe_result": "200 on both; 7.1MB and 7.2MB nationwide zips, filtered locally to the 釧網線 station + 3 segments near this World"
         }
       ],
-      "converter": "scripts/import-geojson.mjs (generic; accepts GeoJSON already exported from GML/Shapefile by external GIS tooling)",
-      "note": "Directive 02 §12 requires comparing 2008-2009 and current railway vintages rather than assuming current == 2010. Neither vintage could be retrieved this session."
+      "converter": "one-off Python script this session using pyshp (not committed as a repo script)",
+      "note": "Directive 02 §12 requirement satisfied: compared 2008 and 2011 editions rather than assuming current==2010. Every coordinate is byte-identical between them, so the station point and the 3 clipped RailroadSection segments (2/34/30 vertices after clipping to ~2.5km) are recorded at confidence A / historical_status confirmed. Replaces the Directive 01 synthetic railway entirely — replaced_synthetic: true. The old synthetic line is preserved unchanged at test/fixtures/synthetic/.../railway.geojson."
     },
     {
       "id": "ROADS",
       "category": "03_roads",
-      "status": "blocked",
-      "acquired": false,
+      "status": "partially_acquired",
+      "acquired": true,
       "priority_sources": [
         {
           "name": "GSI 基盤地図情報 道路縁",
           "priority": 3,
           "acquisition_url": "https://fgd.gsi.go.jp/download/menu.php",
           "expected_format": "JPGIS2.0 GML",
-          "probe_result": "DNS resolution failed"
+          "probe_result": "502 (still blocked even under Full network access — see evidence/sources.json:SRC_GSI_FGD_MENU)"
         },
         {
-          "name": "国土数値情報 N01 道路データ",
+          "name": "国土数値情報 N13 道路データ（メッシュ6544, GeoJSON） — only the 2024 edition exists; no 2008-2011-adjacent vintage found",
           "priority": 3,
-          "acquisition_url": "https://nlftp.mlit.go.jp/ksj/",
-          "expected_format": "Shapefile / GML",
-          "probe_result": "EGRESS_BLOCKED"
-        },
-        {
-          "name": "OpenStreetMap (current condition — for shape reference only, not 2010 existence proof)",
-          "priority": 5,
-          "acquisition_url": "https://overpass-api.de/api/interpreter",
-          "expected_format": "Overpass JSON / GeoJSON",
-          "probe_result": "EGRESS_BLOCKED"
+          "acquisition_url": "https://nlftp.mlit.go.jp/ksj/gml/data/N13/N13-24/N13-24_6544_GEOJSON.zip",
+          "expected_format": "GeoJSON (zip)",
+          "probe_result": "200; 2.7MB, 102 road segments (1,930 vertices) fall within 2.5km of the World origin"
         }
       ],
-      "converter": "scripts/import-geojson.mjs",
-      "note": "Per feature, existence_in_2010 / geometry_confidence / source_ids must be set individually once real data lands (Directive 02 §14)."
+      "converter": "one-off Python script this session (not committed as a repo script)",
+      "note": "Per feature, existence_in_2010 / geometry_confidence / source_ids set individually per Directive 02 §14: each of the 102 features carries confidence B, historical_status 'current-only', existence_in_2010: 'unknown' — real current-condition geometry, explicitly NOT asserted as 2010 fact. Replaces the Directive 01 synthetic roads entirely — replaced_synthetic: true, but confidence stays below the synthetic-replacement's implicit hope of reaching A/B-confirmed, since no historical road vintage was found. 基盤地図情報 road-edge (道路縁) data, which might have offered a different vintage, remains unavailable (fgd.gsi.go.jp blocked)."
     },
     {
       "id": "BUILDINGS",
@@ -129,66 +108,87 @@
     {
       "id": "STATION_POI",
       "category": "05_station_poi",
-      "status": "partially_acquired",
+      "status": "acquired",
       "acquired": true,
       "priority_sources": [
         {
-          "name": "Wikidata Q8191033 (緑駅 / Midori Station)",
+          "name": "国土数値情報 N02 鉄道データ Station point, editions 2008 and 2011",
+          "priority": 3,
+          "acquisition_url": "https://nlftp.mlit.go.jp/ksj/gml/data/N02/{N02-08,N02-11}/{filename}_GML.zip",
+          "expected_format": "Shapefile point feature",
+          "probe_result": "200; identical coordinate (144.50575, 43.71802) in both editions"
+        },
+        {
+          "name": "Wikidata Q8191033 (緑駅 / Midori Station) — kept as secondary corroboration",
           "priority": 6,
           "acquisition_url": "https://www.wikidata.org/wiki/Q8191033",
           "expected_format": "DMS coordinate pair in an infobox/statement",
-          "probe_result": "Retrieved indirectly via WebSearch result summary on 2026-09-04; the primary Wikidata page itself could not be directly fetched (wikidata.org not reachable from this session). Treated as confidence B, not A, because of this indirection."
+          "probe_result": "Retrieved indirectly via WebSearch result summary; ~35m from the KSJ point, consistent within expected station-reference-point variance"
         }
       ],
-      "converter": "n/a — hand-entered into reality/poi.geojson with source_ids referencing SRC_WIKIDATA_Q8191033",
-      "note": "Only the station's coordinate is acquired. Station name, code (B67), and line association are general-knowledge claims not independently re-verified this session; kept at confidence B."
+      "converter": "one-off Python script this session using pyshp",
+      "note": "Upgraded to confidence A / historical_status confirmed — see evidence/reconstruction.json:LOC_MIDORI_STATION. This is now the World origin coordinate (world.json origin.id resolves to this POI), so the World shifted ~35m from the Directive 01/02 baseline."
     },
     {
       "id": "HISTORICAL_AERIAL",
       "category": "06_historical_aerial_evidence",
-      "status": "blocked",
-      "acquired": false,
+      "status": "acquired_but_not_usable_as_2010_evidence",
+      "acquired": true,
       "priority_sources": [
         {
-          "name": "GSI 地図・空中写真閲覧サービス（2009/2010/2011年台の空中写真）",
+          "name": "GSI 地図・空中写真閲覧サービス (mapps.gsi.go.jp) — the interactive UI itself",
           "priority": 2,
           "acquisition_url": "https://mapps.gsi.go.jp/",
           "expected_format": "scanned imagery, viewable/downloadable per tile",
-          "probe_result": "not reachable (blocked, same as other gsi.go.jp hosts)"
+          "probe_result": "502 — still unreachable even under Full network access, on repeated attempts. No documented lat/lon+year query endpoint for this host was found either (GSI's own tile-service documentation does not describe one for mapps.gsi.go.jp)."
+        },
+        {
+          "name": "GSI 年度別空中写真タイル (nendophoto{year}, 2007-2012, official documented endpoint per maps.gsi.go.jp/development/ichiran.html)",
+          "priority": 2,
+          "acquisition_url": "https://cyberjapandata.gsi.go.jp/xyz/nendophoto{year}/{z}/{x}/{y}.png",
+          "expected_format": "PNG tile",
+          "probe_result": "404 for nendophoto2007 through nendophoto2012 at z=14/16/17/18, and for neighboring tiles (ruling out an off-by-one in tile math, confirmed against the reference tile GSI's own docs cite, nendophoto2018, which DID return 200) — this rural area simply has no year-specific aerial-photo tile coverage for 2007-2012."
+        },
+        {
+          "name": "GSI 写真（全国最新写真シームレス） — current composite, mixed/unknown per-tile date",
+          "priority": 5,
+          "acquisition_url": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg",
+          "expected_format": "JPEG tile",
+          "probe_result": "200; fetched and visually inspected a 2x2 z=18 mosaic around the station"
         }
       ],
-      "converter": "n/a (imagery, used as human-reviewed evidence, not parsed programmatically)",
-      "note": "No aerial evidence could be reviewed. No building/road existence claims in this pass rely on aerial confirmation — this is a hard gap, not silently worked around."
+      "converter": "n/a (imagery, human-reviewed, not parsed programmatically beyond manual pixel-grid inspection)",
+      "note": "Genuine imagery WAS acquired and reviewed (seamlessphoto), but it could not serve as 2010 evidence: the same composite shows large ground-mounted solar panel arrays near the station, which postdate 2010 in Japan, proving this specific imagery is not contemporaneous. It was used only for a qualitative layout sanity-check and to cross-validate the direction of the MLIT KSJ railway data (matched). No year-specific 2007-2012 aerial photo tiles exist for this location at all (404, confirmed not a tile-math bug). mapps.gsi.go.jp itself (the service that would let a human browse metadata like capture date/operator) remained unreachable throughout. Net result: no building/road existence claims in this pass rely on aerial confirmation for 2010 specifically — this is a real, confirmed gap, not a silently-worked-around one."
     },
     {
       "id": "HISTORICAL_FACILITIES",
       "category": "07_historical_facilities",
-      "status": "blocked",
-      "acquired": false,
+      "status": "partially_acquired",
+      "acquired": true,
       "priority_sources": [
         {
-          "name": "清里町 公式サイト・広報資料",
+          "name": "清里町 公式サイト・観光/まちの情報ページ",
           "priority": 1,
-          "acquisition_url": "unknown — municipal site URL not confirmed reachable this session",
-          "expected_format": "HTML / PDF",
-          "probe_result": "not probed (no confirmed URL; general kiyosato.jp-style domains assumed blocked given the pattern above)"
+          "acquisition_url": "https://www.town.kiyosato.hokkaido.jp/",
+          "expected_format": "HTML",
+          "probe_result": "200 via raw curl (WebFetch itself still returns EGRESS_BLOCKED for this domain, inconsistently with the underlying proxy — noted, not resolved). Found and used: /tourism/?content=1050 (緑の湯) and /administration/?content=1049 (清里町の歴史)."
         }
       ],
       "target_facilities": [
-        "緑駅前広場 (LOC_MIDORI_STATION_PLAZA)",
-        "緑の湯",
-        "緑町小学校",
-        "緑センター",
-        "緑郵便局",
-        "緑スキー場"
+        "緑駅前広場 (LOC_MIDORI_STATION_PLAZA) — still confidence C, unsourced geometry",
+        "緑の湯 (FACILITY_MIDORINOYU) — ACQUIRED: address + 1999 opening date from the official site; confidence B, geometry_confidence C (position estimated from a walking-distance description only, no published coordinate)",
+        "緑町小学校 — still no source found, no Reality Data entry",
+        "緑センター — still no source found, no Reality Data entry",
+        "緑郵便局 — still no source found, no Reality Data entry",
+        "緑スキー場 — still no source found, no Reality Data entry"
       ],
-      "note": "Directive 02 §20 explicitly forbids inferring facility_exists_2010 from facility_exists_current, and this session has neither for any of these six facilities except an inferred, low-confidence station plaza. No coordinates are fabricated for the other five — they are listed here as required/unlocated rather than invented. See reality_audit.json."
+      "note": "Directive 02 §20 explicitly forbids inferring facility_exists_2010 from facility_exists_current. 緑の湯 is the one facility where this session found more than that: the town's own page states it opened in 1999 (平成11年), which is real evidence for 2010 existence, not just a current snapshot. The remaining 4 facilities plus the plaza still have no coordinate source — none were fabricated; see reality_audit.json."
     },
     {
       "id": "EVENT_MIDORI_FESTIVAL",
       "category": "08_event",
-      "status": "recorded_low_confidence",
-      "acquired": false,
+      "status": "recorded_with_partial_corroboration",
+      "acquired": true,
       "priority_sources": [
         {
           "name": "Directive 02 operator-provided fact (event name, program elements)",
@@ -196,10 +196,17 @@
           "acquisition_url": "n/a — asserted directly in the Directive 02 instructions by the user, not fetched from any external document",
           "expected_format": "n/a",
           "probe_result": "n/a — this is user-provided text, not a network acquisition"
+        },
+        {
+          "name": "清里町の歴史 (official town history timeline)",
+          "priority": 1,
+          "acquisition_url": "https://www.town.kiyosato.hokkaido.jp/administration/?content=1049",
+          "expected_format": "HTML",
+          "probe_result": "200; confirms '平成元年 第1回みどりのフェスティバル開催' (first held in 1989) as a listed town historical milestone"
         }
       ],
       "converter": "n/a — hand-entered into reality/events.json",
-      "note": "The Directive's own example registers this event at confidence A with empty source_ids. This implementation intentionally does NOT follow that example: confidence A requires independent primary-source confirmation, and this session could not corroborate the event via any external source (network blocked). It is instead recorded at confidence B / historical_status 'plausible', with source_ids referencing the operator-provided directive text itself, per Directive 02 §3 ('史実として確認できないものをA/Bに昇格させてはならない') and §27 ('存在しない資料を引用する'を禁止). Directive 04 re-attempted corroboration via WebSearch (queries for the event name plus 清里町/緑駅/2010, and for 清里町広報 with the named program elements) and via WebFetch to www.town.kiyosato.hokkaido.jp (a newly identified 清里町 official-site candidate) — WebSearch returned no matching record, and WebFetch was EGRESS_BLOCKED. Confidence remains B, unchanged."
+      "note": "The Directive's own example registers this event at confidence A with empty source_ids. This implementation still does NOT follow that example. Directive 04 found genuine independent corroboration that みどりのフェスティバル is a real, 21-year-old (by 2010) recurring town event — not fabricated — but found nothing dated specifically to 2010-05-30 (no announcement, program listing, or news archive for that exact occurrence). Per Directive 02 §3 ('史実として確認できないものをA/Bに昇格させてはならない'), the exact date and that year's program stay at confidence B / historical_status 'plausible', now with two evidence sources instead of one — see evidence/reconstruction.json:EVENT_MIDORI_FESTIVAL_20100530."
     },
     {
       "id": "WORLD_METADATA",
