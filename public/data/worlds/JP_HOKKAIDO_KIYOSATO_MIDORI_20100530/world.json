@@ -1,0 +1,28 @@
+{
+  "world_id": "JP_HOKKAIDO_KIYOSATO_MIDORI_20100530",
+  "name": "2010年5月30日の緑",
+  "location": {
+    "country": "JP",
+    "prefecture": "Hokkaido",
+    "municipality": "Kiyosato",
+    "district": "Midori"
+  },
+  "date": "2010-05-30",
+  "timezone": "Asia/Tokyo",
+  "coordinate_system": "WGS84",
+  "origin": {
+    "type": "poi",
+    "id": "LOC_MIDORI_STATION"
+  },
+  "bounds": {
+    "type": "radius",
+    "radius_m": 2000
+  },
+  "data": {
+    "dem": "reality/dem.json",
+    "railway": "reality/railway.geojson",
+    "roads": "reality/roads.geojson",
+    "buildings": "reality/buildings.geojson",
+    "poi": "reality/poi.geojson"
+  }
+}
