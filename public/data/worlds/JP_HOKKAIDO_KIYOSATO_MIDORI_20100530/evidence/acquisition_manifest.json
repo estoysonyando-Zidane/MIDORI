@@ -3,8 +3,8 @@
   "reality_mode": "historical_reconstruction",
   "target_date": "2010-05-30",
   "manifest_status": "DATA_ACQUISITION_BLOCKED",
-  "manifest_status_reason": "This session's execution environment enforces an outbound network allowlist (npm/pypi/github/anthropic and a few others only). Every candidate GIS/authority host below returned EGRESS_BLOCKED or DNS failure when probed on 2026-09-04. No GSI/MLIT/OSM/aerial-photo data could be retrieved. See evidence/sources.json entries with status 'not_acquired' for the per-host probe results.",
-  "last_probed_at": "2026-09-04T00:00:00Z",
+  "manifest_status_reason": "This session's execution environment enforces an outbound network allowlist (npm/pypi/github/anthropic and a few others only). Every candidate GIS/authority host below returned EGRESS_BLOCKED / proxy 403 or DNS failure when probed on 2026-09-04, both under Directive 02 and again under Directive 04 (which additionally cross-checked via both raw curl and the WebFetch tool as an alternate route, per Directive 04 Step 1 — same result both ways). No GSI/MLIT/OSM/aerial-photo data could be retrieved. This is an organization-level egress policy on the environment itself, not something retriable from inside a session — see evidence/sources.json entries with status 'not_acquired' for the per-host probe results, and the Directive 04 report for the escalation path (environment network-policy setting, changeable only outside this session).",
+  "last_probed_at": "2026-09-04T22:40:28Z",
   "evidence_hierarchy": [
     "1: public/municipal authority, contemporaneous primary sources",
     "2: contemporaneous photographs / aerial photographs / official tourism material",
@@ -199,7 +199,7 @@
         }
       ],
       "converter": "n/a — hand-entered into reality/events.json",
-      "note": "The Directive's own example registers this event at confidence A with empty source_ids. This implementation intentionally does NOT follow that example: confidence A requires independent primary-source confirmation, and this session could not corroborate the event via any external source (network blocked). It is instead recorded at confidence B / historical_status 'plausible', with source_ids referencing the operator-provided directive text itself, per Directive 02 §3 ('史実として確認できないものをA/Bに昇格させてはならない') and §27 ('存在しない資料を引用する'を禁止). Flagged for the user in the accompanying report."
+      "note": "The Directive's own example registers this event at confidence A with empty source_ids. This implementation intentionally does NOT follow that example: confidence A requires independent primary-source confirmation, and this session could not corroborate the event via any external source (network blocked). It is instead recorded at confidence B / historical_status 'plausible', with source_ids referencing the operator-provided directive text itself, per Directive 02 §3 ('史実として確認できないものをA/Bに昇格させてはならない') and §27 ('存在しない資料を引用する'を禁止). Directive 04 re-attempted corroboration via WebSearch (queries for the event name plus 清里町/緑駅/2010, and for 清里町広報 with the named program elements) and via WebFetch to www.town.kiyosato.hokkaido.jp (a newly identified 清里町 official-site candidate) — WebSearch returned no matching record, and WebFetch was EGRESS_BLOCKED. Confidence remains B, unchanged."
     },
     {
       "id": "WORLD_METADATA",

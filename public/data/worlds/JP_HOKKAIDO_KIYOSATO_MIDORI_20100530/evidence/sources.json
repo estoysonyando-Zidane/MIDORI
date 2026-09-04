@@ -53,7 +53,7 @@
       "data_date": null,
       "publication_date": null,
       "license": "国土地理院コンテンツ利用規約 (unverified, per publisher's own site)",
-      "description": "NOT acquired. DNS resolution for fgd.gsi.go.jp failed from this session's sandboxed network. Listed here so the reference is traceable and future acquisition can target this exact dataset.",
+      "description": "NOT acquired. Directive 02 probe: DNS resolution for fgd.gsi.go.jp failed. Directive 04 re-probe (2026-09-04, later same day): DNS now resolves but the proxy rejects the CONNECT with 403 (same failure mode as the other *.gsi.go.jp hosts) — tried via both raw curl and WebFetch, both blocked. Listed here so the reference is traceable and future acquisition can target this exact dataset.",
       "temporal_coverage": "unknown",
       "status": "not_acquired"
     },
@@ -92,8 +92,21 @@
       "data_date": null,
       "publication_date": null,
       "license": "国土地理院コンテンツ利用規約 (unverified)",
-      "description": "NOT acquired. Not directly probed this session but assumed blocked given every other *.gsi.go.jp host tested failed (maps.gsi.go.jp, cyberjapandata.gsi.go.jp, fgd.gsi.go.jp).",
+      "description": "NOT acquired. Directive 04 (2026-09-04) directly probed this URL via curl and WebFetch: both returned EGRESS_BLOCKED / proxy 403, confirming the same failure mode as every other *.gsi.go.jp host tested (maps.gsi.go.jp, cyberjapandata.gsi.go.jp, fgd.gsi.go.jp).",
       "temporal_coverage": "unknown",
+      "status": "not_acquired"
+    },
+    {
+      "id": "SRC_KIYOSATO_TOWN_OFFICIAL",
+      "provider": "清里町 (Kiyosato Town)",
+      "dataset_name": "清里町公式サイト — 観光情報「緑の湯」ページ・広報きよさとバックナンバー",
+      "url": "https://www.town.kiyosato.hokkaido.jp/",
+      "access_date": "2026-09-04",
+      "data_date": null,
+      "publication_date": null,
+      "license": "unverified",
+      "description": "NOT acquired (blocked — www.town.kiyosato.hokkaido.jp returned EGRESS_BLOCKED via WebFetch). Identified via WebSearch during Directive 04 as a Priority 1 municipal source: a tourism page for 緑の湯 exists at /tourism/?content=1050 (confirms current-day existence only, not 2010), and a 広報きよさと back-issue archive appears to exist under /gyousei/koho/. Both are strong candidates for the next real acquisition attempt from an unblocked environment — they were not previously known to this repository.",
+      "temporal_coverage": "current",
       "status": "not_acquired"
     },
     {
