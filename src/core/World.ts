@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import type { WorldConfig } from './WorldConfig';
 import { LocalTangentPlane } from './Coordinates';
 import type { RealityData } from '../reality/RealityData';
+import type { SourceDescriptor } from '../reality/Source';
+import type { ReconstructionRecord } from '../reality/Reconstruction';
 
 /**
  * A World is the assembled result of the Reality Data -> Generator pipeline:
@@ -16,17 +18,25 @@ export class World {
   readonly tangentPlane: LocalTangentPlane;
   readonly realityData: RealityData[];
   readonly group: THREE.Group;
+  /** Directive 02 §22: this World's provenance registry, keyed by source id. Empty if not loaded. */
+  readonly sources: Map<string, SourceDescriptor>;
+  /** Directive 02 §24: why each Reality Data id ended up with its confidence/status. */
+  readonly reconstruction: Map<string, ReconstructionRecord>;
 
   constructor(
     config: WorldConfig,
     tangentPlane: LocalTangentPlane,
     realityData: RealityData[],
+    sources: SourceDescriptor[] = [],
+    reconstruction: ReconstructionRecord[] = [],
   ) {
     this.config = config;
     this.tangentPlane = tangentPlane;
     this.realityData = realityData;
     this.group = new THREE.Group();
     this.group.name = `World:${config.world_id}`;
+    this.sources = new Map(sources.map((s) => [s.id, s]));
+    this.reconstruction = new Map(reconstruction.map((r) => [r.id, r]));
   }
 
   find(type: RealityData['type']): RealityData[] {

@@ -1,0 +1,37 @@
+{
+  "world_id": "JP_HOKKAIDO_KIYOSATO_MIDORI_20100530",
+  "records": [
+    {
+      "id": "LOC_MIDORI_STATION",
+      "historical_reconstruction": {
+        "target_date": "2010-05-30",
+        "evidence": ["SRC_WIKIDATA_Q8191033"],
+        "confidence": "B",
+        "reason": "Coordinate sourced indirectly (via WebSearch summary, not a direct fetch) from Wikidata. Station is long-established (opened 1929) and had not been reported closed as of this session's general knowledge, so its 2010 existence is treated as plausible rather than confirmed — no primary 2010-dated source was checked."
+      }
+    },
+    {
+      "id": "LOC_MIDORI_STATION_PLAZA",
+      "historical_reconstruction": {
+        "target_date": "2010-05-30",
+        "evidence": [],
+        "confidence": "C",
+        "reason": "No source establishes the plaza's geometry or exact extent. Its existence adjacent to the station is a structural assumption (stations of this type commonly have an adjoining forecourt), used only because Directive 02 requires an EVENT location_id to resolve to a place. Position is placed near the station origin with a wide implicit error margin; this must not be treated as a surveyed location."
+      }
+    },
+    {
+      "id": "EVENT_MIDORI_FESTIVAL_20100530",
+      "historical_reconstruction": {
+        "target_date": "2010-05-30",
+        "evidence": ["SRC_USER_DIRECTIVE_02"],
+        "confidence": "B",
+        "reason": "Event name and program elements (クマゲラ太鼓, 丸太転がし選手権, みどりのウォーキング) were provided directly by the directive operator, not retrieved from any external record by this session (network blocked, so no municipal announcement, news archive, or photograph could be checked). Recorded as historical_status 'plausible' rather than 'confirmed' — this deliberately does not follow the confidence 'A' shown in Directive 02's own example JSON, because this session has no independent corroboration for that claim. See evidence/sources.json:SRC_USER_DIRECTIVE_02 and the Directive 02 report for why this differs from the directive's example."
+      }
+    }
+  ],
+  "unresolved": [
+    {
+      "note": "The following Directive 02 §20 facilities have NO Reality Data entry at all in this pass, because no coordinate could be sourced or defensibly inferred: 緑の湯, 緑町小学校, 緑センター, 緑郵便局, 緑スキー場. Fabricating placeholder coordinates for named real facilities was judged worse than omitting them — see acquisition_manifest.json:HISTORICAL_FACILITIES."
+    }
+  ]
+}

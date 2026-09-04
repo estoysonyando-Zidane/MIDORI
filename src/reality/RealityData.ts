@@ -5,7 +5,7 @@ export type RealityGeometry =
   | { type: 'LineString'; coordinates: [number, number][] }
   | { type: 'Polygon'; coordinates: [number, number][][] };
 
-export type RealityFeatureType = 'terrain' | 'railway' | 'road' | 'building' | 'poi';
+export type RealityFeatureType = 'terrain' | 'railway' | 'road' | 'building' | 'poi' | 'event';
 
 /**
  * Whether a feature is known to have existed, in its recorded form,

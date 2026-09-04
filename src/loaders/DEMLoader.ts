@@ -23,6 +23,12 @@ export interface HeightFieldSource {
   confidence: Confidence;
   source_ids: string[];
   historical_status: HistoricalStatus;
+  /**
+   * Directive 02 §11: the DEM's own survey/measurement date, kept distinct
+   * from the World's target_date — a DEM must never be treated as proof of
+   * terrain shape on a date it wasn't measured on.
+   */
+  terrain_evidence_date?: string | null;
 }
 
 /**

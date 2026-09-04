@@ -71,16 +71,19 @@ export class DebugMode {
     const [lat, lon] = this.world.tangentPlane.unproject(playerPos.x, playerPos.z);
     const lines = [
       `world_id: ${this.world.config.world_id}`,
-      `date: ${this.world.config.date}`,
+      `date: ${this.world.config.date}  reality_mode: ${this.world.config.reality_mode ?? 'current_snapshot'}`,
       `origin: ${this.world.tangentPlane.origin.map((v) => v.toFixed(6)).join(', ')}`,
       `player local: (${playerPos.x.toFixed(1)}, ${playerPos.y.toFixed(1)}, ${playerPos.z.toFixed(1)})`,
       `player latlon: (${lat.toFixed(6)}, ${lon.toFixed(6)})`,
       '',
       'reality data:',
-      ...this.world.realityData.map(
-        (d) =>
-          `  [${d.type}] ${d.id} conf=${d.confidence}(${CONFIDENCE_LABEL[d.confidence]}) hist=${d.historical_status} src=${d.source_ids.join(',')}`,
-      ),
+      ...this.world.realityData.flatMap((d) => {
+        const src = d.source_ids.map((id) => this.world.sources.get(id)?.provider ?? id).join(',');
+        const base = `  [${d.type}] ${d.id} conf=${d.confidence}(${CONFIDENCE_LABEL[d.confidence]}) hist=${d.historical_status} src=${src || 'none'}`;
+        const recon = this.world.reconstruction.get(d.id);
+        if (!recon) return [base];
+        return [base, `      reason: ${recon.historical_reconstruction.reason}`];
+      }),
     ];
     this.overlay.textContent = lines.join('\n');
   }

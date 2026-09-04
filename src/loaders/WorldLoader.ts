@@ -2,6 +2,8 @@ import type { WorldConfig } from '../core/WorldConfig';
 import { LocalTangentPlane } from '../core/Coordinates';
 import { World } from '../core/World';
 import type { RealityData } from '../reality/RealityData';
+import type { SourceRegistry } from '../reality/Source';
+import type { ReconstructionLog } from '../reality/Reconstruction';
 import { GeoJSONLoader } from './GeoJSONLoader';
 import { DEMLoader, type HeightFieldSource } from './DEMLoader';
 
@@ -52,15 +54,33 @@ export class WorldLoader {
       );
     }
 
+    if (config.data.events) {
+      realityData.push(
+        ...(await GeoJSONLoader.load(`${worldDirUrl}/${config.data.events}`, 'event', 'EVENT')),
+      );
+    }
+
     let heightField: HeightFieldSource | null = null;
     if (config.data.dem) {
       heightField = await DEMLoader.load(`${worldDirUrl}/${config.data.dem}`);
     }
 
+    let sources: SourceRegistry['sources'] = [];
+    if (config.evidence?.sources) {
+      const res = await fetch(`${worldDirUrl}/${config.evidence.sources}`);
+      if (res.ok) sources = ((await res.json()) as SourceRegistry).sources;
+    }
+
+    let reconstruction: ReconstructionLog['records'] = [];
+    if (config.evidence?.reconstruction) {
+      const res = await fetch(`${worldDirUrl}/${config.evidence.reconstruction}`);
+      if (res.ok) reconstruction = ((await res.json()) as ReconstructionLog).records;
+    }
+
     const [originLat, originLon] = WorldLoader.resolveOrigin(config, poiData);
     const tangentPlane = new LocalTangentPlane(originLat, originLon);
 
-    const world = new World(config, tangentPlane, realityData);
+    const world = new World(config, tangentPlane, realityData, sources, reconstruction);
     return { world, heightField };
   }
 

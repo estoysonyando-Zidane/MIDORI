@@ -32,6 +32,13 @@ export interface WorldConfig {
   coordinate_system: 'WGS84';
   origin: WorldOrigin;
   bounds: WorldBounds;
+  /**
+   * Directive 02 §1-2: declares whether this World's Reality Data is meant
+   * to represent the target date via sourced evidence ('historical_reconstruction')
+   * or is simply a snapshot of present-day data ('current_snapshot'). Optional
+   * and additive — a World predating this field is implicitly 'current_snapshot'.
+   */
+  reality_mode?: 'historical_reconstruction' | 'current_snapshot';
   /** Relative paths (under this world's data directory) to Reality Data files. */
   data: {
     dem?: string;
@@ -39,5 +46,13 @@ export interface WorldConfig {
     roads?: string;
     buildings?: string;
     poi?: string;
+    events?: string;
+  };
+  /** Relative paths to this World's provenance records (Directive 02 §22-24). */
+  evidence?: {
+    sources?: string;
+    reconstruction?: string;
+    acquisition_manifest?: string;
+    reality_audit?: string;
   };
 }

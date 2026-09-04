@@ -29,10 +29,11 @@
       #blocker.hidden { display: none; }
       #debug {
         position: fixed; right: 12px; top: 12px;
+        max-width: min(560px, 44vw); max-height: 90vh; overflow: auto;
         font: 11px/1.5 ui-monospace, monospace;
         color: #9be79b; background: rgba(10,14,20,0.6);
-        padding: 8px 10px; border-radius: 4px; white-space: pre;
-        pointer-events: none; display: none;
+        padding: 8px 10px; border-radius: 4px; white-space: pre-wrap;
+        word-break: break-word; pointer-events: none; display: none;
       }
       #debug.visible { display: block; }
     </style>

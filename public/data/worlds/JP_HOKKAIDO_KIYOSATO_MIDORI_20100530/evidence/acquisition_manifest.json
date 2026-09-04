@@ -1,0 +1,226 @@
+{
+  "world_id": "JP_HOKKAIDO_KIYOSATO_MIDORI_20100530",
+  "reality_mode": "historical_reconstruction",
+  "target_date": "2010-05-30",
+  "manifest_status": "DATA_ACQUISITION_BLOCKED",
+  "manifest_status_reason": "This session's execution environment enforces an outbound network allowlist (npm/pypi/github/anthropic and a few others only). Every candidate GIS/authority host below returned EGRESS_BLOCKED or DNS failure when probed on 2026-09-04. No GSI/MLIT/OSM/aerial-photo data could be retrieved. See evidence/sources.json entries with status 'not_acquired' for the per-host probe results.",
+  "last_probed_at": "2026-09-04T00:00:00Z",
+  "evidence_hierarchy": [
+    "1: public/municipal authority, contemporaneous primary sources",
+    "2: contemporaneous photographs / aerial photographs / official tourism material",
+    "3: GSI (国土地理院) / MLIT (国土交通省) public GIS",
+    "4: reputable geographic/cartographic reference material",
+    "5: OpenStreetMap or other current-condition data",
+    "6: other web sources",
+    "7: inference / assumption (confidence C only, never promoted to A/B)"
+  ],
+  "datasets": [
+    {
+      "id": "DEM",
+      "category": "01_terrain_dem",
+      "status": "blocked",
+      "acquired": false,
+      "priority_sources": [
+        {
+          "name": "GSI 基盤地図情報数値標高モデル (DEM5A / DEM5B)",
+          "priority": 3,
+          "acquisition_url": "https://fgd.gsi.go.jp/download/menu.php",
+          "expected_format": "JPGIS2.0 GML (elevation grid) — 5m mesh",
+          "probe_result": "DNS resolution failed for fgd.gsi.go.jp from this session"
+        },
+        {
+          "name": "GSI 標高タイル (cyberjapandata, DEM5A XYZ tiles)",
+          "priority": 3,
+          "acquisition_url": "https://cyberjapandata.gsi.go.jp/xyz/dem5a/{z}/{x}/{y}.txt",
+          "expected_format": "CSV height grid per tile",
+          "probe_result": "EGRESS_BLOCKED"
+        }
+      ],
+      "target_terrain_evidence_date": "closest available to 2010; terrain_evidence_date must be stored separately from target_world_date per Directive 02 §11",
+      "converter": "scripts/convert-dem-asc.mjs (ESRI ASCII Grid -> dem.json; GML DEM5 parsing NOT yet implemented — see note)",
+      "note": "GSI DEM5 is distributed as JPGIS2.0/GML, not documented against a real downloaded sample in this session (network blocked). Implementing a GML parser untested against real GSI output risks silent structural bugs, which Directive 02 §27 forbids passing off as real. scripts/convert-dem-asc.mjs instead supports the well-specified ESRI ASCII Grid (.asc) format, which GSI DEM can be converted to with standard GIS tooling (e.g. QGIS) before import. A GML importer is left as a manifest TODO, not a guessed implementation."
+    },
+    {
+      "id": "RAILWAY",
+      "category": "02_railway",
+      "status": "blocked",
+      "acquired": false,
+      "priority_sources": [
+        {
+          "name": "国土数値情報 N02 鉄道データ（2008-2009年度版, 現行版）",
+          "priority": 3,
+          "acquisition_url": "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N02.html",
+          "expected_format": "Shapefile / GML, per-year historical vintages available",
+          "probe_result": "EGRESS_BLOCKED"
+        },
+        {
+          "name": "GSI 基盤地図情報 軌道の中心線",
+          "priority": 3,
+          "acquisition_url": "https://fgd.gsi.go.jp/download/menu.php",
+          "expected_format": "JPGIS2.0 GML",
+          "probe_result": "DNS resolution failed"
+        },
+        {
+          "name": "OpenStreetMap 釧網本線 way data (current geometry only — NOT usable as 2010 evidence per Directive 02 §12)",
+          "priority": 5,
+          "acquisition_url": "https://overpass-api.de/api/interpreter",
+          "expected_format": "Overpass JSON / GeoJSON",
+          "probe_result": "EGRESS_BLOCKED (also confirmed blocked during Directive 01)"
+        }
+      ],
+      "converter": "scripts/import-geojson.mjs (generic; accepts GeoJSON already exported from GML/Shapefile by external GIS tooling)",
+      "note": "Directive 02 §12 requires comparing 2008-2009 and current railway vintages rather than assuming current == 2010. Neither vintage could be retrieved this session."
+    },
+    {
+      "id": "ROADS",
+      "category": "03_roads",
+      "status": "blocked",
+      "acquired": false,
+      "priority_sources": [
+        {
+          "name": "GSI 基盤地図情報 道路縁",
+          "priority": 3,
+          "acquisition_url": "https://fgd.gsi.go.jp/download/menu.php",
+          "expected_format": "JPGIS2.0 GML",
+          "probe_result": "DNS resolution failed"
+        },
+        {
+          "name": "国土数値情報 N01 道路データ",
+          "priority": 3,
+          "acquisition_url": "https://nlftp.mlit.go.jp/ksj/",
+          "expected_format": "Shapefile / GML",
+          "probe_result": "EGRESS_BLOCKED"
+        },
+        {
+          "name": "OpenStreetMap (current condition — for shape reference only, not 2010 existence proof)",
+          "priority": 5,
+          "acquisition_url": "https://overpass-api.de/api/interpreter",
+          "expected_format": "Overpass JSON / GeoJSON",
+          "probe_result": "EGRESS_BLOCKED"
+        }
+      ],
+      "converter": "scripts/import-geojson.mjs",
+      "note": "Per feature, existence_in_2010 / geometry_confidence / source_ids must be set individually once real data lands (Directive 02 §14)."
+    },
+    {
+      "id": "BUILDINGS",
+      "category": "04_buildings",
+      "status": "blocked",
+      "acquired": false,
+      "priority_sources": [
+        {
+          "name": "GSI 基盤地図情報 建築物の外周線",
+          "priority": 3,
+          "acquisition_url": "https://fgd.gsi.go.jp/download/menu.php",
+          "expected_format": "JPGIS2.0 GML",
+          "probe_result": "DNS resolution failed"
+        },
+        {
+          "name": "GSI 地図・空中写真閲覧サービス（2009-2011年前後の空中写真）",
+          "priority": 2,
+          "acquisition_url": "https://mapps.gsi.go.jp/",
+          "expected_format": "scanned aerial photograph imagery",
+          "probe_result": "not probed (same domain family blocked in prior probes; assumed blocked)"
+        }
+      ],
+      "converter": "scripts/import-geojson.mjs",
+      "note": "Directive 02 §15-16: current footprints must NOT be asserted as 2010 fact. No building footprints are registered as real data in this pass — only the Directive 01 SYNTHETIC placeholders remain, unchanged, clearly marked confidence=U."
+    },
+    {
+      "id": "STATION_POI",
+      "category": "05_station_poi",
+      "status": "partially_acquired",
+      "acquired": true,
+      "priority_sources": [
+        {
+          "name": "Wikidata Q8191033 (緑駅 / Midori Station)",
+          "priority": 6,
+          "acquisition_url": "https://www.wikidata.org/wiki/Q8191033",
+          "expected_format": "DMS coordinate pair in an infobox/statement",
+          "probe_result": "Retrieved indirectly via WebSearch result summary on 2026-09-04; the primary Wikidata page itself could not be directly fetched (wikidata.org not reachable from this session). Treated as confidence B, not A, because of this indirection."
+        }
+      ],
+      "converter": "n/a — hand-entered into reality/poi.geojson with source_ids referencing SRC_WIKIDATA_Q8191033",
+      "note": "Only the station's coordinate is acquired. Station name, code (B67), and line association are general-knowledge claims not independently re-verified this session; kept at confidence B."
+    },
+    {
+      "id": "HISTORICAL_AERIAL",
+      "category": "06_historical_aerial_evidence",
+      "status": "blocked",
+      "acquired": false,
+      "priority_sources": [
+        {
+          "name": "GSI 地図・空中写真閲覧サービス（2009/2010/2011年台の空中写真）",
+          "priority": 2,
+          "acquisition_url": "https://mapps.gsi.go.jp/",
+          "expected_format": "scanned imagery, viewable/downloadable per tile",
+          "probe_result": "not reachable (blocked, same as other gsi.go.jp hosts)"
+        }
+      ],
+      "converter": "n/a (imagery, used as human-reviewed evidence, not parsed programmatically)",
+      "note": "No aerial evidence could be reviewed. No building/road existence claims in this pass rely on aerial confirmation — this is a hard gap, not silently worked around."
+    },
+    {
+      "id": "HISTORICAL_FACILITIES",
+      "category": "07_historical_facilities",
+      "status": "blocked",
+      "acquired": false,
+      "priority_sources": [
+        {
+          "name": "清里町 公式サイト・広報資料",
+          "priority": 1,
+          "acquisition_url": "unknown — municipal site URL not confirmed reachable this session",
+          "expected_format": "HTML / PDF",
+          "probe_result": "not probed (no confirmed URL; general kiyosato.jp-style domains assumed blocked given the pattern above)"
+        }
+      ],
+      "target_facilities": [
+        "緑駅前広場 (LOC_MIDORI_STATION_PLAZA)",
+        "緑の湯",
+        "緑町小学校",
+        "緑センター",
+        "緑郵便局",
+        "緑スキー場"
+      ],
+      "note": "Directive 02 §20 explicitly forbids inferring facility_exists_2010 from facility_exists_current, and this session has neither for any of these six facilities except an inferred, low-confidence station plaza. No coordinates are fabricated for the other five — they are listed here as required/unlocated rather than invented. See reality_audit.json."
+    },
+    {
+      "id": "EVENT_MIDORI_FESTIVAL",
+      "category": "08_event",
+      "status": "recorded_low_confidence",
+      "acquired": false,
+      "priority_sources": [
+        {
+          "name": "Directive 02 operator-provided fact (event name, program elements)",
+          "priority": 7,
+          "acquisition_url": "n/a — asserted directly in the Directive 02 instructions by the user, not fetched from any external document",
+          "expected_format": "n/a",
+          "probe_result": "n/a — this is user-provided text, not a network acquisition"
+        }
+      ],
+      "converter": "n/a — hand-entered into reality/events.json",
+      "note": "The Directive's own example registers this event at confidence A with empty source_ids. This implementation intentionally does NOT follow that example: confidence A requires independent primary-source confirmation, and this session could not corroborate the event via any external source (network blocked). It is instead recorded at confidence B / historical_status 'plausible', with source_ids referencing the operator-provided directive text itself, per Directive 02 §3 ('史実として確認できないものをA/Bに昇格させてはならない') and §27 ('存在しない資料を引用する'を禁止). Flagged for the user in the accompanying report."
+    },
+    {
+      "id": "WORLD_METADATA",
+      "category": "08_world_metadata",
+      "status": "acquired",
+      "acquired": true,
+      "note": "world.json updated with reality_mode: historical_reconstruction and evidence data paths."
+    },
+    {
+      "id": "SOURCE_METADATA",
+      "category": "09_source_metadata",
+      "status": "acquired",
+      "acquired": true,
+      "note": "See evidence/sources.json."
+    }
+  ],
+  "next_steps_for_user_provided_data": [
+    "Drop real files under public/data/worlds/JP_HOKKAIDO_KIYOSATO_MIDORI_20100530/reality/ (or anywhere, and point world.json at them).",
+    "GeoJSON already exported from GSI/MLIT/OSM tooling: run `node scripts/import-geojson.mjs <input.geojson> <type> <out.geojson>` to normalize into the RealityData shape (confidence/source_ids/historical_status prompted or passed as flags).",
+    "DEM as ESRI ASCII Grid (.asc): run `node scripts/convert-dem-asc.mjs <input.asc> <out dem.json>`.",
+    "DEM as GSI GML (JPGIS2.0): not yet supported — convert to .asc or GeoJSON with external GIS tooling (e.g. QGIS) first.",
+    "After adding/replacing any file, run `npm run validate` (scripts/validate-reality-data.mjs) before relying on it."
+  ]
+}

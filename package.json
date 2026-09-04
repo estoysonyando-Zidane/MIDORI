@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc -b --noEmit"
+    "typecheck": "tsc -b --noEmit",
+    "validate": "node scripts/validate-reality-data.mjs public/data/worlds/JP_HOKKAIDO_KIYOSATO_MIDORI_20100530"
   },
   "dependencies": {
     "three": "^0.169.0"

@@ -1,0 +1,55 @@
+{
+  "world_id": "JP_HOKKAIDO_KIYOSATO_MIDORI_20100530",
+  "audited_at": "2026-09-04",
+  "summary": "DATA_ACQUISITION_BLOCKED for this pass — every GSI/MLIT/OSM candidate host was unreachable from this session's sandboxed network (see acquisition_manifest.json). Only the station coordinate carries any external sourcing. Everything else is either explicitly synthetic (Directive 01 placeholders, unchanged) or a clearly low-confidence structural inference.",
+  "categories": {
+    "station": {
+      "confirmed": [],
+      "reconstructed": ["LOC_MIDORI_STATION (position, confidence B — indirect Wikidata retrieval)"],
+      "unknown": ["exact platform/building layout", "any 2010-specific detail beyond continued operation"]
+    },
+    "railway": {
+      "confirmed": [],
+      "reconstructed": [],
+      "unknown": ["actual 釧網本線 alignment near Midori — RAIL_SENMO_SYNTH_001 remains Directive 01 SYNTHETIC placeholder geometry, not real"]
+    },
+    "roads": {
+      "confirmed": [],
+      "reconstructed": [],
+      "unknown": ["all road geometry — ROAD_SYNTH_001/002 remain Directive 01 SYNTHETIC placeholders"]
+    },
+    "buildings": {
+      "confirmed": [],
+      "reconstructed": [],
+      "unknown": ["all building footprints and existence — BLDG_SYNTH_* remain Directive 01 SYNTHETIC placeholders; no aerial or municipal evidence was reviewed for any real building"]
+    },
+    "terrain": {
+      "confirmed": [],
+      "reconstructed": [],
+      "unknown": ["actual elevation — dem.json remains Directive 01 SYNTHETIC placeholder terrain, not a real DEM"]
+    },
+    "facilities": {
+      "confirmed": [],
+      "reconstructed": [],
+      "unknown": [
+        "緑の湯 — no coordinate available, not registered as Reality Data",
+        "緑町小学校 — no coordinate available, not registered as Reality Data",
+        "緑センター — no coordinate available, not registered as Reality Data",
+        "緑郵便局 — no coordinate available, not registered as Reality Data",
+        "緑スキー場 — no coordinate available, not registered as Reality Data",
+        "緑駅前広場 (LOC_MIDORI_STATION_PLAZA) — registered at confidence C, structural inference only, not a surveyed location"
+      ]
+    },
+    "event": {
+      "confirmed": [],
+      "reconstructed": ["EVENT_MIDORI_FESTIVAL_20100530 (confidence B — operator-asserted, not independently corroborated this session)"],
+      "unknown": ["start time, attendance, exact plaza layout during the event"]
+    }
+  },
+  "headline_gaps": [
+    "No real DEM, railway, road, or building geometry was acquired — Directive 01's synthetic placeholders are still what renders.",
+    "No aerial photograph evidence was reviewed at all (network blocked).",
+    "Five of six named §20 facilities have no Reality Data entry — coordinates were not fabricated for them.",
+    "The みどりのフェスティバル event is recorded at confidence B, not the A shown in the Directive's own example, because this session could not corroborate it independently."
+  ]
+}
