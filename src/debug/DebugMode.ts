@@ -60,7 +60,8 @@ export class DebugMode {
     document.addEventListener('keydown', this.onKeyDown);
   }
 
-  private toggle(): void {
+  /** Also callable from a touch-only on-screen button (Directive 06 §3) — F1 has no touch equivalent. */
+  toggle(): void {
     this.visible = !this.visible;
     this.group.visible = this.visible;
     this.overlay.classList.toggle('visible', this.visible);

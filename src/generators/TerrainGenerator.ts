@@ -77,15 +77,6 @@ export class TerrainGenerator {
       flatShading: false,
       roughness: 1,
       metalness: 0,
-      // Directive 05: a byte-identical copy of this geometry rendered
-      // invisible under the default FrontSide in a different three.js build
-      // (r128 UMD, used by the standalone preview artifact) until forced to
-      // DoubleSide — confirmed by toggling `side` on the live mesh and
-      // diffing screenshots. This repo's own runtime (three r169 via npm)
-      // did not reproduce the culling in that same test, but DoubleSide is
-      // cheap for a single terrain mesh and removes the failure mode
-      // entirely, so it stays on here too as a defensive hedge.
-      side: THREE.DoubleSide,
     });
 
     const mesh = new THREE.Mesh(geometry, material);

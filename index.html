@@ -36,6 +36,27 @@
         word-break: break-word; pointer-events: none; display: none;
       }
       #debug.visible { display: block; }
+      /* Directive 06 §3: touch controls, shown only on touch devices (main.ts toggles this class) */
+      #joystick {
+        position: fixed; left: max(18px, env(safe-area-inset-left)); bottom: max(18px, env(safe-area-inset-bottom));
+        width: 108px; height: 108px; border-radius: 50%;
+        background: rgba(20,27,25,0.55); border: 1px solid rgba(255,255,255,0.15);
+        display: none; touch-action: none; z-index: 5;
+      }
+      #joystick .knob {
+        position: absolute; left: 50%; top: 50%; width: 44px; height: 44px;
+        margin: -22px 0 0 -22px; border-radius: 50%;
+        background: rgba(217,164,65,0.85);
+      }
+      #debugToggleTouch {
+        position: fixed; right: max(12px, env(safe-area-inset-right)); top: max(12px, env(safe-area-inset-top));
+        display: none; z-index: 5; background: rgba(10,14,20,0.6); color: #d7dee8;
+        border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 8px 12px;
+        font: 600 11px/1 ui-monospace, monospace;
+      }
+      body.touch-controls #joystick,
+      body.touch-controls #debugToggleTouch { display: block; }
+      body.touch-controls #hud { display: none; }
     </style>
   </head>
   <body>
@@ -43,7 +64,9 @@
     <div id="crosshair"></div>
     <div id="hud">W A S D 移動 &nbsp;/&nbsp; マウス 視点 &nbsp;/&nbsp; F1 デバッグ表示</div>
     <div id="debug"></div>
-    <div id="blocker">クリックして開始<br /><span style="font-size:12px;opacity:0.7">2010-05-30 北海道斜里郡清里町・緑</span></div>
+    <div id="joystick"><div class="knob"></div></div>
+    <button id="debugToggleTouch" type="button">DEBUG</button>
+    <div id="blocker">クリック / タップして開始<br /><span style="font-size:12px;opacity:0.7">2010-05-30 北海道斜里郡清里町・緑</span></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

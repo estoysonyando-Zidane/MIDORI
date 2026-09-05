@@ -8,11 +8,20 @@ import { SceneManager } from './rendering/SceneManager';
 import { PlayerController } from './player/PlayerController';
 import { DebugMode } from './debug/DebugMode';
 
-const WORLD_URL = '/data/worlds/JP_HOKKAIDO_KIYOSATO_MIDORI_20100530';
+// Directive 06 §1: resolves under whatever `base` vite.config.ts is built
+// with (e.g. '/MIDORI/' on GitHub Pages), instead of assuming the app is
+// served from the domain root.
+const WORLD_URL = `${import.meta.env.BASE_URL}data/worlds/JP_HOKKAIDO_KIYOSATO_MIDORI_20100530`;
+
+const IS_TOUCH_DEVICE = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
 async function bootstrap(): Promise<void> {
   const app = document.getElementById('app') as HTMLElement;
   const blocker = document.getElementById('blocker') as HTMLElement;
+  const joystick = document.getElementById('joystick');
+  const debugToggleTouch = document.getElementById('debugToggleTouch');
+
+  if (IS_TOUCH_DEVICE) document.body.classList.add('touch-controls');
 
   const { world, heightField } = await WorldLoader.load(WORLD_URL);
 
@@ -52,13 +61,26 @@ async function bootstrap(): Promise<void> {
     domElement: sceneManager.renderer.domElement,
     heightAt,
     start: new THREE.Vector3(startX, startY, startZ),
+    joystickElement: joystick,
   });
 
-  blocker.addEventListener('click', () => sceneManager.renderer.domElement.requestPointerLock());
-  document.addEventListener('pointerlockchange', () => {
-    const locked = document.pointerLockElement === sceneManager.renderer.domElement;
-    blocker.classList.toggle('hidden', locked);
-  });
+  debugToggleTouch?.addEventListener('click', () => debugMode.toggle());
+
+  if (IS_TOUCH_DEVICE) {
+    // iOS Safari has no Pointer Lock to wait on — a tap just dismisses the
+    // blocker and hands input straight to PlayerController's touch handlers.
+    blocker.addEventListener(
+      'touchstart',
+      () => blocker.classList.add('hidden'),
+      { once: true },
+    );
+  } else {
+    blocker.addEventListener('click', () => sceneManager.renderer.domElement.requestPointerLock());
+    document.addEventListener('pointerlockchange', () => {
+      const locked = document.pointerLockElement === sceneManager.renderer.domElement;
+      blocker.classList.toggle('hidden', locked);
+    });
+  }
 
   sceneManager.start((dt) => {
     player.update(dt);
