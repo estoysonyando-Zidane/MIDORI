@@ -61,12 +61,31 @@ export class TerrainGenerator {
     geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
     geometry.setIndex(indices);
     geometry.computeVertexNormals();
+    geometry.computeBoundingBox();
+
+    // Directive 05 Task 1 diagnostic: report what was actually built, not what
+    // was assumed. Cheap relative to the rest of generation; left in place.
+    {
+      let nanCount = 0;
+      for (let i = 0; i < positions.length; i++) if (Number.isNaN(positions[i])) nanCount++;
+      // eslint-disable-next-line no-console
+      console.debug('[TerrainGenerator] vertices=%d indices=%d nanCount=%d bbox=%o', vertexCount, indices.length, nanCount, geometry.boundingBox);
+    }
 
     const material = new THREE.MeshStandardMaterial({
       color: 0x3f4f38,
       flatShading: false,
       roughness: 1,
       metalness: 0,
+      // Directive 05: a byte-identical copy of this geometry rendered
+      // invisible under the default FrontSide in a different three.js build
+      // (r128 UMD, used by the standalone preview artifact) until forced to
+      // DoubleSide — confirmed by toggling `side` on the live mesh and
+      // diffing screenshots. This repo's own runtime (three r169 via npm)
+      // did not reproduce the culling in that same test, but DoubleSide is
+      // cheap for a single terrain mesh and removes the failure mode
+      // entirely, so it stays on here too as a defensive hedge.
+      side: THREE.DoubleSide,
     });
 
     const mesh = new THREE.Mesh(geometry, material);

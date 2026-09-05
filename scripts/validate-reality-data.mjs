@@ -9,6 +9,13 @@
  *   continuity, road continuity, and coarse relative-distance sanity
  *   between named POIs (station / plaza / etc.).
  *
+ * Directive 05 Task 4: any feature with empty source_ids is always flagged,
+ * regardless of confidence — reported in its own "EMPTY SOURCE_IDS" section,
+ * counted separately from ERRORS/WARNINGS so it can't get lost inside a
+ * larger warning count. Confidence A/B with empty source_ids is still a hard
+ * ERROR (unchanged); confidence C/U with empty source_ids lands here instead
+ * of the general WARNINGS list.
+ *
  * Usage: node scripts/validate-reality-data.mjs <worldDir>
  *   e.g. node scripts/validate-reality-data.mjs public/data/worlds/JP_HOKKAIDO_KIYOSATO_MIDORI_20100530
  *
@@ -29,6 +36,7 @@ const HISTORICAL_STATUSES = new Set(['confirmed', 'plausible', 'unknown', 'curre
 
 const errors = [];
 const warnings = [];
+const emptySourceIds = []; // Directive 05 Task 4: tallied separately from `warnings`
 function err(msg) { errors.push(msg); }
 function warn(msg) { warnings.push(msg); }
 
@@ -143,7 +151,7 @@ for (const f of allFeatures) {
     if (f.confidence === 'A' || f.confidence === 'B') {
       err(`${f.type}/${f.id}: confidence ${f.confidence} but no source_ids — A/B must be traceable to a source`);
     } else {
-      warn(`${f.type}/${f.id}: no source_ids (confidence ${f.confidence})`);
+      emptySourceIds.push(`${f.type}/${f.id}: no source_ids (confidence ${f.confidence})`);
     }
   }
   if (f.confidence === 'A' && f.historical_status === 'unknown') {
@@ -212,9 +220,13 @@ if (warnings.length) {
   console.log(`\nWARNINGS (${warnings.length}):`);
   for (const w of warnings) console.log(`  ! ${w}`);
 }
-if (!errors.length && !warnings.length) {
+if (emptySourceIds.length) {
+  console.log(`\nEMPTY SOURCE_IDS (${emptySourceIds.length}) — tracked separately, does not fail the run:`);
+  for (const w of emptySourceIds) console.log(`  ○ ${w}`);
+}
+if (!errors.length && !warnings.length && !emptySourceIds.length) {
   console.log('No issues found.');
 }
 
-console.log(`\n${errors.length === 0 ? 'PASS' : 'FAIL'} (${errors.length} errors, ${warnings.length} warnings)`);
+console.log(`\n${errors.length === 0 ? 'PASS' : 'FAIL'} (${errors.length} errors, ${warnings.length} warnings, ${emptySourceIds.length} empty-source_ids)`);
 process.exit(errors.length === 0 ? 0 : 1);
