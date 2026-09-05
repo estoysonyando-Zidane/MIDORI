@@ -1,11 +1,18 @@
 import * as THREE from 'three';
+import type { Settings } from '../state/Settings';
 
-const WALK_SPEED = 4.2; // m/s
+// Directive 07 §3: 4.2 m/s (~15 km/h) was a light jog, not a walk — average
+// adult walking pace is ~1.4 m/s (5 km/h). Set to a brisk-but-plausible
+// walking speed rather than the literal average, since the World's 2000m
+// radius would otherwise take a very long time to cross on foot.
+const WALK_SPEED = 1.6; // m/s
 const GRAVITY = -19.6; // m/s^2
 const EYE_HEIGHT = 1.7; // m
 const PITCH_LIMIT = Math.PI / 2 - 0.05;
 const MOUSE_SENSITIVITY = 0.0022;
-const TOUCH_LOOK_SENSITIVITY = 0.0032;
+// Directive 07 §3: lowered from 0.0032 — on a phone-sized drag range, the
+// original value made it easy to overshoot a target heading.
+const TOUCH_LOOK_SENSITIVITY = 0.0026;
 const JOYSTICK_MAX_PX = 40;
 
 export interface PlayerControllerOptions {
@@ -20,6 +27,8 @@ export interface PlayerControllerOptions {
    * which that browser never implemented. Omit for a desktop-only setup.
    */
   joystickElement?: HTMLElement | null;
+  /** Live invert-axis settings (Directive 07 §1); read every look-delta. */
+  settings: Settings;
 }
 
 /**
@@ -45,6 +54,8 @@ export class PlayerController {
   private readonly heightAt: (x: number, z: number) => number;
   private readonly joystick: HTMLElement | null;
   private readonly joystickKnob: HTMLElement | null;
+  private readonly joystickRod: HTMLElement | null;
+  private readonly settings: Settings;
   private locked = false;
 
   // Touch joystick state
@@ -80,6 +91,8 @@ export class PlayerController {
     this.position = options.start.clone();
     this.joystick = options.joystickElement ?? null;
     this.joystickKnob = this.joystick?.querySelector('.knob') ?? null;
+    this.joystickRod = this.joystick?.querySelector('.rod') ?? null;
+    this.settings = options.settings;
 
     document.addEventListener('keydown', this.onKeyDown);
     document.addEventListener('keyup', this.onKeyUp);
@@ -107,8 +120,15 @@ export class PlayerController {
   }
 
   private applyLookDelta(dx: number, dy: number, sensitivity: number): void {
-    this.yaw -= dx * sensitivity;
-    this.pitch -= dy * sensitivity;
+    // Directive 07 §1: default is "grab the world and drag" (map/globe
+    // style) — dragging left reveals what was to the right, dragging down
+    // reveals the sky — which is the sign-flip of the typical FPS
+    // mouse-look default (yaw/pitch -= delta). Each axis is independently
+    // toggleable back to that typical convention via Settings.
+    const xSign = this.settings.invertLookX ? 1 : -1;
+    const ySign = this.settings.invertLookY ? 1 : -1;
+    this.yaw += dx * sensitivity * xSign;
+    this.pitch += dy * sensitivity * ySign;
     this.pitch = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, this.pitch));
   }
 
@@ -144,7 +164,7 @@ export class PlayerController {
           dx = (dx / len) * JOYSTICK_MAX_PX;
           dy = (dy / len) * JOYSTICK_MAX_PX;
         }
-        if (this.joystickKnob) this.joystickKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+        this.updateJoystickVisual(dx, dy);
         this.joyX = dx / JOYSTICK_MAX_PX;
         this.joyY = dy / JOYSTICK_MAX_PX;
       } else if (t.identifier === this.lookTouchId) {
@@ -157,13 +177,39 @@ export class PlayerController {
     }
   }
 
+  /**
+   * Directive 07 §2: the knob translates toward the finger (as before) and
+   * now also tilts in 3D like a real analog stick, plus a "rod" connecting
+   * it back to the base center so the lean direction and magnitude read at
+   * a glance rather than requiring the player to track a floating dot.
+   */
+  private updateJoystickVisual(dx: number, dy: number): void {
+    if (this.joystickKnob) {
+      const tiltX = (dy / JOYSTICK_MAX_PX) * 22; // deg: drag down tilts knob "away" (top recedes)
+      const tiltY = (dx / JOYSTICK_MAX_PX) * -22; // deg: drag right tilts knob toward the viewer's right
+      this.joystickKnob.style.transform =
+        `translate(${dx}px, ${dy}px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+    }
+    if (this.joystickRod) {
+      const len = Math.hypot(dx, dy);
+      if (len < 1) {
+        this.joystickRod.style.opacity = '0';
+      } else {
+        const angleDeg = (Math.atan2(dy, dx) * 180) / Math.PI;
+        this.joystickRod.style.opacity = '1';
+        this.joystickRod.style.width = `${len}px`;
+        this.joystickRod.style.transform = `rotate(${angleDeg}deg)`;
+      }
+    }
+  }
+
   private handleTouchEnd(e: TouchEvent): void {
     for (const t of Array.from(e.changedTouches)) {
       if (t.identifier === this.stickTouchId) {
         this.stickTouchId = null;
         this.joyX = 0;
         this.joyY = 0;
-        if (this.joystickKnob) this.joystickKnob.style.transform = 'translate(0, 0)';
+        this.updateJoystickVisual(0, 0);
       }
       if (t.identifier === this.lookTouchId) {
         this.lookTouchId = null;
@@ -172,8 +218,17 @@ export class PlayerController {
   }
 
   update(dt: number): void {
-    const forward = new THREE.Vector3(Math.sin(this.yaw), 0, Math.cos(this.yaw) * -1);
-    const right = new THREE.Vector3(Math.cos(this.yaw), 0, Math.sin(this.yaw));
+    // Directive 07 §2: derived via the same Euler math used below for
+    // `camera.quaternion.setFromEuler`, rather than a hand-written sin/cos
+    // pair. The previous hand-written formula silently diverged from the
+    // camera's real facing direction away from yaw 0/180° (maximally wrong,
+    // fully mirrored, at yaw ±90°) — pressing "forward" at those headings
+    // moved the player sideways relative to what they were looking at. This
+    // guarantees movement is always relative to where the camera actually
+    // faces.
+    const lookEuler = new THREE.Euler(0, this.yaw, 0, 'YXZ');
+    const forward = new THREE.Vector3(0, 0, -1).applyEuler(lookEuler);
+    const right = new THREE.Vector3(1, 0, 0).applyEuler(lookEuler);
 
     const move = new THREE.Vector3();
     if (this.keys.has('KeyW')) move.add(forward);
