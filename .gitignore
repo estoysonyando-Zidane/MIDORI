@@ -3,3 +3,11 @@ dist
 .DS_Store
 *.local
 tsconfig.tsbuildinfo
+
+# Security audit hardening: no .env file has ever existed in this repo
+# (no secrets are used by this static frontend), but ignoring the
+# standard Vite/dotenv patterns up front costs nothing and closes the
+# most common accidental-commit path before it happens.
+.env
+.env.local
+.env.*.local
