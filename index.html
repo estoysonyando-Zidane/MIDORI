@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MIDORI — Reality-to-World Engine</title>
+    <style>
+      html, body { margin: 0; padding: 0; overflow: hidden; background: #0a0e14; }
+      #app { width: 100vw; height: 100vh; }
+      canvas { display: block; }
+      #hud {
+        position: fixed; left: 12px; bottom: 12px;
+        font: 12px/1.5 -apple-system, "Segoe UI", sans-serif;
+        color: #d7dee8; background: rgba(10,14,20,0.55);
+        padding: 8px 10px; border-radius: 4px; pointer-events: none;
+        user-select: none;
+      }
+      #crosshair {
+        position: fixed; left: 50%; top: 50%; width: 6px; height: 6px;
+        margin: -3px 0 0 -3px; border-radius: 50%;
+        background: rgba(255,255,255,0.7); pointer-events: none;
+      }
+      #blocker {
+        position: fixed; inset: 0; background: rgba(5,7,10,0.75);
+        display: flex; align-items: center; justify-content: center;
+        color: #e8edf4; font: 15px/1.6 -apple-system, "Segoe UI", sans-serif;
+        text-align: center; cursor: pointer;
+      }
+      #blocker.hidden { display: none; }
+      #debug {
+        position: fixed; right: 12px; top: 12px;
+        max-width: min(560px, 44vw); max-height: 90vh; overflow: auto;
+        font: 11px/1.5 ui-monospace, monospace;
+        color: #9be79b; background: rgba(10,14,20,0.6);
+        padding: 8px 10px; border-radius: 4px; white-space: pre-wrap;
+        word-break: break-word; pointer-events: none; display: none;
+      }
+      #debug.visible { display: block; }
+      /* Directive 06 §3: touch controls, shown only on touch devices (main.ts toggles this class) */
+      #joystick {
+        position: fixed; left: max(18px, env(safe-area-inset-left)); bottom: max(18px, env(safe-area-inset-bottom));
+        width: 108px; height: 108px; border-radius: 50%;
+        background: rgba(20,27,25,0.55); border: 1px solid rgba(255,255,255,0.15);
+        display: none; touch-action: none; z-index: 5;
+      }
+      #joystick .knob {
+        position: absolute; left: 50%; top: 50%; width: 44px; height: 44px;
+        margin: -22px 0 0 -22px; border-radius: 50%;
+        background: rgba(217,164,65,0.85);
+      }
+      #debugToggleTouch {
+        position: fixed; right: max(12px, env(safe-area-inset-right)); top: max(12px, env(safe-area-inset-top));
+        display: none; z-index: 5; background: rgba(10,14,20,0.6); color: #d7dee8;
+        border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 8px 12px;
+        font: 600 11px/1 ui-monospace, monospace;
+      }
+      body.touch-controls #joystick,
+      body.touch-controls #debugToggleTouch { display: block; }
+      body.touch-controls #hud { display: none; }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <div id="crosshair"></div>
+    <div id="hud">W A S D 移動 &nbsp;/&nbsp; マウス 視点 &nbsp;/&nbsp; F1 デバッグ表示</div>
+    <div id="debug"></div>
+    <div id="joystick"><div class="knob"></div></div>
+    <button id="debugToggleTouch" type="button">DEBUG</button>
+    <div id="blocker">クリック / タップして開始<br /><span style="font-size:12px;opacity:0.7">2010-05-30 北海道斜里郡清里町・緑</span></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,54 @@
+name: Deploy to GitHub Pages
+
+# Directive 06 §1: the user's browser must see this repository's own build,
+# not a hand-copied duplicate. This workflow builds `npm run build` and
+# publishes `dist/` via GitHub Pages on every push to a deployable branch,
+# plus on-demand via workflow_dispatch.
+#
+# One-time manual step this workflow cannot do for itself: in the repo's
+# Settings -> Pages, set "Build and deployment: Source" to "GitHub Actions".
+# Until that's done, this workflow will build successfully but the
+# deploy-pages step will fail with a 404, because the Pages environment
+# doesn't exist yet.
+on:
+  push:
+    branches:
+      - main
+      - claude/reality-world-engine-directive-01-zba8xc
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run validate
+      - run: npm run build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

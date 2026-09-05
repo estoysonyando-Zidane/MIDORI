@@ -1,0 +1,79 @@
+{
+  "world_id": "JP_HOKKAIDO_KIYOSATO_MIDORI_20100530",
+  "audited_at": "2026-09-04 (Directive 04, after environment network policy changed to Full access)",
+  "summary": "Environment network access was opened mid-session. cyberjapandata.gsi.go.jp, maps.gsi.go.jp, and nlftp.mlit.go.jp (MLIT KSJ) became reachable; fgd.gsi.go.jp and mapps.gsi.go.jp did not (502, repeated). Real data was acquired for the station point, the railway alignment near the station (both bracketed 2008/2011, confidence A), terrain (GSI DEM10B, confidence B), roads (MLIT KSJ N13, current-only, confidence B), and one facility (緑の湯, confidence B via a documented 1999 opening date). Buildings and 4 of 5 remaining named facilities are still unknown/synthetic — no fabricated data was introduced anywhere.",
+  "categories": {
+    "station": {
+      "confirmed": [
+        "LOC_MIDORI_STATION (position, confidence A — MLIT KSJ N02, byte-identical across 2008 and 2011 editions bracketing 2010-05-30)"
+      ],
+      "reconstructed": [],
+      "unknown": [
+        "exact platform/building layout, any 2010-specific detail beyond the station's confirmed position"
+      ]
+    },
+    "railway": {
+      "confirmed": [
+        "RAIL_SENMO_KSJ_000/001/002 (釧網線 near the station, confidence A — same MLIT KSJ bracket as the station)"
+      ],
+      "reconstructed": [],
+      "unknown": [
+        "exact alignment beyond the clipped ~2.5km radius around the station (not fetched — full extent to World bounds would need a wider clip of the same source, which is straightforward to extend later)"
+      ]
+    },
+    "roads": {
+      "confirmed": [],
+      "reconstructed": [
+        "102 ROAD_KSJ_N13_* features (confidence B, historical_status 'current-only') — real MLIT KSJ N13 2024-edition road centerlines; existence_in_2010 explicitly marked 'unknown' per feature, since no 2010-adjacent N13 vintage exists"
+      ],
+      "unknown": [
+        "whether each specific road existed in its current form in 2010 — geometry is real and current, historical existence is not confirmed"
+      ]
+    },
+    "buildings": {
+      "confirmed": [],
+      "reconstructed": [],
+      "unknown": [
+        "all building footprints and existence — BLDG_SYNTH_* remain Directive 01 SYNTHETIC placeholders; fgd.gsi.go.jp (基盤地図情報 建築物の外周線) remained unreachable even under Full network access"
+      ]
+    },
+    "terrain": {
+      "confirmed": [],
+      "reconstructed": [
+        "real GSI DEM10B elevation grid (confidence B, historical_status 'plausible'), 99.5m-298.3m across ~2.5km of the World origin — replaces the Directive 01 flat ~130m synthetic guess"
+      ],
+      "unknown": [
+        "exact terrain-survey date for this specific area (GSI's page gives only a 2013-10-30 tile-SERVICE start date, not a per-region survey date); no LiDAR-grade DEM5A/5B/5C/1A coverage exists here at all (all 404)"
+      ]
+    },
+    "facilities": {
+      "confirmed": [],
+      "reconstructed": [
+        "FACILITY_MIDORINOYU (緑の湯) — confidence B for existence-by-2010 (town's own page: opened 1999); geometry_confidence C, position is a walking-distance estimate only, no published coordinate",
+        "緑駅前広場 (LOC_MIDORI_STATION_PLAZA) — confidence C, structural inference only, unchanged from Directive 02"
+      ],
+      "unknown": [
+        "緑町小学校 — no coordinate available, not registered as Reality Data",
+        "緑センター — no coordinate available, not registered as Reality Data",
+        "緑郵便局 — no coordinate available, not registered as Reality Data",
+        "緑スキー場 — no coordinate available, not registered as Reality Data"
+      ]
+    },
+    "event": {
+      "confirmed": [],
+      "reconstructed": [
+        "EVENT_MIDORI_FESTIVAL_20100530 (confidence B) — the event series itself is independently confirmed as real and 21 years old by 2010 (清里町の歴史: 平成元年/1989 first held); the specific 2010-05-30 date and that year's program (クマゲラ太鼓/丸太転がし選手権/みどりのウォーキング) still trace only to the operator's own assertion"
+      ],
+      "unknown": [
+        "start time, attendance, exact plaza layout during the 2010 event; whether 2010's program matched the elements named in the directive"
+      ]
+    }
+  },
+  "headline_gaps": [
+    "Buildings: still zero real data. fgd.gsi.go.jp (基盤地図情報, which would carry 建築物の外周線) remained unreachable (502) even under Full network access, unlike every other GSI/MLIT host tried.",
+    "mapps.gsi.go.jp (the GSI aerial-photo viewer UI) also remained unreachable (502); no documented lat/lon+year query endpoint for it was found either. Genuine imagery WAS obtained via the directly-queryable seamlessphoto XYZ tile endpoint instead, but it is an undated current composite (proven non-2010 by visible post-2012 solar panel arrays) and could not serve as 2010 evidence.",
+    "No year-specific 2007-2012 aerial photo tiles (nendophoto{year}) exist for this rural location at all — confirmed via direct 404s (not a tile-math bug, cross-checked against GSI's own reference tile and neighboring tiles).",
+    "4 of 6 named §20 facilities (緑町小学校, 緑センター, 緑郵便局, 緑スキー場) still have no Reality Data entry — no coordinates were fabricated for them.",
+    "Road data has no 2010-adjacent MLIT vintage at all (N13 jumps from 2024 straight to 2026 on the live site) — unlike railway data (N02), which does have a usable 2008/2011 bracket."
+  ]
+}
