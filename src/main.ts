@@ -7,6 +7,7 @@ import { BuildingGenerator } from './generators/BuildingGenerator';
 import { SceneManager } from './rendering/SceneManager';
 import { PlayerController } from './player/PlayerController';
 import { DebugMode } from './debug/DebugMode';
+import { Settings } from './state/Settings';
 
 // Directive 06 §1: resolves under whatever `base` vite.config.ts is built
 // with (e.g. '/MIDORI/' on GitHub Pages), instead of assuming the app is
@@ -20,8 +21,27 @@ async function bootstrap(): Promise<void> {
   const blocker = document.getElementById('blocker') as HTMLElement;
   const joystick = document.getElementById('joystick');
   const debugToggleTouch = document.getElementById('debugToggleTouch');
+  const settingsToggle = document.getElementById('settingsToggle');
+  const settingsPanel = document.getElementById('settingsPanel');
+  const invertXToggle = document.getElementById('invertXToggle') as HTMLInputElement | null;
+  const invertYToggle = document.getElementById('invertYToggle') as HTMLInputElement | null;
+  const hint = document.getElementById('hint');
 
   if (IS_TOUCH_DEVICE) document.body.classList.add('touch-controls');
+
+  // Directive 07 §1: in-app state, not localStorage — resets each load.
+  const settings = new Settings();
+  if (invertXToggle) invertXToggle.checked = settings.invertLookX;
+  if (invertYToggle) invertYToggle.checked = settings.invertLookY;
+  invertXToggle?.addEventListener('change', () => {
+    settings.invertLookX = invertXToggle.checked;
+  });
+  invertYToggle?.addEventListener('change', () => {
+    settings.invertLookY = invertYToggle.checked;
+  });
+  settingsToggle?.addEventListener('click', () => {
+    settingsPanel?.classList.toggle('open');
+  });
 
   const { world, heightField } = await WorldLoader.load(WORLD_URL);
 
@@ -62,23 +82,46 @@ async function bootstrap(): Promise<void> {
     heightAt,
     start: new THREE.Vector3(startX, startY, startZ),
     joystickElement: joystick,
+    settings,
   });
 
   debugToggleTouch?.addEventListener('click', () => debugMode.toggle());
+
+  // Directive 07 §4: minimal one-time operation hint — shown once per app
+  // load right after the blocker clears, fades on its own, or a tap/click
+  // dismisses it early. Not a tutorial: one line, no steps to click through.
+  const showHint = () => {
+    if (!hint) return;
+    hint.textContent = IS_TOUCH_DEVICE
+      ? 'ドラッグで視点 ／ 左下のスティックで移動'
+      : 'ドラッグで視点 ／ WASD で移動';
+    hint.classList.add('visible');
+    const dismiss = () => hint.classList.remove('visible');
+    hint.addEventListener('click', dismiss, { once: true });
+    setTimeout(dismiss, 4000);
+  };
 
   if (IS_TOUCH_DEVICE) {
     // iOS Safari has no Pointer Lock to wait on — a tap just dismisses the
     // blocker and hands input straight to PlayerController's touch handlers.
     blocker.addEventListener(
       'touchstart',
-      () => blocker.classList.add('hidden'),
+      () => {
+        blocker.classList.add('hidden');
+        showHint();
+      },
       { once: true },
     );
   } else {
     blocker.addEventListener('click', () => sceneManager.renderer.domElement.requestPointerLock());
+    let hintShown = false;
     document.addEventListener('pointerlockchange', () => {
       const locked = document.pointerLockElement === sceneManager.renderer.domElement;
       blocker.classList.toggle('hidden', locked);
+      if (locked && !hintShown) {
+        hintShown = true;
+        showHint();
+      }
     });
   }
 
