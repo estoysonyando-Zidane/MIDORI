@@ -8,6 +8,7 @@ import { SceneManager } from './rendering/SceneManager';
 import { PlayerController } from './player/PlayerController';
 import { DebugMode } from './debug/DebugMode';
 import { Settings } from './state/Settings';
+import { SpatialIndexLoader } from './spatial/SpatialIndexLoader';
 
 // Directive 06 §1: resolves under whatever `base` vite.config.ts is built
 // with (e.g. '/MIDORI/' on GitHub Pages), instead of assuming the app is
@@ -86,6 +87,21 @@ async function bootstrap(): Promise<void> {
   });
 
   debugToggleTouch?.addEventListener('click', () => debugMode.toggle());
+
+  // Directive 09 §8: proves the Index is fetchable from the running app;
+  // does not feed any generator yet (that's Directive 10). Failure here
+  // must never block the World from loading — it's purely informational.
+  SpatialIndexLoader.load('JP.01.546.MIDORI', import.meta.env.BASE_URL)
+    .then((index) => {
+      const byStatus = index.entities.reduce<Record<string, number>>((acc, e) => {
+        acc[e.frontier_status] = (acc[e.frontier_status] ?? 0) + 1;
+        return acc;
+      }, {});
+      debugMode.setSpatialIndexSummary(
+        `${index.place_path} — ${index.entities.length} entities (${JSON.stringify(byStatus)})`,
+      );
+    })
+    .catch((err) => console.warn('SpatialIndexLoader: not loaded', err));
 
   // Directive 07 §4: minimal one-time operation hint — shown once per app
   // load right after the blocker clears, fades on its own, or a tap/click
