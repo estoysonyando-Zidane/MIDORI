@@ -12,7 +12,8 @@
       "license": "CC0 (Wikidata default)",
       "description": "Station coordinate (43°43'5.82\"N, 144°30'19.80\"E) surfaced via a WebSearch summary; the Wikidata page itself was not directly fetchable from this session (network egress blocked), so this is an indirect retrieval, not a direct primary-source read.",
       "temporal_coverage": "current",
-      "status": "acquired_indirectly"
+      "status": "acquired_indirectly",
+      "evidence_type": "encyclopedia"
     },
     {
       "id": "SRC_USER_DIRECTIVE_02",
@@ -27,7 +28,8 @@
       "license": "n/a",
       "description": "Names みどりのフェスティバル and its program elements (クマゲラ太鼓, 丸太転がし選手権, みどりのウォーキング) as having occurred at Midori Station Plaza on 2010-05-30. This is the operator's own assertion, not an independently retrieved document; no corroborating municipal record, news archive, or photograph could be checked (network blocked). Recorded as a source so the resulting event Reality Data is traceable back to where the claim came from, per Directive 02 §22-23 (Source vs Evidence) and §27 (do not invent citations for data that has none).",
       "temporal_coverage": "unknown",
-      "status": "acquired_as_operator_assertion"
+      "status": "acquired_as_operator_assertion",
+      "evidence_type": "inference"
     },
     {
       "id": "SYNTHETIC_TEST_DATA",
@@ -42,7 +44,8 @@
       "license": "n/a",
       "description": "Procedurally generated placeholder geometry, not derived from any real-world survey. Exists to prove the Reality-to-World pipeline runs end to end while real GIS data acquisition is blocked. Frozen copy kept at test/fixtures/synthetic/JP_HOKKAIDO_KIYOSATO_MIDORI_20100530/.",
       "temporal_coverage": "unknown",
-      "status": "synthetic_not_real"
+      "status": "synthetic_not_real",
+      "evidence_type": "inference"
     },
     {
       "id": "SRC_GSI_FGD_MENU",
@@ -55,7 +58,8 @@
       "license": "国土地理院コンテンツ利用規約 (unverified, per publisher's own site)",
       "description": "STILL NOT acquired even after the environment's network policy was changed to Full access (2026-09-04). Directive 02 probe: DNS failure. Directive 04 first re-probe: 403 from the proxy. Directive 04 second re-probe (after Full access): 502 (gateway upstream failure) — different failure mode from before, but still fails, on 2 repeated attempts. cyberjapandata.gsi.go.jp and maps.gsi.go.jp became reachable under the same policy change; fgd.gsi.go.jp and mapps.gsi.go.jp specifically did not. Cause not diagnosed further (could be an upstream outage, a distinct block, or a login-wall interaction) — reported as-is rather than guessed at.",
       "temporal_coverage": "unknown",
-      "status": "not_acquired"
+      "status": "not_acquired",
+      "evidence_type": "public_gis"
     },
     {
       "id": "SRC_MLIT_KSJ_N02_2008",
@@ -68,7 +72,8 @@
       "license": "国土数値情報 利用約款",
       "description": "Acquired (7.1MB nationwide Shapefile, zip, EUC-encoded DBF read as cp932). Filtered to 釧網線 (Senmo Line) features within ~2.5km of the World origin: 1 station point (緑, 144.50575/43.71802) and 3 RailroadSection line segments (2, 112, 254 vertices respectively before clipping). Original datalist page (KsjTmplt-N02.html) 404'd — the live URL structure has a per-year suffix (KsjTmplt-N02-2025.html); the archive of editions was found by following that page's own links back to 2005-2025 (with a 2009-2010, 2019 gap — no vintage exists for exactly 2010).",
       "temporal_coverage": "target-date",
-      "status": "acquired"
+      "status": "acquired",
+      "evidence_type": "public_gis"
     },
     {
       "id": "SRC_MLIT_KSJ_N02_2011",
@@ -81,7 +86,8 @@
       "license": "国土数値情報 利用約款",
       "description": "Acquired (7.2MB nationwide Shapefile, zip). Same 緑 station point and same 3 釧網線 line segments as SRC_MLIT_KSJ_N02_2008 — every coordinate byte-identical between the two editions (max per-vertex difference: 0.0 degrees, checked programmatically). Used with the 2008 edition to bracket the World's 2010-05-30 target date: since MLIT's official railway dataset agrees exactly on both sides of that date, this Reality Data is treated as confidence A / historical_status confirmed for the station point and the 3 clipped line segments, per Directive 02 §25 (temporal relevance + source authority + internal consistency).",
       "temporal_coverage": "target-date",
-      "status": "acquired"
+      "status": "acquired",
+      "evidence_type": "public_gis"
     },
     {
       "id": "SRC_MLIT_KSJ_N13_2024",
@@ -94,7 +100,8 @@
       "license": "国土数値情報 利用約款",
       "description": "Acquired (2.7MB zip for 1st-order mesh 6544, which covers this World). 102 road LineString features fall within 2.5km of the World origin (1,930 vertices total). This is the ONLY N13 vintage available near our target date — the live site's edition list jumps directly from 2024 to 2026, with no historical archive back to 2010 (unlike N02, which has yearly-ish editions back to 2005). Per Directive 02 §14/§25, current-condition-only data cannot itself confirm 2010 existence — recorded at confidence B / historical_status 'current-only', existence_in_2010: unknown, per-feature.",
       "temporal_coverage": "current",
-      "status": "acquired"
+      "status": "acquired",
+      "evidence_type": "public_gis"
     },
     {
       "id": "SRC_GSI_DEM10B",
@@ -107,7 +114,8 @@
       "license": "国土地理院コンテンツ利用規約",
       "description": "Acquired: 9 tiles (3x3) at zoom 14 around the station, no NODATA cells, stitched into a 768x768 grid then cropped+downsampled (stride 3, ~30m spacing) to a 240x240 grid covering ~2.5km of the World origin for reality/dem.json. DEM5A/5B/5C and DEM1A (finer, ~1-5m mesh) all returned 404 for this rural tile — no high-resolution LiDAR coverage exists here; DEM10B (10m, nationwide baseline) is the finest tier actually available at this location. Elevation range in the cropped area: 99.5m-298.3m, which is far more topographically varied than Directive 01's flat ~130m synthetic guess. Recorded as confidence B (real government elevation data) / historical_status 'plausible' (terrain changes slowly enough that an undated-but-recent DEM is a reasonable, though not certified, stand-in for 2010 terrain) rather than A, since the exact survey date for this specific area was not confirmed.",
       "temporal_coverage": "unknown",
-      "status": "acquired"
+      "status": "acquired",
+      "evidence_type": "public_gis"
     },
     {
       "id": "SRC_GSI_SEAMLESSPHOTO",
@@ -120,7 +128,8 @@
       "license": "国土地理院コンテンツ利用規約",
       "description": "Acquired and visually inspected: a 2x2 tile mosaic (z18) centered on the station was fetched and viewed at native resolution with a pixel-coordinate grid overlay. Confirms real railway trackage, a paralleling road, and residential structures near the station — but the same imagery also shows large ground-mounted solar panel arrays, which are definitively a post-2012 feature in Japan (FIT-scheme solar farms of this scale did not exist in 2010). This proves the composite includes recent (well past 2010) source photography, so it CANNOT be used as 2010-dated evidence for anything — it was used only to visually sanity-check the World's general layout and to cross-check the direction of the MLIT KSJ N02 railway geometry (which matched). Superseded as the railway source by SRC_MLIT_KSJ_N02_2008/2011 (properly dated, bracketing 2010).",
       "temporal_coverage": "current",
-      "status": "acquired"
+      "status": "acquired",
+      "evidence_type": "satellite_imagery"
     },
     {
       "id": "SRC_GSI_AERIAL_VIEWER",
@@ -133,7 +142,8 @@
       "license": "国土地理院コンテンツ利用規約 (unverified)",
       "description": "STILL NOT acquired even after Full network access was enabled. Directive 04 probed this specific URL 4 times across two rounds (before and after the policy change): 403, then 502 x2 on repeat. Also could not determine, per the user's explicit ask, whether this UI-driven service exposes a documented lat/lon+year query endpoint — GSI's own tile-service documentation (ichiran.html, which WAS reachable) does not mention one for mapps.gsi.go.jp; the actual working alternative GSI provides is the directly-queryable XYZ tile endpoints (seamlessphoto, nendophoto{year}, ort, airphoto — see SRC_GSI_SEAMLESSPHOTO), which were used instead and did not require this blocked host at all.",
       "temporal_coverage": "unknown",
-      "status": "not_acquired"
+      "status": "not_acquired",
+      "evidence_type": "public_gis"
     },
     {
       "id": "SRC_KIYOSATO_TOWN_MIDORINOYU",
@@ -146,7 +156,8 @@
       "license": "unverified",
       "description": "Acquired (fetched via raw curl — WebFetch itself returned EGRESS_BLOCKED for this domain even though the underlying proxy allowed it, an inconsistency worth noting). Address: 清里町緑町26番地. Access described as 'JR緑駅または「みどり」バス停徒歩3分' (3 min walk from Midori Station). Page states the facility 'opened in 平成11年 (1999)' at the station front (緑駅前). Also mentions a 緑駅前広場パークゴルフ場 (park-golf course) at the station plaza. Priority 1 municipal source. Used as evidence for existence-by-2010 (opened 1999, well before the target date) and as a real address for the facility, though no coordinate is published — see reconstruction.json for how this was turned into a (deliberately imprecise) Reality Data point.",
       "temporal_coverage": "current",
-      "status": "acquired"
+      "status": "acquired",
+      "evidence_type": "official_record"
     },
     {
       "id": "SRC_KIYOSATO_TOWN_HISTORY",
@@ -159,7 +170,8 @@
       "license": "unverified",
       "description": "Acquired (raw curl). Official town history timeline states: '平成元年 第1回みどりのフェスティバル開催' — the first みどりのフェスティバル was held in 1989 (Heisei 1), listed as one of the town's notable historical milestones. This independently corroborates that みどりのフェスティバル is a real, long-running recurring town event (21 years old by 2010), which is genuine Priority 1 evidence for the event's general existence and institutional continuity — though it does NOT independently confirm the specific 2010-05-30 date or that year's exact program (クマゲラ太鼓/丸太転がし選手権/みどりのウォーキング), which still trace only to the operator's own assertion (SRC_USER_DIRECTIVE_02).",
       "temporal_coverage": "target-date",
-      "status": "acquired"
+      "status": "acquired",
+      "evidence_type": "official_record"
     },
     {
       "id": "SRC_OSM_OVERPASS",
@@ -172,7 +184,152 @@
       "license": "ODbL",
       "description": "NOT acquired (blocked). Also explicitly a Priority 5 (current-condition-only) source per Directive 02 §4 — even if reachable, it could not by itself confirm 2010 building/road existence.",
       "temporal_coverage": "current",
-      "status": "not_acquired"
+      "status": "not_acquired",
+      "evidence_type": "public_gis"
+    },
+    {
+      "id": "SRC_KANKOU_BLOG_20100607",
+      "provider": "きよさと観光協会 (Kiyosato Tourism Association)",
+      "dataset_name": "ブログ記事「みどりのフェスティバル」",
+      "url": "https://blog.kiyosatokankou.com/2010/06/blog-post.html",
+      "evidence_type": "contemporary_record",
+      "access_date": "2026-09-06",
+      "data_date": "2010-06-07 08:15 JST (posted 8 days after the event)",
+      "publication_date": "2010-06-07",
+      "license": "unverified",
+      "description": "MIDORI_STATION_REALITY_SPEC v1.1 §2/§10: the original blog post, reached by tracing the association's blog archive structure back to the 2010-06-07 entry. Text confirms: event name (\"みどりのフェスティバル\", body also says \"緑のフェスティバル\"), date 2010-05-30, venue (清里町緑町の駅前広場), and three activities (クマゲラ太鼓, 丸太転がし選手権, みどりのウォーキング), with 3 photos. A contemporary, first-party record of the event itself — not of the venue's spatial layout, which the photos do not show at a wide-enough angle to reconstruct (spec §10.3).",
+      "temporal_coverage": "target-date",
+      "status": "acquired"
+    },
+    {
+      "id": "SRC_WIKI_JA_MIDORI",
+      "provider": "Wikipedia (日本語版)",
+      "dataset_name": "「緑駅」",
+      "url": "https://ja.wikipedia.org/wiki/%E7%B7%91%E9%A7%85",
+      "evidence_type": "encyclopedia",
+      "access_date": "2026-09-06",
+      "data_date": "n/a (encyclopedia, continuously edited)",
+      "publication_date": null,
+      "license": "CC BY-SA (Wikipedia default)",
+      "description": "MIDORI_STATION_REALITY_SPEC v1.1 §2: platform configuration (相対式2面2線, 千鳥配置), line assignment, level-crossing connection, and the 1982 freight-discontinuation date (原典未確認, flagged accordingly in reality data). A single encyclopedia source — per the redefined confidence B (\"Supported\"), stable/internally-consistent single-source content can justify B, never A on its own (validator §7.1).",
+      "temporal_coverage": "current",
+      "status": "acquired"
+    },
+    {
+      "id": "SRC_WIKI_EN_MIDORI",
+      "provider": "Wikipedia (English)",
+      "dataset_name": "\"Midori Station (Hokkaido)\"",
+      "url": "https://en.wikipedia.org/wiki/Midori_Station_(Hokkaido)",
+      "evidence_type": "encyclopedia",
+      "access_date": "2026-09-06",
+      "data_date": "n/a (encyclopedia, continuously edited)",
+      "publication_date": null,
+      "license": "CC BY-SA (Wikipedia default)",
+      "description": "MIDORI_STATION_REALITY_SPEC v1.1 §2: hosts the \"Station building, July 2009\" photo used for the station's front-facing dimension/proportion reading (§4.1).",
+      "temporal_coverage": "current",
+      "status": "acquired"
+    },
+    {
+      "id": "SRC_PHOTO_20090520",
+      "provider": "Wikimedia Commons",
+      "dataset_name": "File:Kiha40 826.JPG (platform-side view)",
+      "url": "https://commons.wikimedia.org/wiki/File:Kiha40_826.JPG",
+      "evidence_type": "contemporary_photo",
+      "access_date": "2026-09-06",
+      "data_date": "2009-05-20 12:06",
+      "publication_date": null,
+      "license": "Public domain (per file page)",
+      "description": "MIDORI_STATION_REALITY_SPEC v1.1 §2/§4: platform-side view. Primary photographic source for the station's canopy, mural (already present by this date), roof color, platform edge color, and rail/ballast appearance. Photographer credited as \"221.20\" on the file page.",
+      "temporal_coverage": "before",
+      "status": "acquired"
+    },
+    {
+      "id": "SRC_PHOTO_200907",
+      "provider": "Wikipedia (English, via SRC_WIKI_EN_MIDORI)",
+      "dataset_name": "\"Station building, July 2009\" (front view)",
+      "url": "https://en.wikipedia.org/wiki/Midori_Station_(Hokkaido)",
+      "evidence_type": "contemporary_photo",
+      "access_date": "2026-09-06",
+      "data_date": "2009-07",
+      "publication_date": null,
+      "license": "unverified",
+      "description": "MIDORI_STATION_REALITY_SPEC v1.1 §2/§4: front (正面) view. Used for the opening layout/order, the porch/pediment shape, sign lettering, and (combined with the 12ft-container-scale method) the front-width proportion reading.",
+      "temporal_coverage": "before",
+      "status": "acquired"
+    },
+    {
+      "id": "SRC_PHOTO_20220430",
+      "provider": "cafe-dragoon.net",
+      "dataset_name": "緑駅 訪問記",
+      "url": "https://cafe-dragoon.net",
+      "evidence_type": "secondary_photo",
+      "access_date": "2026-09-06",
+      "data_date": "2022-04-30",
+      "publication_date": null,
+      "license": "unverified",
+      "description": "MIDORI_STATION_REALITY_SPEC v1.1 §2: undated-relative-to-2010, used only as corroborating secondary_photo evidence for interior/exterior details that cannot be confirmed for 2010-05-30 specifically (waiting-room interior, held at confidence B ceiling per spec §7).",
+      "temporal_coverage": "current",
+      "status": "acquired"
+    },
+    {
+      "id": "SRC_GE_20040520",
+      "provider": "Google Earth",
+      "dataset_name": "過去の画像 (historical imagery layer)",
+      "url": null,
+      "document_title": "Google Earth historical imagery, 2004-05-20",
+      "evidence_type": "satellite_imagery",
+      "access_date": "2026-09-06",
+      "data_date": "2004-05-20",
+      "publication_date": null,
+      "license": "unverified",
+      "description": "MIDORI_STATION_REALITY_SPEC v1.1 §3: one of three time-bracketing satellite images (2004/2011/2012) used to confirm no building/road replacement occurred across that span. Lower resolution than the 2011/2012 images — the building south-east of the station could be confirmed present but not confirmed identical in shape at this date (recorded as position-only confidence B / shape confidence U). Read only, per Directive 08 §3 the underlying imagery is never taken into the repository as a texture/asset.",
+      "temporal_coverage": "before",
+      "status": "acquired"
+    },
+    {
+      "id": "SRC_GE_20110526",
+      "provider": "Google Earth",
+      "dataset_name": "過去の画像 (historical imagery layer, used for scale-bar measurement)",
+      "url": null,
+      "document_title": "Google Earth historical imagery, 2011-05-26",
+      "evidence_type": "satellite_imagery",
+      "access_date": "2026-09-06",
+      "data_date": "2011-05-26",
+      "publication_date": null,
+      "license": "unverified",
+      "description": "MIDORI_STATION_REALITY_SPEC v1.1 §3/§4.1: the imagery whose built-in 30m scale bar (1px=6.35cm) was used to measure the station building's plan dimensions. Read only, not imported as an asset.",
+      "temporal_coverage": "after",
+      "status": "acquired"
+    },
+    {
+      "id": "SRC_GE_20120630",
+      "provider": "Google Earth",
+      "dataset_name": "過去の画像 (historical imagery layer)",
+      "url": null,
+      "document_title": "Google Earth historical imagery, 2012-06-30",
+      "evidence_type": "satellite_imagery",
+      "access_date": "2026-09-06",
+      "data_date": "2012-06-30",
+      "publication_date": null,
+      "license": "unverified",
+      "description": "MIDORI_STATION_REALITY_SPEC v1.1 §3: third bracketing image confirming no building/road change across 2004-2012. Read only, not imported as an asset.",
+      "temporal_coverage": "after",
+      "status": "acquired"
+    },
+    {
+      "id": "SRC_GMAP_PHOTOS",
+      "provider": "Google Maps (user-submitted photos)",
+      "dataset_name": "緑駅 投稿写真 (multiple contributors, dates given only as \"N years ago\")",
+      "url": null,
+      "document_title": "Google Maps user photo submissions for 緑駅",
+      "evidence_type": "secondary_photo",
+      "access_date": "2026-09-06",
+      "data_date": "unknown (relative \"N年前\" labels only, roughly 2017-2024)",
+      "publication_date": null,
+      "license": "unverified",
+      "description": "MIDORI_STATION_REALITY_SPEC v1.1 §2: NOT usable as 2010 evidence — capture dates are unknown. Used only for the waiting-room interior (bench count/color, wall/floor/ceiling finishes), held at confidence B ceiling and never promoted to A, per spec §7.",
+      "temporal_coverage": "current",
+      "status": "acquired"
     }
   ]
 }

@@ -1,4 +1,5 @@
 import type { Confidence } from '../reality/Confidence';
+import type { EvidenceType } from '../reality/EvidenceType';
 import type { HistoricalStatus, RealityData, RealityFeatureType, RealityGeometry } from '../reality/RealityData';
 
 /**
@@ -14,6 +15,7 @@ interface RawGeoJSONFeature {
     confidence?: Confidence;
     source_ids?: string[];
     historical_status?: HistoricalStatus;
+    evidence_type?: EvidenceType;
   };
 }
 
@@ -37,7 +39,7 @@ export class GeoJSONLoader {
     idPrefix: string,
   ): RealityData[] {
     return raw.features.map((feature, index) => {
-      const { id, confidence, source_ids, historical_status, ...properties } = feature.properties;
+      const { id, confidence, source_ids, historical_status, evidence_type, ...properties } = feature.properties;
       return {
         id: id ?? `${idPrefix}_${index.toString().padStart(3, '0')}`,
         type: featureType,
@@ -46,6 +48,9 @@ export class GeoJSONLoader {
         confidence: confidence ?? 'U',
         source_ids: source_ids ?? [],
         historical_status: historical_status ?? 'unknown',
+        // Directive 08 §2.3: never defaulted — a feature with no evidence_type
+        // in its source data stays genuinely undefined, not silently guessed.
+        ...(evidence_type ? { evidence_type } : {}),
       } satisfies RealityData;
     });
   }

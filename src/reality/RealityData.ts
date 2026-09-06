@@ -1,4 +1,5 @@
 import type { Confidence } from './Confidence';
+import type { EvidenceType } from './EvidenceType';
 
 export type RealityGeometry =
   | { type: 'Point'; coordinates: [number, number] }
@@ -28,4 +29,11 @@ export interface RealityData<P extends Record<string, unknown> = Record<string, 
   confidence: Confidence;
   source_ids: string[];
   historical_status: HistoricalStatus;
+  /**
+   * Directive 08 / spec v1.1 §1: what kind of evidence this feature rests
+   * on, separate from `confidence`. Optional and NOT defaulted to a guess —
+   * a feature normalized without one is genuinely evidence_type-unknown
+   * (flagged by the validator as a warning, not silently assumed).
+   */
+  evidence_type?: EvidenceType;
 }

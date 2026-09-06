@@ -80,7 +80,8 @@ export class DebugMode {
       'reality data:',
       ...this.world.realityData.flatMap((d) => {
         const src = d.source_ids.map((id) => this.world.sources.get(id)?.provider ?? id).join(',');
-        const base = `  [${d.type}] ${d.id} conf=${d.confidence}(${CONFIDENCE_LABEL[d.confidence]}) hist=${d.historical_status} src=${src || 'none'}`;
+        const evidence = d.evidence_type ?? 'MISSING';
+        const base = `  [${d.type}] ${d.id} conf=${d.confidence}(${CONFIDENCE_LABEL[d.confidence]}) evidence=${evidence} hist=${d.historical_status} src=${src || 'none'}`;
         const recon = this.world.reconstruction.get(d.id);
         if (!recon) return [base];
         return [base, `      reason: ${recon.historical_reconstruction.reason}`];

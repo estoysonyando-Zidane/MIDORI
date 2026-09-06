@@ -1,3 +1,5 @@
+import type { EvidenceType } from './EvidenceType';
+
 /**
  * A record describing where a piece of Reality Data came from, matching
  * the shape stored in a World's evidence/sources.json (Directive 02 §22).
@@ -9,6 +11,8 @@ export interface SourceDescriptor {
   provider: string;
   dataset_name: string;
   url: string | null;
+  /** Directive 08 / spec v1.1 §1-2: what category of evidence this source is. */
+  evidence_type?: EvidenceType;
   /** Present for document-style sources that have no URL (Directive 02 §22). */
   document_title?: string;
   publisher?: string;
