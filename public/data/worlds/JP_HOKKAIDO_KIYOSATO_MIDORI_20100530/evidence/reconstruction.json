@@ -5,7 +5,11 @@
       "id": "LOC_MIDORI_STATION",
       "historical_reconstruction": {
         "target_date": "2010-05-30",
-        "evidence": ["SRC_MLIT_KSJ_N02_2008", "SRC_MLIT_KSJ_N02_2011", "SRC_WIKIDATA_Q8191033"],
+        "evidence": [
+          "SRC_MLIT_KSJ_N02_2008",
+          "SRC_MLIT_KSJ_N02_2011",
+          "SRC_WIKIDATA_Q8191033"
+        ],
         "confidence": "A",
         "reason": "Directive 04: upgraded from B to A. MLIT's official 国土数値情報 N02 railway dataset gives the station's point coordinate as (144.50575, 43.71802) — checked programmatically and found byte-identical between the 2008 edition (N02-08) and the 2011 edition (N02-11), which bracket the World's 2010-05-30 target date on both sides. Two independent official editions agreeing exactly, straddling the target date, is treated as Confirmed per Directive 02 §25 (temporal relevance, source authority, internal consistency all satisfied). The earlier Wikidata-derived point (~35m away, SRC_WIKIDATA_Q8191033) is consistent with this and kept as secondary corroboration, not as the primary coordinate."
       }
@@ -14,7 +18,10 @@
       "id": "RAIL_SENMO_KSJ_000",
       "historical_reconstruction": {
         "target_date": "2010-05-30",
-        "evidence": ["SRC_MLIT_KSJ_N02_2008", "SRC_MLIT_KSJ_N02_2011"],
+        "evidence": [
+          "SRC_MLIT_KSJ_N02_2008",
+          "SRC_MLIT_KSJ_N02_2011"
+        ],
         "confidence": "A",
         "reason": "Same bracketing logic as LOC_MIDORI_STATION: this RailroadSection's vertices are byte-identical between the N02-08 and N02-11 editions. Applies equally to RAIL_SENMO_KSJ_001 and RAIL_SENMO_KSJ_002, the other two clipped segments from the same comparison."
       }
@@ -23,7 +30,9 @@
       "id": "TERRAIN_DEM10B",
       "historical_reconstruction": {
         "target_date": "2010-05-30",
-        "evidence": ["SRC_GSI_DEM10B"],
+        "evidence": [
+          "SRC_GSI_DEM10B"
+        ],
         "confidence": "B",
         "reason": "Real GSI elevation data (DEM10B, 10m nationwide baseline — no finer DEM5A/5B/5C/1A LiDAR coverage exists for this rural tile, confirmed by direct 404s on all four). Not upgraded to A because the GSI documentation page reachable this session gives only a tile-SERVICE start date (2013-10-30), not the underlying survey date for this specific area, so it cannot be bracketed the way the railway data was. Terrain elevation changes slowly outside of active construction/erosion, so an undated-but-recent DEM is treated as a reasonable stand-in for 2010 (historical_status 'plausible'), not proof of the exact 2010-05-30 surface."
       }
@@ -32,7 +41,9 @@
       "id": "ROAD_KSJ_N13_BATCH",
       "historical_reconstruction": {
         "target_date": "2010-05-30",
-        "evidence": ["SRC_MLIT_KSJ_N13_2024"],
+        "evidence": [
+          "SRC_MLIT_KSJ_N13_2024"
+        ],
         "confidence": "B",
         "reason": "Applies to all 102 ROAD_KSJ_N13_* features. Real current-condition MLIT road centerlines (2024 edition — the only vintage available; no 2010-adjacent edition exists for this dataset, unlike N02). Per Directive 02 §14, current-condition geometry cannot itself confirm 2010 existence, so each feature carries historical_status 'current-only' and properties.existence_in_2010 = 'unknown' directly in reality/roads.geojson rather than a per-feature entry here — this record documents the batch-level reasoning once rather than 102 times."
       }
@@ -47,21 +58,96 @@
       }
     },
     {
-      "id": "EVENT_MIDORI_FESTIVAL_20100530",
-      "historical_reconstruction": {
-        "target_date": "2010-05-30",
-        "evidence": ["SRC_USER_DIRECTIVE_02", "SRC_KIYOSATO_TOWN_HISTORY"],
-        "confidence": "B",
-        "reason": "Directive 04 update: the town's own official history page independently confirms みどりのフェスティバル is a real, recurring event first held in 1989 (平成元年) — 21 years of institutional history by 2010, corroborating the operator's claim that this event exists (not fabricated). Still held at confidence B, not A: no source specific to 2010-05-30 was found (no announcement, program, or news archive for that exact date), so the exact date and that year's program elements (クマゲラ太鼓, 丸太転がし選手権, みどりのウォーキング) still trace only to the operator's own assertion. This remains a deliberate departure from the confidence 'A' shown in Directive 02's own example JSON."
-      }
-    },
-    {
       "id": "FACILITY_MIDORINOYU",
       "historical_reconstruction": {
         "target_date": "2010-05-30",
-        "evidence": ["SRC_KIYOSATO_TOWN_MIDORINOYU"],
+        "evidence": [
+          "SRC_KIYOSATO_TOWN_MIDORINOYU"
+        ],
         "confidence": "B",
         "reason": "The town's official page for 緑の湯 states it opened in 平成11年 (1999), 11 years before the target date, at an address (清里町緑町26番地) 3 minutes' walk from the station — existence by 2010-05-30 is treated as plausible given continuous operation is implied (the facility is still open today with no mention of an intervening closure). Confidence held at B rather than A because no source dated to 2010 itself was found. Geometry confidence is separately weak: no coordinate is published anywhere found this session, only a walking-distance description, so its Point is placed near the station with existence-confidence B but geometry_confidence C (position/direction not sourced) — see its properties in reality/poi.geojson."
+      }
+    },
+    {
+      "id": "TEMP_EVENT_MIDORI_FESTIVAL_20100530",
+      "historical_reconstruction": {
+        "target_date": "2010-05-30",
+        "evidence": [
+          "SRC_KANKOU_BLOG_20100607",
+          "SRC_KIYOSATO_TOWN_HISTORY"
+        ],
+        "confidence": "A",
+        "reason": "MIDORI_STATION_REALITY_SPEC v1.1 §10/§12 change 7: promoted from B to A after directly reaching the original blog post (posted 2010-06-07, 8 days after the event) and reading its text/date/venue/program/photos directly — a contemporary_record of the event itself, not a later or third-party account. The town's own history page (SRC_KIYOSATO_TOWN_HISTORY) separately corroborates that みどりのフェスティバル is a real recurring event first held in 1989. BOUNDARY (spec §10.3, enforced by validator §7.4): this A applies only to event_exists/event_date/event_location/event_activities. The venue's spatial layout (tent/stage/booth positions, attendance, vehicle placement, weather, schedule) is NOT covered by this evidence and remains Unknown — no 3D object was derived from the event's existence. This record replaces the earlier EVENT_MIDORI_FESTIVAL_20100530 entry (confidence B), whose reasoning is superseded, not merely appended to."
+      }
+    },
+    {
+      "id": "STR_MIDORI_STATION_BUILDING",
+      "historical_reconstruction": {
+        "target_date": "2010-05-30",
+        "evidence": [
+          "SRC_PHOTO_20090520",
+          "SRC_PHOTO_200907",
+          "SRC_GE_20040520",
+          "SRC_GE_20110526",
+          "SRC_GE_20120630"
+        ],
+        "confidence": "B",
+        "reason": "MIDORI_STATION_REALITY_SPEC v1.1 §3/§4.1: existence at the target date rests on three-point bracketing (2004/2011/2012 satellite imagery show the same building/road configuration, no rebuild traces, and Wikipedia's history section records no reconstruction since the 1931 opening) — confidence B, not A, since none of the three images is dated to 2010 itself. Plan dimensions were measured off the 2011 Google Earth image's built-in 30m scale bar (1px=6.35cm); the front-view photo's aspect ratio was independently cross-checked against a 12ft-class shipping container visible in another photo, whose exact model could not be identified (confidence U) but whose length/height ratio across all plausible 12ft-class models varies only 1-2% — within this measurement's error margin, so the scale-derived dimensions are treated as valid despite the container model being unconfirmed (spec §4.1). Roof shape (gable, triangular porch taller than the main ridge), wall/porch colors, and signage/mural are confidence A, directly read off the two contemporary photos. This feature's overall confidence is set to B (not the A of its best-supported sub-claims) because the geometry as a whole is only as strong as its weakest load-bearing input — the plan dimensions. Per-attribute confidence is recorded in reality/buildings.geojson:STR_MIDORI_STATION_BUILDING.properties.detail_confidence. Roof pitch/ridge height and this feature's absolute lat/lon placement are NOT given by the spec and are this session's own choices (confidence C) — placement is adjacent to the surveyed LOC_MIDORI_STATION point, oriented along RAIL_SENMO_KSJ_000's tangent direction at the station, offset to the side away from the tracks; ridge height is set only low enough to stay below the porch's spec-given 4.8m apex (AC04)."
+      }
+    },
+    {
+      "id": "STR_MIDORI_PLATFORM_LAYOUT",
+      "historical_reconstruction": {
+        "target_date": "2010-05-30",
+        "evidence": [
+          "SRC_PHOTO_20090520",
+          "SRC_WIKI_JA_MIDORI"
+        ],
+        "confidence": "C",
+        "reason": "Applies to both STR_MIDORI_PLATFORM_1 and STR_MIDORI_PLATFORM_2. Existence, staggered (千鳥) 2-platform configuration, and the level-crossing connection are confidence B (encyclopedia, single-source but internally consistent per the redefined B in spec v1.1 §1). Platform height (0.75-0.85m) is confidence C per spec v1.1 §12 change 4 — this was previously assumed at the JR low-floor-platform standard value (0.76m) but no source establishes that 緑駅 conforms to that standard, so the value is now recorded as a photo-based estimate, not a certified figure. Platform LENGTH has no source at all (spec §11: Unknown) — 20m was used as a drawing-convenience value with zero evidentiary basis, per Directive 08 §4.2's explicit instruction to document such values as confidence U rather than omit the platform or silently invent a 'real' number. Lateral spacing between the two platforms (i.e. the assumed double-track gap) is also this session's own placement: MLIT KSJ N02 records a single route centerline for 釧網線, not each physical rail, so no source establishes the actual track/platform spacing at this specific station."
+      }
+    },
+    {
+      "id": "STR_MIDORI_LEVEL_CROSSING",
+      "historical_reconstruction": {
+        "target_date": "2010-05-30",
+        "evidence": [
+          "SRC_PHOTO_20090520",
+          "SRC_WIKI_JA_MIDORI"
+        ],
+        "confidence": "B",
+        "reason": "Existence and board-crossing material (板張り) are confirmed by the 2009 platform photo and corroborated by the encyclopedia's mention of a 構内踏切 connecting the two platforms (spec §5/§6). This feature's exact footprint (position between the two platform polygons) is this session's own placement to connect STR_MIDORI_PLATFORM_1 and STR_MIDORI_PLATFORM_2, not a surveyed extent."
+      }
+    },
+    {
+      "id": "STR_MIDORI_RAIL_CONTAINER",
+      "historical_reconstruction": {
+        "target_date": "2010-05-30",
+        "evidence": [
+          "SRC_PHOTO_20090520"
+        ],
+        "confidence": "C",
+        "reason": "Directive 08 §4.3, following spec v1.1 §8 and its v1.0→v1.1 change (the earlier '12ft (3,660x2,500x2,450mm)' figure was removed as unsupported — multiple container models' dimensions had been blended with no basis). Color (green, rusted) and general presence are photo-confirmed (contemporary_photo); the container's specific form/model and exact dimensions are Unknown. Rendered as an approximate 12ft-class box exactly per the spec's own instruction, with this reconstruction record carrying the 'form unknown, appearance suggests 12ft-class' caveat rather than asserting it as fact in the geometry properties."
+      }
+    },
+    {
+      "id": "STR_MIDORI_PLAZA_PAVEMENT",
+      "historical_reconstruction": {
+        "target_date": "2010-05-30",
+        "evidence": [
+          "SRC_PHOTO_20090520"
+        ],
+        "confidence": "C",
+        "reason": "That the station forecourt pavement is painted green is confidence A per the spec (contemporary_photo, §8). This polygon's boundary/extent, however, is not given by the spec (no dimensions or surveyed shape for the plaza forecourt exist in any acquired source) — it is this session's own placement convenience in front of the station building. The feature's overall confidence is held at C to reflect that the shape being rendered, not just the fact of green paint somewhere in the plaza, is unsourced."
+      }
+    },
+    {
+      "id": "UNRESOLVED_ROAD_NAMING_DIRECTIVE_08",
+      "historical_reconstruction": {
+        "target_date": "2010-05-30",
+        "evidence": [],
+        "confidence": "U",
+        "reason": "MIDORI_STATION_REALITY_SPEC v1.1 §9/§12 change 2 warns against conflating the station's own access road with 北海道道1115号 摩周湖斜里線 as though they were the same object. This repository's reality/roads.geojson (102 MLIT KSJ N13 segments, Directive 04) never actually made that conflation — none of the 102 segments carries a route name or any identifying attribute distinguishing '駅前アクセス道路' from '道道1115号' in the first place, since the N13 dataset does not include a route-name field for this mesh. This session could not determine, from any acquired source, which specific segment(s) correspond to which named road, so no segment was retroactively labeled either way. This is recorded as an open question rather than a guess — see the session report's '仕様書への疑問・矛盾の指摘' section."
       }
     }
   ],

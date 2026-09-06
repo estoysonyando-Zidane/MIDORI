@@ -33,10 +33,22 @@ if (!worldDir) {
 
 const CONFIDENCES = new Set(['A', 'B', 'C', 'U']);
 const HISTORICAL_STATUSES = new Set(['confirmed', 'plausible', 'unknown', 'current-only']);
+const EVIDENCE_TYPES = new Set([
+  'contemporary_record', 'contemporary_photo', 'official_record', 'public_gis',
+  'encyclopedia', 'satellite_imagery', 'secondary_photo', 'inference',
+]);
+// Directive 08 §7.1: these evidence types alone can never justify confidence A.
+const WEAK_EVIDENCE_FOR_A = new Set(['encyclopedia', 'secondary_photo', 'inference']);
+// Directive 08 §7.2: ids from this prefix set are "spec-derived" and must
+// always carry source_ids, regardless of confidence (unlike the generic
+// A/B-only rule below, which predates this directive).
+const SPEC_DERIVED_PREFIXES = ['STR_MIDORI_', 'TEMP_EVENT_'];
 
 const errors = [];
 const warnings = [];
 const emptySourceIds = []; // Directive 05 Task 4: tallied separately from `warnings`
+const evidenceTypeMissing = []; // Directive 08 §7.3: tallied separately, warning only
+let eventSpatialLeakCount = 0; // Directive 08 §7.4
 function err(msg) { errors.push(msg); }
 function warn(msg) { warnings.push(msg); }
 
@@ -77,6 +89,7 @@ function loadCollection(relPath, type) {
       confidence: p.confidence ?? 'U',
       source_ids: p.source_ids ?? [],
       historical_status: p.historical_status ?? 'unknown',
+      evidence_type: p.evidence_type, // intentionally left undefined if absent — see §7.3
     };
   });
 }
@@ -147,15 +160,33 @@ for (const f of allFeatures) {
   if (!HISTORICAL_STATUSES.has(f.historical_status)) {
     err(`${f.type}/${f.id}: invalid historical_status "${f.historical_status}"`);
   }
-  if (!Array.isArray(f.source_ids) || f.source_ids.length === 0) {
+  const hasSourceIds = Array.isArray(f.source_ids) && f.source_ids.length > 0;
+  const isSpecDerived = SPEC_DERIVED_PREFIXES.some((prefix) => f.id.startsWith(prefix));
+  if (!hasSourceIds) {
     if (f.confidence === 'A' || f.confidence === 'B') {
       err(`${f.type}/${f.id}: confidence ${f.confidence} but no source_ids — A/B must be traceable to a source`);
+    } else if (isSpecDerived) {
+      // Directive 08 §7.2: spec-derived objects need source_ids at every
+      // confidence level, not just A/B — even a C/U inference should cite
+      // what it was inferred from.
+      err(`${f.type}/${f.id}: spec-derived object (MIDORI_STATION_REALITY_SPEC) but no source_ids`);
     } else {
       emptySourceIds.push(`${f.type}/${f.id}: no source_ids (confidence ${f.confidence})`);
     }
   }
   if (f.confidence === 'A' && f.historical_status === 'unknown') {
     warn(`${f.type}/${f.id}: confidence A (Confirmed) but historical_status unknown — double check this is intentional`);
+  }
+
+  // ---- Directive 08 §7.1: evidence_type/confidence consistency ----
+  if (f.evidence_type !== undefined && !EVIDENCE_TYPES.has(f.evidence_type)) {
+    err(`${f.type}/${f.id}: invalid evidence_type "${f.evidence_type}"`);
+  } else if (f.confidence === 'A' && f.evidence_type && WEAK_EVIDENCE_FOR_A.has(f.evidence_type)) {
+    err(`${f.type}/${f.id}: confidence A but evidence_type "${f.evidence_type}" cannot by itself justify Confirmed`);
+  }
+  // ---- Directive 08 §7.3: evidence_type missing (warning only) ----
+  if (f.evidence_type === undefined) {
+    evidenceTypeMissing.push(`${f.type}/${f.id}: evidence_type not set`);
   }
 
   // World bounds check (with buffer for linear continuity features)
@@ -169,6 +200,38 @@ for (const f of allFeatures) {
         break;
       }
     }
+  }
+}
+
+// ---- Directive 08 §7.4: TEMP_EVENT_* must not carry spatial child objects ----
+// (i.e. "activities" may list strings, but nothing under a TEMP_EVENT_* id's
+// properties may itself be a spatial object — an array element or nested
+// value carrying a `geometry` key would mean a tent/stage/vehicle was
+// derived from the event's mere existence, which spec §10.3 forbids.)
+function containsGeometryLeak(value) {
+  if (Array.isArray(value)) return value.some(containsGeometryLeak);
+  if (value && typeof value === 'object') {
+    if ('geometry' in value) return true;
+    return Object.values(value).some(containsGeometryLeak);
+  }
+  return false;
+}
+for (const f of allFeatures.filter((f) => f.id.startsWith('TEMP_EVENT_'))) {
+  for (const [key, value] of Object.entries(f.properties)) {
+    if (key === 'activities') continue; // plain string list, not spatial
+    if (containsGeometryLeak(value)) {
+      err(`event/${f.id}: property "${key}" appears to carry a spatial child object — events must not derive space from existence (spec §10.3)`);
+      eventSpatialLeakCount++;
+    }
+  }
+}
+
+// ---- Directive 08 AC01: SRC_GSI_AERIAL_20051007 must never be registered ----
+const sourcesPath = join(worldDir, config.evidence?.sources ?? '');
+if (config.evidence?.sources && existsSync(sourcesPath)) {
+  const registry = readJSON(sourcesPath);
+  if ((registry.sources ?? []).some((s) => s.id === 'SRC_GSI_AERIAL_20051007')) {
+    err('evidence/sources.json: SRC_GSI_AERIAL_20051007 is registered but spec §2 explicitly excludes it from use as evidence');
   }
 }
 
@@ -224,9 +287,15 @@ if (emptySourceIds.length) {
   console.log(`\nEMPTY SOURCE_IDS (${emptySourceIds.length}) — tracked separately, does not fail the run:`);
   for (const w of emptySourceIds) console.log(`  ○ ${w}`);
 }
-if (!errors.length && !warnings.length && !emptySourceIds.length) {
+if (evidenceTypeMissing.length) {
+  console.log(`\nEVIDENCE_TYPE MISSING (${evidenceTypeMissing.length}) — Directive 08 §7.3, warning only:`);
+  for (const w of evidenceTypeMissing) console.log(`  ○ ${w}`);
+}
+if (!errors.length && !warnings.length && !emptySourceIds.length && !evidenceTypeMissing.length) {
   console.log('No issues found.');
 }
 
-console.log(`\n${errors.length === 0 ? 'PASS' : 'FAIL'} (${errors.length} errors, ${warnings.length} warnings, ${emptySourceIds.length} empty-source_ids)`);
+console.log(`\nDirective 08 §7 checks: 7.1 evidence_type/confidence consistency — ${errors.filter((e) => e.includes('cannot by itself justify')).length} violation(s); 7.2 spec-derived source_ids — ${errors.filter((e) => e.includes('spec-derived object')).length} violation(s); 7.3 evidence_type missing — ${evidenceTypeMissing.length} flagged (warning); 7.4 event spatial leak — ${eventSpatialLeakCount} violation(s)`);
+
+console.log(`\n${errors.length === 0 ? 'PASS' : 'FAIL'} (${errors.length} errors, ${warnings.length} warnings, ${emptySourceIds.length} empty-source_ids, ${evidenceTypeMissing.length} evidence_type-missing)`);
 process.exit(errors.length === 0 ? 0 : 1);
