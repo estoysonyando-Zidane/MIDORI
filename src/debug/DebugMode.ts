@@ -12,6 +12,8 @@ export class DebugMode {
   private visible = false;
   private readonly overlay: HTMLElement;
   private readonly world: World;
+  /** Directive 09 §8: set once the Spatial Index has loaded, purely informational. */
+  private spatialIndexSummary: string | null = null;
   private readonly onKeyDown = (e: KeyboardEvent) => {
     if (e.code === 'F1') {
       e.preventDefault();
@@ -60,6 +62,10 @@ export class DebugMode {
     document.addEventListener('keydown', this.onKeyDown);
   }
 
+  setSpatialIndexSummary(text: string): void {
+    this.spatialIndexSummary = text;
+  }
+
   /** Also callable from a touch-only on-screen button (Directive 06 §3) — F1 has no touch equivalent. */
   toggle(): void {
     this.visible = !this.visible;
@@ -76,6 +82,7 @@ export class DebugMode {
       `origin: ${this.world.tangentPlane.origin.map((v) => v.toFixed(6)).join(', ')}`,
       `player local: (${playerPos.x.toFixed(1)}, ${playerPos.y.toFixed(1)}, ${playerPos.z.toFixed(1)})`,
       `player latlon: (${lat.toFixed(6)}, ${lon.toFixed(6)})`,
+      `spatial_index: ${this.spatialIndexSummary ?? 'not loaded'}`,
       '',
       'reality data:',
       ...this.world.realityData.flatMap((d) => {

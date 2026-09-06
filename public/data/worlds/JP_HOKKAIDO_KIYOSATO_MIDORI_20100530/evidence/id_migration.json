@@ -1,0 +1,33 @@
+{
+  "migration_status": "coexisting",
+  "note": "Directive 09 §3.4: the legacy World ID stays in use as-is; nothing under public/data/worlds/JP_HOKKAIDO_KIYOSATO_MIDORI_20100530/ was rewritten. This file only records the mapping between the old, date-baked ID scheme and the new, time-independent Place Path / Entity ID scheme, for future migration tooling to use.",
+  "world_mapping": {
+    "legacy_world_id": "JP_HOKKAIDO_KIYOSATO_MIDORI_20100530",
+    "place_path": "JP.01.546.MIDORI",
+    "date": "2010-05-30"
+  },
+  "entity_mapping": [
+    { "legacy_id": "LOC_MIDORI_STATION", "legacy_type": "poi", "entity_id": "JP.01.546.MIDORI/STATION" },
+    { "legacy_id": "RAIL_SENMO_KSJ_000", "legacy_type": "railway", "entity_id": "JP.01.546.MIDORI/RAIL_SENMO", "note": "merged with 001/002 into one Index-level entity" },
+    { "legacy_id": "RAIL_SENMO_KSJ_001", "legacy_type": "railway", "entity_id": "JP.01.546.MIDORI/RAIL_SENMO", "note": "merged with 000/002 into one Index-level entity" },
+    { "legacy_id": "RAIL_SENMO_KSJ_002", "legacy_type": "railway", "entity_id": "JP.01.546.MIDORI/RAIL_SENMO", "note": "merged with 000/001 into one Index-level entity" },
+    { "legacy_id": "ROAD_KSJ_N13_NNNN (x102)", "legacy_type": "road", "entity_id": "JP.01.546.MIDORI/ROAD_KSJ_N13_NNNN", "note": "1:1, id suffix preserved, name left null (no route-name field in source data)" },
+    { "legacy_id": "LOC_MIDORI_STATION_PLAZA", "legacy_type": "poi", "entity_id": "JP.01.546.MIDORI/STATION_PLAZA" },
+    { "legacy_id": "FACILITY_MIDORINOYU", "legacy_type": "poi", "entity_id": "JP.01.546.MIDORI/MIDORINOYU" },
+    { "legacy_id": "STR_MIDORI_STATION_BUILDING", "legacy_type": "building", "entity_id": "JP.01.546.MIDORI/STATION_BUILDING" },
+    { "legacy_id": "STR_MIDORI_PLATFORM_1", "legacy_type": "building", "entity_id": "JP.01.546.MIDORI/PLATFORM_1" },
+    { "legacy_id": "STR_MIDORI_PLATFORM_2", "legacy_type": "building", "entity_id": "JP.01.546.MIDORI/PLATFORM_2" },
+    { "legacy_id": "STR_MIDORI_LEVEL_CROSSING", "legacy_type": "building", "entity_id": null, "note": "not yet registered as its own Index entity (small sub-feature of the station core, folded into STATION_BUILDING's detail_ref area); no Index entity created this pass" },
+    { "legacy_id": "STR_MIDORI_RAIL_CONTAINER", "legacy_type": "building", "entity_id": null, "note": "same as above — not registered as its own Index entity this pass" },
+    { "legacy_id": "STR_MIDORI_PLAZA_PAVEMENT", "legacy_type": "building", "entity_id": "JP.01.546.MIDORI/STATION_PLAZA", "note": "detail_ref target of STATION_PLAZA" },
+    { "legacy_id": "BLDG_SYNTH_001", "legacy_type": "building", "entity_id": null, "note": "Directive 01 synthetic placeholder (confidence U) — deliberately NOT migrated into the Index; JP.01.546.MIDORI/BUILDINGS_SOUTH is a separate, real-evidence (satellite_imagery) stub entity covering the same general area, not a wrapper around this placeholder" },
+    { "legacy_id": "BLDG_SYNTH_002", "legacy_type": "building", "entity_id": null, "note": "same as BLDG_SYNTH_001" },
+    { "legacy_id": "EVENT_MIDORI_FESTIVAL_20100530 / TEMP_EVENT_MIDORI_FESTIVAL_20100530", "legacy_type": "event", "entity_id": null, "note": "events are not spatial entities per Directive 09's design (§2.1: identity+position+frontier only) and are out of scope for this Index pass; no Index entity created" }
+  ],
+  "new_entities_no_legacy_equivalent": [
+    "JP.01.546.MIDORI/ROAD_STATION_ACCESS",
+    "JP.01.546.MIDORI/PREF_ROAD_1115",
+    "JP.01.546.MIDORI/FOREST_WEST",
+    "JP.01.546.MIDORI/BUILDINGS_SOUTH"
+  ]
+}

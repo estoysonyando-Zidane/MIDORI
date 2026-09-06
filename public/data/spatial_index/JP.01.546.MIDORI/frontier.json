@@ -1,0 +1,71 @@
+{
+  "place_path": "JP.01.546.MIDORI",
+  "defined_extent": {
+    "type": "Polygon",
+    "coordinates": [[
+      [144.5030, 43.7145], [144.5090, 43.7145],
+      [144.5090, 43.7205], [144.5030, 43.7205],
+      [144.5030, 43.7145]
+    ]]
+  },
+  "areas": [
+    {
+      "id": "MIDORI_STATION_CORE",
+      "status": "defined",
+      "extent": {
+        "type": "Polygon",
+        "coordinates": [[
+          [144.5030, 43.7145], [144.5090, 43.7145],
+          [144.5090, 43.7205], [144.5030, 43.7205],
+          [144.5030, 43.7145]
+        ]]
+      },
+      "note": "駅舎・ホーム・構内(構内踏切・コンテナ・広場舗装含む)。Reality Data あり（Directive 08）。"
+    },
+    {
+      "id": "MIDORI_SETTLEMENT",
+      "status": "stub",
+      "extent": {
+        "type": "Polygon",
+        "coordinates": [[
+          [144.50376134, 43.71712168], [144.50525283, 43.71712168],
+          [144.50525283, 43.71784034], [144.50376134, 43.71784034],
+          [144.50376134, 43.71712168]
+        ]]
+      },
+      "note": "駅南側の建物群。位置は衛星画像で確認済み。個別建物の詳細未作成。"
+    },
+    {
+      "id": "MIDORI_FOREST_WEST",
+      "status": "stub",
+      "extent": {
+        "type": "Polygon",
+        "coordinates": [[
+          [144.49456378, 43.71442674], [144.50202126, 43.71442674],
+          [144.50202126, 43.72251158], [144.49456378, 43.72251158],
+          [144.49456378, 43.71442674]
+        ]]
+      },
+      "note": "線路西側の森林。存在は衛星画像で確認済み。植生の詳細未作成。"
+    },
+    {
+      "id": "MIDORI_ROAD_NETWORK",
+      "status": "defined",
+      "extent": {},
+      "note": "MLIT KSJ N13の102区間はIndexに登録済み(current-only, B)。ただし路線名(駅前アクセス道路/道道1115号)は未特定 — 区間そのものはdefinedだが、名称の同定はstub 2件(ROAD_STATION_ACCESS, PREF_ROAD_1115)として別管理。"
+    },
+    {
+      "id": "MIDORI_MIDORINOYU",
+      "status": "stub",
+      "extent": {},
+      "note": "緑の湯。存在・おおよその位置は公式サイト記載から確認済み。方向未確定、3D詳細未作成。"
+    }
+  ],
+  "next_recommended": [
+    "MIDORI_SETTLEMENT: 駅南側建物群の個別建物footprint化(衛星画像からの外形抽出)",
+    "MIDORI_ROAD_NETWORK: 駅前アクセス道路・道道1115号の実際の同定資料の入手(現地資料・道路台帳等)",
+    "MIDORI_MIDORINOYU: 緑の湯の実座標・外観資料の入手",
+    "JP.01.546 (清里町全域) への Place Path 拡張 — 緑町以外の地区のSpatial Index新設",
+    "MIDORI_FOREST_WEST: 植生の詳細化(樹種構成、Reality Data化)"
+  ]
+}
