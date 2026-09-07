@@ -3995,7 +3995,7 @@
       },
       "properties": {
         "id": "BLDG_GSI_hvm43k",
-        "name": null,
+        "name": "斜里警察署緑駐在所",
         "structure_type": "town_building",
         "gsi_ft_code": 3101,
         "area_m2": 134,
@@ -4016,7 +4016,8 @@
           "roof_colour": "C (inference — 写真003の色をIDのハッシュで割当)",
           "roof_shape": "C (inference)"
         },
-        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。"
+        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。",
+        "gsi_label_applied": true
       }
     },
     {
@@ -6174,7 +6175,7 @@
       },
       "properties": {
         "id": "BLDG_GSI_19alt8i",
-        "name": null,
+        "name": "緑郵便局",
         "structure_type": "town_building",
         "gsi_ft_code": 3101,
         "area_m2": 166,
@@ -6195,7 +6196,8 @@
           "roof_colour": "C (inference — 写真003の色をIDのハッシュで割当)",
           "roof_shape": "C (inference)"
         },
-        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。"
+        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。",
+        "gsi_label_applied": true
       }
     },
     {
