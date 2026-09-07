@@ -11489,15 +11489,16 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          144.50639543353464,
-          43.71778140501203
+          144.5063763308847,
+          43.717774867665746
         ]
       },
       "properties": {
         "id": "STR_MIDORI_TAIKO_1",
         "name": "クマゲラ太鼓 長胴太鼓",
         "structure_type": "taiko",
-        "head_diameter_m": 0.6,
+        "bore_diameter_m": 0.5,
+        "shell_length_m": 0.92,
         "facing_bearing_deg": 334.7,
         "confidence": "C",
         "evidence_type": "user_survey",
@@ -11506,14 +11507,49 @@
         "position_accuracy_m": 6,
         "source_ids": [
           "SRC_USER_TESTIMONY_2026",
-          "SRC_KIYOSATO_KANKOU_EVENTS"
+          "SRC_KIYOSATO_KANKOU_EVENTS",
+          "SRC_KUMAGERA_PHOTO"
         ],
         "detail_confidence": {
           "played_here": "C (user_survey — 「舞台の前でクマゲラ太鼓も演奏した」当事者証言。2010-05-30は5月最終日曜日で、きよさと観光協会のいう みどりのフェスティバル の日にあたる)",
-          "count_and_arrangement": "C (inference — 台数も並びも証言に含まれない。長胴太鼓を斜め台に据えた横一列とした)",
-          "appearance": "C (inference — クマゲラ太鼓の公開記録はこのセッションからは一件も見つからなかった。写真も町のページもない。形状は長胴太鼓の一般形)"
+          "count_and_arrangement": "B (contemporary_photo — 演奏中の写真に横一列で6台前後が写る。列が写真の外まで続いていた可能性はある。舞台からの距離と間隔は写真からは測れない)",
+          "appearance": "B (contemporary_photo — 刳り抜いた丸太の胴を横に寝かせ、客側は胴の内側が見える開口、皮は反対側。朱塗りのX字台、台の正面に「クマゲラ太鼓」の白い幟。寸法は写真からの目測)"
         },
-        "note": "scripts/place-taiko.mjs。舞台の正面 3.2 m 前、1.7 m 間隔で 4 台。位置の根拠は舞台（国土地理院の実測外形）とその向きで、太鼓そのものは証言による。"
+        "note": "scripts/place-taiko.mjs。舞台の正面 3.2 m 前、1.7 m 間隔で 6 台。位置の根拠は舞台（国土地理院の実測外形）とその向き。太鼓と台と幟の形は演奏中の写真(SRC_KUMAGERA_PHOTO)から。舞台からの距離と間隔は写真からは測れないので推定のまま。"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.50639543353464,
+          43.71778140501203
+        ]
+      },
+      "properties": {
+        "id": "STR_MIDORI_TAIKO_2",
+        "name": "クマゲラ太鼓 長胴太鼓",
+        "structure_type": "taiko",
+        "bore_diameter_m": 0.5,
+        "shell_length_m": 0.92,
+        "facing_bearing_deg": 334.7,
+        "confidence": "C",
+        "evidence_type": "user_survey",
+        "historical_status": "plausible",
+        "position_status": "approximate",
+        "position_accuracy_m": 6,
+        "source_ids": [
+          "SRC_USER_TESTIMONY_2026",
+          "SRC_KIYOSATO_KANKOU_EVENTS",
+          "SRC_KUMAGERA_PHOTO"
+        ],
+        "detail_confidence": {
+          "played_here": "C (user_survey — 「舞台の前でクマゲラ太鼓も演奏した」当事者証言。2010-05-30は5月最終日曜日で、きよさと観光協会のいう みどりのフェスティバル の日にあたる)",
+          "count_and_arrangement": "B (contemporary_photo — 演奏中の写真に横一列で6台前後が写る。列が写真の外まで続いていた可能性はある。舞台からの距離と間隔は写真からは測れない)",
+          "appearance": "B (contemporary_photo — 刳り抜いた丸太の胴を横に寝かせ、客側は胴の内側が見える開口、皮は反対側。朱塗りのX字台、台の正面に「クマゲラ太鼓」の白い幟。寸法は写真からの目測)"
+        },
+        "note": "scripts/place-taiko.mjs。舞台の正面 3.2 m 前、1.7 m 間隔で 6 台。位置の根拠は舞台（国土地理院の実測外形）とその向き。太鼓と台と幟の形は演奏中の写真(SRC_KUMAGERA_PHOTO)から。舞台からの距離と間隔は写真からは測れないので推定のまま。"
       }
     },
     {
@@ -11526,10 +11562,11 @@
         ]
       },
       "properties": {
-        "id": "STR_MIDORI_TAIKO_2",
+        "id": "STR_MIDORI_TAIKO_3",
         "name": "クマゲラ太鼓 長胴太鼓",
         "structure_type": "taiko",
-        "head_diameter_m": 0.6,
+        "bore_diameter_m": 0.5,
+        "shell_length_m": 0.92,
         "facing_bearing_deg": 334.7,
         "confidence": "C",
         "evidence_type": "user_survey",
@@ -11538,14 +11575,15 @@
         "position_accuracy_m": 6,
         "source_ids": [
           "SRC_USER_TESTIMONY_2026",
-          "SRC_KIYOSATO_KANKOU_EVENTS"
+          "SRC_KIYOSATO_KANKOU_EVENTS",
+          "SRC_KUMAGERA_PHOTO"
         ],
         "detail_confidence": {
           "played_here": "C (user_survey — 「舞台の前でクマゲラ太鼓も演奏した」当事者証言。2010-05-30は5月最終日曜日で、きよさと観光協会のいう みどりのフェスティバル の日にあたる)",
-          "count_and_arrangement": "C (inference — 台数も並びも証言に含まれない。長胴太鼓を斜め台に据えた横一列とした)",
-          "appearance": "C (inference — クマゲラ太鼓の公開記録はこのセッションからは一件も見つからなかった。写真も町のページもない。形状は長胴太鼓の一般形)"
+          "count_and_arrangement": "B (contemporary_photo — 演奏中の写真に横一列で6台前後が写る。列が写真の外まで続いていた可能性はある。舞台からの距離と間隔は写真からは測れない)",
+          "appearance": "B (contemporary_photo — 刳り抜いた丸太の胴を横に寝かせ、客側は胴の内側が見える開口、皮は反対側。朱塗りのX字台、台の正面に「クマゲラ太鼓」の白い幟。寸法は写真からの目測)"
         },
-        "note": "scripts/place-taiko.mjs。舞台の正面 3.2 m 前、1.7 m 間隔で 4 台。位置の根拠は舞台（国土地理院の実測外形）とその向きで、太鼓そのものは証言による。"
+        "note": "scripts/place-taiko.mjs。舞台の正面 3.2 m 前、1.7 m 間隔で 6 台。位置の根拠は舞台（国土地理院の実測外形）とその向き。太鼓と台と幟の形は演奏中の写真(SRC_KUMAGERA_PHOTO)から。舞台からの距離と間隔は写真からは測れないので推定のまま。"
       }
     },
     {
@@ -11558,10 +11596,11 @@
         ]
       },
       "properties": {
-        "id": "STR_MIDORI_TAIKO_3",
+        "id": "STR_MIDORI_TAIKO_4",
         "name": "クマゲラ太鼓 長胴太鼓",
         "structure_type": "taiko",
-        "head_diameter_m": 0.6,
+        "bore_diameter_m": 0.5,
+        "shell_length_m": 0.92,
         "facing_bearing_deg": 334.7,
         "confidence": "C",
         "evidence_type": "user_survey",
@@ -11570,14 +11609,15 @@
         "position_accuracy_m": 6,
         "source_ids": [
           "SRC_USER_TESTIMONY_2026",
-          "SRC_KIYOSATO_KANKOU_EVENTS"
+          "SRC_KIYOSATO_KANKOU_EVENTS",
+          "SRC_KUMAGERA_PHOTO"
         ],
         "detail_confidence": {
           "played_here": "C (user_survey — 「舞台の前でクマゲラ太鼓も演奏した」当事者証言。2010-05-30は5月最終日曜日で、きよさと観光協会のいう みどりのフェスティバル の日にあたる)",
-          "count_and_arrangement": "C (inference — 台数も並びも証言に含まれない。長胴太鼓を斜め台に据えた横一列とした)",
-          "appearance": "C (inference — クマゲラ太鼓の公開記録はこのセッションからは一件も見つからなかった。写真も町のページもない。形状は長胴太鼓の一般形)"
+          "count_and_arrangement": "B (contemporary_photo — 演奏中の写真に横一列で6台前後が写る。列が写真の外まで続いていた可能性はある。舞台からの距離と間隔は写真からは測れない)",
+          "appearance": "B (contemporary_photo — 刳り抜いた丸太の胴を横に寝かせ、客側は胴の内側が見える開口、皮は反対側。朱塗りのX字台、台の正面に「クマゲラ太鼓」の白い幟。寸法は写真からの目測)"
         },
-        "note": "scripts/place-taiko.mjs。舞台の正面 3.2 m 前、1.7 m 間隔で 4 台。位置の根拠は舞台（国土地理院の実測外形）とその向きで、太鼓そのものは証言による。"
+        "note": "scripts/place-taiko.mjs。舞台の正面 3.2 m 前、1.7 m 間隔で 6 台。位置の根拠は舞台（国土地理院の実測外形）とその向き。太鼓と台と幟の形は演奏中の写真(SRC_KUMAGERA_PHOTO)から。舞台からの距離と間隔は写真からは測れないので推定のまま。"
       }
     },
     {
@@ -11590,10 +11630,11 @@
         ]
       },
       "properties": {
-        "id": "STR_MIDORI_TAIKO_4",
+        "id": "STR_MIDORI_TAIKO_5",
         "name": "クマゲラ太鼓 長胴太鼓",
         "structure_type": "taiko",
-        "head_diameter_m": 0.6,
+        "bore_diameter_m": 0.5,
+        "shell_length_m": 0.92,
         "facing_bearing_deg": 334.7,
         "confidence": "C",
         "evidence_type": "user_survey",
@@ -11602,14 +11643,49 @@
         "position_accuracy_m": 6,
         "source_ids": [
           "SRC_USER_TESTIMONY_2026",
-          "SRC_KIYOSATO_KANKOU_EVENTS"
+          "SRC_KIYOSATO_KANKOU_EVENTS",
+          "SRC_KUMAGERA_PHOTO"
         ],
         "detail_confidence": {
           "played_here": "C (user_survey — 「舞台の前でクマゲラ太鼓も演奏した」当事者証言。2010-05-30は5月最終日曜日で、きよさと観光協会のいう みどりのフェスティバル の日にあたる)",
-          "count_and_arrangement": "C (inference — 台数も並びも証言に含まれない。長胴太鼓を斜め台に据えた横一列とした)",
-          "appearance": "C (inference — クマゲラ太鼓の公開記録はこのセッションからは一件も見つからなかった。写真も町のページもない。形状は長胴太鼓の一般形)"
+          "count_and_arrangement": "B (contemporary_photo — 演奏中の写真に横一列で6台前後が写る。列が写真の外まで続いていた可能性はある。舞台からの距離と間隔は写真からは測れない)",
+          "appearance": "B (contemporary_photo — 刳り抜いた丸太の胴を横に寝かせ、客側は胴の内側が見える開口、皮は反対側。朱塗りのX字台、台の正面に「クマゲラ太鼓」の白い幟。寸法は写真からの目測)"
         },
-        "note": "scripts/place-taiko.mjs。舞台の正面 3.2 m 前、1.7 m 間隔で 4 台。位置の根拠は舞台（国土地理院の実測外形）とその向きで、太鼓そのものは証言による。"
+        "note": "scripts/place-taiko.mjs。舞台の正面 3.2 m 前、1.7 m 間隔で 6 台。位置の根拠は舞台（国土地理院の実測外形）とその向き。太鼓と台と幟の形は演奏中の写真(SRC_KUMAGERA_PHOTO)から。舞台からの距離と間隔は写真からは測れないので推定のまま。"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.5064718441343,
+          43.71780755439719
+        ]
+      },
+      "properties": {
+        "id": "STR_MIDORI_TAIKO_6",
+        "name": "クマゲラ太鼓 長胴太鼓",
+        "structure_type": "taiko",
+        "bore_diameter_m": 0.5,
+        "shell_length_m": 0.92,
+        "facing_bearing_deg": 334.7,
+        "confidence": "C",
+        "evidence_type": "user_survey",
+        "historical_status": "plausible",
+        "position_status": "approximate",
+        "position_accuracy_m": 6,
+        "source_ids": [
+          "SRC_USER_TESTIMONY_2026",
+          "SRC_KIYOSATO_KANKOU_EVENTS",
+          "SRC_KUMAGERA_PHOTO"
+        ],
+        "detail_confidence": {
+          "played_here": "C (user_survey — 「舞台の前でクマゲラ太鼓も演奏した」当事者証言。2010-05-30は5月最終日曜日で、きよさと観光協会のいう みどりのフェスティバル の日にあたる)",
+          "count_and_arrangement": "B (contemporary_photo — 演奏中の写真に横一列で6台前後が写る。列が写真の外まで続いていた可能性はある。舞台からの距離と間隔は写真からは測れない)",
+          "appearance": "B (contemporary_photo — 刳り抜いた丸太の胴を横に寝かせ、客側は胴の内側が見える開口、皮は反対側。朱塗りのX字台、台の正面に「クマゲラ太鼓」の白い幟。寸法は写真からの目測)"
+        },
+        "note": "scripts/place-taiko.mjs。舞台の正面 3.2 m 前、1.7 m 間隔で 6 台。位置の根拠は舞台（国土地理院の実測外形）とその向き。太鼓と台と幟の形は演奏中の写真(SRC_KUMAGERA_PHOTO)から。舞台からの距離と間隔は写真からは測れないので推定のまま。"
       }
     }
   ]
