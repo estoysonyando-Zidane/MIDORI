@@ -80,8 +80,21 @@ const PLATFORM_WIDTH_M = 3.5;
  *  which was simply wrong about the code beneath it. 緑 was a 一般駅 working freight until
  *  1982 with locomotive-hauled trains, so its platform is a long one — 60 m
  *  was short enough that the operator noticed it from inside the World. */
-const PLATFORM_LONG_LEG_M = 90;
-const PLATFORM_SHORT_LEG_M = 30;
+const PLATFORM_LONG_LEG_M = 116;
+/**
+ * How far the platform runs past the station building on the short side.
+ *
+ * Street View at 緑駅 (SRC_GSV_MIDORI) settles this: the 構内踏切 is
+ * immediately beside the station building, reached down a steel ramp off
+ * the platform's end. The platform stops there. It used to run 30 m past
+ * the building before ending, which put the crossing 33 m away from the
+ * door — you came out of the station and walked half a train length to
+ * reach the other platform.
+ *
+ * The 120 m total is unchanged and still unmeasured; what the photographs
+ * fix is where the building sits along it, not how long it is.
+ */
+const PLATFORM_SHORT_LEG_M = 4;
 
 /** Second track. Wikipedia 緑駅 §駅構造: 相対式ホーム2面2線 — two opposed
  *  platforms on two tracks, platform 2 reached by the 構内踏切.
@@ -139,7 +152,7 @@ const PLAZA_FALLBACK_ALONG_M = 16;
 
 /** 構内踏切 — the timber boards across both tracks at the platform's short
  *  end (photographs 013 and 014). */
-const CROSSING_ALONG_M = PLATFORM_SHORT_LEG_M + 3.5;
+const CROSSING_ALONG_M = PLATFORM_SHORT_LEG_M + 3.5;   // just off the platform's end
 const CROSSING_LENGTH_M = 3.0;
 
 const DEG = Math.PI / 180;

@@ -61,7 +61,7 @@ const SURFACE_STRUCTURE_TYPES = new Set([
 ]);
 
 const STRUCTURE_COLORS: Record<string, number> = {
-  container: 0x2f5a3a,
+  container: 0x4a5236,   // 錆の浮いた濃いオリーブ (SRC_GSV_MIDORI)
   level_crossing: 0x4a3b2a,
   // The forecourt really is painted green — photographs 001, 011, 016, 028,
   // 032 and 033 all show green-painted asphalt, worn through to grey in the
@@ -549,20 +549,22 @@ function buildPlatform(
   const centroid = centroidOf(points);
   const base = heightAt(centroid.x, -centroid.y);
 
-  // Photographs 013 and 014 show the platform retained by dark steel sheet
-  // piling, not a plain earth bank: vertical piles with horizontal walings
-  // bolted across them, and a coping along the top. The source frames are
-  // 400-560 px wide, far too coarse to crop as a texture, so the piling is
-  // modelled instead — at the 400 mm pitch of standard 鋼矢板, which is a
-  // catalogue dimension rather than something read off the photograph.
+  // The platform is retained by a dark boarded face, not a plain earth
+  // bank. Street View at 緑駅 (SRC_GSV_MIDORI) shows it plainly: four or
+  // five horizontal courses with vertical posts every couple of metres,
+  // weathered near-black. An earlier pass read two 400-560 px photographs
+  // as vertical 鋼矢板 at 400 mm and got the emphasis backwards.
   const bodyMat = new THREE.MeshStandardMaterial({ color: 0x3c3a35, roughness: 0.85, metalness: 0.25 });
   const body = new THREE.Mesh(extrudeFootprint(points, height), bodyMat);
   body.position.set(0, base, 0);
   body.receiveShadow = true;
   group.add(body);
 
-  // The deck itself is gravel, a different surface from the steel face.
-  const deckMat = new THREE.MeshStandardMaterial({ color: 0x8a837a, roughness: 1 });
+  // The deck is dark cinder ballast, not the pale concrete a platform is
+  // usually imagined with — Street View shows it nearly as dark as the
+  // trackbed, which is why the platform reads as part of the railway
+  // rather than as a pavement laid beside it.
+  const deckMat = new THREE.MeshStandardMaterial({ color: 0x54504a, roughness: 1 });
   const deck = new THREE.Mesh(extrudeFootprint(points, 0.02), deckMat);
   deck.position.set(0, base + height, 0);
   deck.receiveShadow = true;
@@ -574,7 +576,11 @@ function buildPlatform(
   // the whole ring, as this did, drew a line along the back of the platform
   // where nothing arrives — and on an opposed pair, along the two faces that
   // look at each other across the tracks.
-  const edgeMat = new THREE.MeshStandardMaterial({ color: 0x1f7a72, roughness: 0.6 }); // ティール（青緑）
+  // The painted line is off-white, weathered. It was ティール (0x1f7a72),
+  // which came from Directive 08 §4.2 with no photograph behind it — Street
+  // View shows a pale painted line on a dark cinder deck, and nothing on a
+  // Japanese platform edge is blue-green.
+  const edgeMat = new THREE.MeshStandardMaterial({ color: 0xcfc9b8, roughness: 0.85 });
   const trackEdge = feature.properties.track_edge_index as number | undefined;
   const stripe = trackEdge === undefined
     ? extrudeFootprint(points, 0.02, insetQuad(points, edgeWidth))
@@ -605,7 +611,16 @@ function edgeStripe(points: THREE.Vector2[], edgeIndex: number, width: number): 
 }
 
 /** Pile pitch of standard 鋼矢板 (Type II and up), in metres. */
-const SHEET_PILE_PITCH_M = 0.4;
+/**
+ * Post spacing on the platform's retaining face.
+ *
+ * This was 0.4 m, the pitch of standard 鋼矢板, from reading two 400-560 px
+ * photographs as vertical sheet piling. Street View at the station shows
+ * the opposite: the face is HORIZONTAL boarding in four or five courses,
+ * with vertical posts at a couple of metres. Fine vertical ribs at 400 mm
+ * were the wrong emphasis entirely.
+ */
+const SHEET_PILE_PITCH_M = 1.8;
 
 /**
  * The vertical piles and horizontal walings on a platform's retaining face.
@@ -653,8 +668,8 @@ function buildSheetPiling(
         new THREE.Vector3(1, 1, 1),
       ).clone());
     }
-    // two walings across the piles, at a third and two thirds of the height
-    for (const f of [0.34, 0.68]) {
+    // The courses of boarding, which are what the face actually reads as.
+    for (const f of [0.16, 0.37, 0.58, 0.79]) {
       walings.push(matrix.compose(
         new THREE.Vector3(ax + dx / 2, base + height * f, az + dz / 2),
         quaternion,
@@ -675,7 +690,7 @@ function buildSheetPiling(
   group.add(ribMesh);
 
   // scale z on the 2 m waling box gives the edge's own length
-  const walingGeom = new THREE.BoxGeometry(RIB_PROUD * 1.4, 0.09, 2);
+  const walingGeom = new THREE.BoxGeometry(RIB_PROUD * 1.9, 0.16, 2);
   const walingMesh = new THREE.InstancedMesh(walingGeom, material, walings.length);
   walings.forEach((m, i) => walingMesh.setMatrixAt(i, m));
   walingMesh.instanceMatrix.needsUpdate = true;
