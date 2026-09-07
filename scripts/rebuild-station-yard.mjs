@@ -85,9 +85,14 @@ const BUILDING_WIDTH_M = 7.4;
  *  station — so the apron ends where the road really starts. It turns out to
  *  be a narrow strip, about 5 m at its tightest, not the square the guess
  *  made of it. */
-const PLAZA_HALF_WIDTH_M = 16;
-/** Used only if the surveyed road edge cannot be found. */
+/** How far the forecourt runs back past the station, away from the road. */
+const PLAZA_BEHIND_M = 14;
+/** Margin past the point where the road actually arrives, so the paving and
+ *  the carriageway overlap instead of stopping short of each other. */
+const PLAZA_PAST_ROAD_M = 5;
+/** Used only if neither the road's end nor the surveyed kerb can be found. */
 const PLAZA_FALLBACK_DEPTH_M = 6;
+const PLAZA_FALLBACK_ALONG_M = 16;
 
 /** 構内踏切 — the timber boards across both tracks at the platform's short
  *  end (photographs 013 and 014). */
@@ -143,6 +148,36 @@ function roadEdgeProfile(gsi, anchorLat, anchorLon, scale, along, out) {
     }
     return nearest;
   };
+}
+
+/**
+ * How far along the track the road actually reaches the station.
+ *
+ * 駅前通り arrives diagonally and stops at the forecourt. Taking the nearest
+ * road END rather than the nearest road POINT is the whole trick: the
+ * carriageway runs past the station at a distance for hundreds of metres,
+ * and only its terminus says where the forecourt has to be.
+ */
+function roadArrivalAlong(gsi, anchorLat, anchorLon, scale, along, out, facadeOut) {
+  let best = null;
+  let bestDistance = 60;
+  for (const feature of gsi.features) {
+    if (feature.layer !== 'road') continue;
+    if (feature.tags.ftCode !== 2701 && feature.tags.ftCode !== 2703) continue;
+    for (const ring of feature.rings) {
+      for (const [lon, lat] of [ring[0], ring[ring.length - 1]]) {
+        const e = (lon - anchorLon) * scale.east;
+        const n = (lat - anchorLat) * scale.north;
+        const a = e * along.east + n * along.north;
+        const o = e * out.east + n * out.north;
+        // an end that stops in front of the building, not one out in the town
+        if (o < facadeOut - 6 || o > facadeOut + 26) continue;
+        const distance = Math.hypot(a, o - facadeOut);
+        if (distance < bestDistance) { bestDistance = distance; best = a; }
+      }
+    }
+  }
+  return best;
 }
 
 function main() {
@@ -247,7 +282,13 @@ function main() {
   // How far the forecourt reaches, measured against the surveyed road edge
   // rather than guessed. `outAtAlong` returns the road edge's distance from
   // the track at a given point along it.
-  const outAtAlong = roadEdgeProfile(readJson(GSI), anchorLat, anchorLon, scale, along, out);
+  const gsiData = readJson(GSI);
+  const outAtAlong = roadEdgeProfile(gsiData, anchorLat, anchorLon, scale, along, out);
+  // Where the road actually reaches the station. 駅前通り comes in from the
+  // north-east and stops at the forecourt; a forecourt that ends short of
+  // that leaves the road finishing in a field, which is what it did.
+  const roadArrival = roadArrivalAlong(gsiData, anchorLat, anchorLon, scale, along, out, facadeOut);
+  const plazaFarAlong = (roadArrival === null ? PLAZA_FALLBACK_ALONG_M : roadArrival) + PLAZA_PAST_ROAD_M;
   const plazaFar = (a) => {
     const edge = outAtAlong(a);
     return edge === null ? facadeOut + PLAZA_FALLBACK_DEPTH_M : Math.max(facadeOut + 2.5, edge);
@@ -255,13 +296,13 @@ function main() {
   const plazaDepthMid = plazaFar(0) - facadeOut;
 
   const plazaEntity = index.entities.find((e) => e.id === 'JP.01.546.MIDORI/STATION_PLAZA');
-  plazaEntity.geometry.coordinates = at(0, facadeOut + plazaDepthMid / 2);
+  plazaEntity.geometry.coordinates = at((plazaFarAlong - PLAZA_BEHIND_M) / 2, facadeOut + plazaDepthMid / 2);
   plazaEntity.position_accuracy_m = 12;
   plazaEntity.note =
     'scripts/rebuild-station-yard.mjs による再構成。広場が緑色に塗装されている事実は写真によりconfidence A。'
     + '奥行きは国土地理院 電子国土基本図の道路縁(ftCode 2201)までの距離として決めており、'
     + `駅舎正面から約 ${plazaDepthMid.toFixed(1)} m。以前の版はここを17 mの矩形と推定していたが、実際には道路が駅舎のすぐ前を通る。`;
-  note('STATION_PLAZA', `apron from the facade to the surveyed road edge — ${plazaDepthMid.toFixed(1)} m deep at the centre`);
+  note('STATION_PLAZA', `apron from the facade to the surveyed kerb, running ${(plazaFarAlong + PLAZA_BEHIND_M).toFixed(0)} m along to meet the road at ${roadArrival === null ? 'a fallback point' : `${roadArrival.toFixed(0)} m`}`);
 
   // ---- Reality Data --------------------------------------------------
   const byId = new Map(buildings.features.map((f) => [f.properties.id, f]));
@@ -308,14 +349,16 @@ function main() {
   // A trapezium following the road edge rather than a rectangle: the road
   // runs away from the station at an angle, so the apron is wider at one end.
   plazaFeature.geometry.coordinates = [[
-    at(-PLAZA_HALF_WIDTH_M, facadeOut),
-    at(PLAZA_HALF_WIDTH_M, facadeOut),
-    at(PLAZA_HALF_WIDTH_M, plazaFar(PLAZA_HALF_WIDTH_M)),
-    at(-PLAZA_HALF_WIDTH_M, plazaFar(-PLAZA_HALF_WIDTH_M)),
-    at(-PLAZA_HALF_WIDTH_M, facadeOut),
+    at(-PLAZA_BEHIND_M, facadeOut),
+    at(plazaFarAlong, facadeOut),
+    at(plazaFarAlong, plazaFar(plazaFarAlong)),
+    at(-PLAZA_BEHIND_M, plazaFar(-PLAZA_BEHIND_M)),
+    at(-PLAZA_BEHIND_M, facadeOut),
   ]];
   plazaFeature.properties.note =
-    'scripts/rebuild-station-yard.mjs による再構成 — 駅舎正面から国土地理院の道路縁(2201)までの台形。'
+    'scripts/rebuild-station-yard.mjs による再構成 — 駅舎正面から国土地理院の道路縁(2201)までの台形で、'
+    + '線路方向には道路（道路構成線 2701）が実際に到達する地点まで伸ばしてある。'
+    + '以前は左右16 mの対称な帯だったため、道路が広場の手前20 mで途切れて畑の中で終わっていた。'
     + '緑色塗装であることは写真によりA、奥行きは道路縁までの実測距離、幅は推定でC。';
   plazaFeature.properties.source_ids = ['SRC_PHOTO_20090520', 'SRC_GSI_BVMAP'];
 
