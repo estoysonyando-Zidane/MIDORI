@@ -107,16 +107,35 @@ export function makeMuralTexture(count = 4, widthPx = 1024, heightPx = 256): THR
   return texture;
 }
 
+/** A neighbouring station as it is printed on the board. */
+export interface NameboardNeighbour {
+  kana: string;
+  roman: string;
+}
+
 /**
  * 駅名標 — the JR Hokkaido station nameboard, redrawn from the photographs:
  * 「みどり」 large, 「緑」 beneath it, the station number B67 in a magenta
  * ring, and a green band carrying the romanised name with the neighbouring
- * stations 川湯温泉 / 札弦 either side.
+ * stations either side.
+ *
+ * WHICH NEIGHBOUR GOES ON WHICH SIDE IS NOT A PROPERTY OF THE STATION.
+ * It is a property of the face you are reading. A 駅名標 is read from both
+ * sides, and the station that is on your left from the platform is on your
+ * right from the other side, so the two faces of one board carry opposite
+ * orders. That is why they are arguments here instead of constants: the
+ * board used to be a single texture with 川湯温泉 fixed on the left, which
+ * was right for the face nobody reads and backwards on the face facing the
+ * track — the one you actually stand in front of.
  *
  * `withNumber` is false for eras before JR Hokkaido introduced station
  * numbering, when the board carried no B67.
  */
-export function makeStationNameboardTexture(withNumber: boolean): THREE.CanvasTexture {
+export function makeStationNameboardTexture(
+  withNumber: boolean,
+  left: NameboardNeighbour,
+  right: NameboardNeighbour,
+): THREE.CanvasTexture {
   const width = 1024;
   const height = 512;
   const canvas = document.createElement('canvas');
@@ -168,12 +187,12 @@ export function makeStationNameboardTexture(withNumber: boolean): THREE.CanvasTe
 
   ctx.fillStyle = '#1a1a1a';
   ctx.font = `500 44px "Hiragino Sans", "Noto Sans JP", sans-serif`;
-  ctx.fillText('かわゆおんせん', width * 0.26, height * 0.80);
-  ctx.fillText('さっつる', width * 0.76, height * 0.80);
+  ctx.fillText(left.kana, width * 0.26, height * 0.80);
+  ctx.fillText(right.kana, width * 0.76, height * 0.80);
   ctx.font = `400 26px "Helvetica Neue", Arial, sans-serif`;
   ctx.fillStyle = '#4a4a4a';
-  ctx.fillText('Kawayuonsen', width * 0.26, height * 0.90);
-  ctx.fillText('Sattsuru', width * 0.76, height * 0.90);
+  ctx.fillText(left.roman, width * 0.26, height * 0.90);
+  ctx.fillText(right.roman, width * 0.76, height * 0.90);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
