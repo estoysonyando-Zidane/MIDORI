@@ -1804,8 +1804,8 @@
       },
       "properties": {
         "id": "STR_MIDORI_ONSEN",
-        "name": "緑の湯",
-        "structure_type": "bathhouse",
+        "name": null,
+        "structure_type": "town_building",
         "gsi_ft_code": 3101,
         "area_m2": 131,
         "eave_height_m": 3.4,
@@ -1820,12 +1820,12 @@
         ],
         "detail_confidence": {
           "footprint": "B (public_gis — 国土地理院 電子国土基本図 ftCode 3101, 1/25000)",
-          "identification": "C (inference — 名称はOSM/Wikipedia由来、最寄りのGSI外形に22 mで対応付けたもの)",
+          "identification": "U (unknown — 以前は緑の湯としていたが、その対応付けは22 m離れた別の外形への誤りだった。実測された建築物であることは確かで、用途は不明)",
           "eave_ridge_height": "C (inference — 面積から段階分け。GSIも高さを持たない)",
           "roof_colour": "C (inference — 写真003の色をIDのハッシュで割当)",
           "roof_shape": "C (inference)"
         },
-        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。"
+        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。 scripts/identify-midorinoyu.mjs: 緑の湯の同定をこの外形から外した。"
       }
     },
     {
@@ -1926,28 +1926,34 @@
       },
       "properties": {
         "id": "BLDG_GSI_kyy3y7",
-        "name": null,
-        "structure_type": "town_building",
+        "name": "緑の湯",
+        "structure_type": "bathhouse",
         "gsi_ft_code": 3101,
         "area_m2": 590,
-        "eave_height_m": 4.4,
-        "ridge_height_m": 7.2,
-        "roof_colour": "#2f6146",
+        "eave_height_m": 3.2,
+        "ridge_height_m": 6,
+        "roof_colour": "#3f5b4c",
         "roof_shape": "gable",
         "confidence": "B",
         "evidence_type": "public_gis",
         "historical_status": "plausible",
         "source_ids": [
-          "SRC_GSI_BVMAP"
+          "SRC_GSI_BVMAP",
+          "SRC_KIYOSATO_TOWN_MIDORINOYU",
+          "SRC_MIDORINOYU_PHOTOS",
+          "SRC_GE_20110526"
         ],
         "detail_confidence": {
           "footprint": "B (public_gis — 国土地理院 電子国土基本図 ftCode 3101, 1/25000)",
-          "identification": "U (unknown — GSIは用途名を持たない)",
-          "eave_ridge_height": "C (inference — 面積から段階分け。GSIも高さを持たない)",
-          "roof_colour": "C (inference — 写真003の色をIDのハッシュで割当)",
-          "roof_shape": "C (inference)"
+          "identification": "B (public_gis + official_record — 清里町の施設情報にある緑の湯の座標から 10 m。同じ敷地で次に近い外形は131 m²で、写真と2011年の空中写真が示す規模と合わない)",
+          "eave_ridge_height": "C (inference — 写真から平屋で軒が高い。実測ではない)",
+          "roof_colour": "B (photograph — 濃緑の金属屋根)",
+          "roof_shape": "C (inference)",
+          "wall_colour": "B (photograph — 赤褐色の縦板張り)",
+          "porch_and_rail": "not modelled — 写真には丸太柱の切妻ポーチと木の格子手すりが写るが、それが平面のどの面かは判断できないので作っていない"
         },
-        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。"
+        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。 scripts/identify-midorinoyu.mjs: 緑の湯の同定をこの外形に移した。屋根と壁の色は写真から。軒高・棟高は写真から平屋と読んだ推定で、実測ではない。",
+        "wall_colour": "#6e4530"
       }
     },
     {

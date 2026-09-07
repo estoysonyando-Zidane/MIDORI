@@ -490,8 +490,17 @@ export class TownGenerator {
       const centre = points.reduce((acc, p) => acc.add(p), new THREE.Vector2()).divideScalar(points.length);
       const base = heightAt(centre.x, -centre.y);
 
+      // Most of the town has no photograph, so its walls come from a hash of
+      // position over the pale sidings the photographs of 緑町 do show. Where
+      // a building HAS been photographed, its own colour is recorded on the
+      // feature and used instead — the hash is a stand-in for evidence, not a
+      // thing to override evidence.
+      const wallHex = feature.properties.wall_colour as string | undefined;
       const wallIndex = Math.abs(Math.round(centre.x * 7 + centre.y * 13)) % WALL_COLOURS.length;
-      const walls = new THREE.Mesh(wallGeometry(points, eave), wallFor(String(wallIndex), WALL_COLOURS[wallIndex]));
+      const wallMaterial = wallHex
+        ? wallFor(wallHex, new THREE.Color(wallHex).getHex())
+        : wallFor(String(wallIndex), WALL_COLOURS[wallIndex]);
+      const walls = new THREE.Mesh(wallGeometry(points, eave), wallMaterial);
       walls.position.set(0, base, 0);
       walls.castShadow = true;
       walls.receiveShadow = true;
