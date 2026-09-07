@@ -11,9 +11,14 @@ import * as THREE from 'three';
  * These trees are NOT survey data and are deliberately not Reality Data.
  * That the site is wooded is evidence; where any individual tree stands is
  * not. They are placed by a deterministic scatter so the World looks the
- * same on every load, kept out of a clearing around the station and off the
- * railway and roads, and thinned near the tracks the way the cleared
- * lineside actually is.
+ * same on every load.
+ *
+ * WHERE the wood is, though, is a measurement: `canopyAt` comes from
+ * CanopyMask, which reads the extent off 国土地理院's own photograph. Before
+ * that the scatter was a ring around the station that knew nothing about the
+ * ground under it, so the treeline — the backdrop of every photograph taken
+ * at this station, and what you look at while you wait — fell wherever the
+ * random number generator put it, across fields and short of the hillside.
  */
 
 export interface VegetationOptions {
@@ -31,6 +36,10 @@ export interface VegetationOptions {
    *  Trees growing through three hundred houses is the single loudest way to
    *  say "this scatter has never met the settlement it is scattered over". */
   keepClearOfCircles?: { x: number; z: number; radius: number }[];
+  /** Where the aerial photograph shows canopy. When given, nothing is
+   *  planted outside it, so the treeline is the real one instead of the
+   *  edge of a random ring. */
+  canopyAt?: (x: number, z: number) => boolean;
   count: number;
 }
 
@@ -135,12 +144,19 @@ export class VegetationGenerator {
     let attempts = 0;
     while (placements.conifer.length + placements.birch.length < options.count && attempts < options.count * 30) {
       attempts++;
-      // sample in a ring, denser further out — the clearing thins toward the station
+      // Sampling uniformly by AREA (sqrt) spreads a fixed budget of trees
+      // evenly and leaves the near wood too thin to read as wood. Sampling
+      // uniformly by RADIUS puts density ∝ 1/r: thick where the player
+      // stands, thinning with distance, where the photograph on the terrain
+      // carries the colour anyway.
       const angle = random() * Math.PI * 2;
-      const radius = options.clearingRadiusM + Math.sqrt(random()) * (options.extentM - options.clearingRadiusM);
+      const radius = options.clearingRadiusM + random() * (options.extentM - options.clearingRadiusM);
       const x = options.clearingCentre.x + Math.cos(angle) * radius;
       const z = options.clearingCentre.z + Math.sin(angle) * radius;
 
+      // The photograph decides first: it already knows the fields, the
+      // lineside, the yard and the streets are not wooded.
+      if (options.canopyAt && !options.canopyAt(x, z)) continue;
       if (distanceToPolylines(x, z, options.keepClearOf) < options.keepClearRadiusM) continue;
       if (options.keepClearOfCircles?.some((c) => Math.hypot(x - c.x, z - c.z) < c.radius)) continue;
 
