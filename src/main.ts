@@ -103,8 +103,23 @@ async function bootstrap(): Promise<void> {
     console.warn('SpatialIndexLoader: not loaded', err);
   }
 
+  // The station's yard stands about 1.25 m above the ground the rails are
+  // laid on — the forecourt, the station floor and the platform deck are all
+  // one level in every photograph. `heightAt` is the bare DEM and knows
+  // nothing about that. `groundAt` is the same terrain with that terrace
+  // raised over the footprints Reality Data carries, ramped at the edges so
+  // it can be walked up.
+  //
+  // This has to be built BEFORE the roads: 駅前通り runs onto the terrace to
+  // reach the station, and laid at bare DEM height it was buried under the
+  // bank — the road simply stopped in a field short of the building.
+  const terrace = new StationTerrace(world.find('building'), world.tangentPlane);
+  const groundAt = terrace.wrap(heightAt);
+
+  // The railway keeps the bare terrain: the track is what the terrace is
+  // measured up from, and it is the one thing that must not rise with it.
   world.group.add(RailwayGenerator.generate(world.find('railway'), world.tangentPlane, heightAt));
-  world.group.add(RoadGenerator.generate(world.find('road'), world.tangentPlane, heightAt));
+  world.group.add(RoadGenerator.generate(world.find('road'), world.tangentPlane, groundAt));
   world.group.add(BuildingGenerator.generate(world.find('building'), world.tangentPlane, heightAt));
 
   // 緑町 itself — about 300 OpenStreetMap footprints, each given a roof so
@@ -112,17 +127,6 @@ async function bootstrap(): Promise<void> {
   // photographs show. See scripts/import-osm-town.mjs for what in this is
   // survey data (the outlines) and what is not (everything above them).
   world.group.add(TownGenerator.generate(world.find('building'), world.tangentPlane, heightAt));
-
-  // The station's platforms and forecourt stand about 0.8 m above the rails,
-  // and the station floor with them. `heightAt` is the bare DEM and knows
-  // nothing about that, so the player used to walk at trackbed level with the
-  // platform deck over their head and the waiting room out of reach.
-  // `groundAt` is the same terrain with the station's terrace raised over the
-  // footprints Reality Data already carries, ramped at the edges so it can be
-  // walked up. Everything laid ON the terrain — the trackbed, the roads, the
-  // platform boxes themselves — keeps using the bare `heightAt`.
-  const terrace = new StationTerrace(world.find('building'), world.tangentPlane);
-  const groundAt = terrace.wrap(heightAt);
 
   // Structures the player cannot walk through — currently the station
   // building's walls, so its waiting room is a room you enter through the

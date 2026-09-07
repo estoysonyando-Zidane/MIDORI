@@ -64,9 +64,11 @@ const PLATFORM_WIDTH_M = 3.5;
 /** Platform length. Photograph 013 shows it running far past the building
  *  in one direction and ending in painted steps just beyond it in the
  *  other. Which direction is which is not readable from the photographs;
- *  this puts the long leg toward 札弦. */
-const PLATFORM_LONG_LEG_M = 52;
-const PLATFORM_SHORT_LEG_M = 8;
+ *  this puts the long leg toward 札弦. 緑 was a 一般駅 working freight until
+ *  1982 with locomotive-hauled trains, so its platform is a long one — 60 m
+ *  was short enough that the operator noticed it from inside the World. */
+const PLATFORM_LONG_LEG_M = 90;
+const PLATFORM_SHORT_LEG_M = 30;
 
 /** Second track. Wikipedia 緑駅 §駅構造: 相対式ホーム2面2線 — two opposed
  *  platforms on two tracks, platform 2 reached by the 構内踏切. 4.1 m is
@@ -361,6 +363,31 @@ function main() {
     + '以前は左右16 mの対称な帯だったため、道路が広場の手前20 mで途切れて畑の中で終わっていた。'
     + '緑色塗装であることは写真によりA、奥行きは道路縁までの実測距離、幅は推定でC。';
   plazaFeature.properties.source_ids = ['SRC_PHOTO_20090520', 'SRC_GSI_BVMAP'];
+
+  // The terrace itself. The platform and the forecourt each raise the ground
+  // under themselves, but the 6 m strip the station building stands on lay
+  // between them and belonged to neither — so the building stood 1.25 m over
+  // ground that had not been raised, and read as floating. This one polygon
+  // spans the whole yard from the platform face to the forecourt's far edge.
+  buildings.features = buildings.features.filter((f) => f.properties.id !== 'STR_MIDORI_STATION_TERRACE');
+  buildings.features.push({
+    type: 'Feature',
+    geometry: { type: 'Polygon', coordinates: rect(
+      -PLAZA_BEHIND_M, plazaFarAlong, PLATFORM_FACE_OFFSET_M, plazaFar(0),
+    ) },
+    properties: {
+      id: 'STR_MIDORI_STATION_TERRACE',
+      name: '緑駅 構内地盤',
+      structure_type: 'station_terrace',
+      confidence: 'C',
+      evidence_type: 'inference',
+      historical_status: 'plausible',
+      source_ids: ['SRC_PHOTO_SET_USER_2026'],
+      note: '駅前広場・駅舎の床・ホーム面が同一レベルであることは写真から明らか。'
+        + 'DEMは10 mメッシュでこの段差を持たないため、地盤を持ち上げる範囲としてこのポリゴンを与えている。'
+        + '見た目の要素ではなく、地形の補正のための形状。',
+    },
+  });
 
   const container = byId.get('STR_MIDORI_RAIL_CONTAINER');
   container.geometry.coordinates = rect(-22, -16, facadeOut - 1.0, facadeOut + 1.5);

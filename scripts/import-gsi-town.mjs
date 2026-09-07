@@ -82,6 +82,30 @@ const NAMED = [
   { name: '第3分団消防庁舎', id: 'STR_MIDORI_FIRE_STATION', type: 'fire_station', eave: 4.2, ridge: 6.0, roof: '#8c3a32', from: 'osm' },
 ];
 
+/**
+ * Footprints in the extract that are not buildings on the ground.
+ *
+ * 電子国土基本図 is a survey, but the vector tiles it is served through are
+ * not free of artefacts. This one is a polygon 23 m from the track in front
+ * of the station whose outline is congruent to the stage in 緑駅前広場, 74 m
+ * away — the same five edges to a tenth of a millimetre, which two real
+ * buildings do not share. The operator, standing in the World, reports there
+ * is no building there. Dropped, with both reasons recorded rather than
+ * silently filtered.
+ *
+ * Positions are local metres from the station point.
+ */
+const EXCLUDED = [
+  {
+    east: 11.4,
+    north: 24.3,
+    tolerance: 4,
+    why: '駅前に実在しない建物。国土地理院のベクトルタイル上で、74 m離れた駅前広場の舞台と'
+      + '完全に合同な外形（5辺が0.1 mm単位で一致）として現れており、データ由来の重複と判断した。'
+      + '現地を知る当事者も「駅の前に建物はない」と証言している。',
+  },
+];
+
 const DEG = Math.PI / 180;
 
 function readJson(path) { return JSON.parse(readFileSync(path, 'utf8')); }
@@ -142,6 +166,7 @@ function main() {
   // ---- buildings --------------------------------------------------------
   let imported = 0;
   let clipped = 0;
+  const dropped = [];
   const claimed = new Set();
 
   for (const feature of gsi.features) {
@@ -162,6 +187,10 @@ function main() {
       local.slice(0, n).reduce((a, p) => a + p[1], 0) / n,
     ];
     if (Math.hypot(centre[0], centre[1]) > IMPORT_RADIUS_M) continue;
+    const excluded = EXCLUDED.find(
+      (x) => Math.hypot(centre[0] - x.east, centre[1] - x.north) <= x.tolerance,
+    );
+    if (excluded) { dropped.push(excluded.why); continue; }
 
     let area = 0;
     for (let i = 0; i < n; i++) area += local[i][0] * local[i + 1][1] - local[i + 1][0] * local[i][1];
@@ -321,7 +350,7 @@ function main() {
   writeJson(INDEX, index);
 
   console.log('=== 緑町 rebuilt from 国土地理院 電子国土基本図 ===');
-  console.log(`buildings      ${imported} (${clipped} cut by a tile edge)`);
+  console.log(`buildings      ${imported} (${clipped} cut by a tile edge, ${dropped.length} dropped as artefacts)`);
   console.log(`roads          ${roadCount} segments with surveyed width ranks`);
   console.log(`index entries  ${labelled}`);
   for (const named of NAMED) {

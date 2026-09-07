@@ -79,6 +79,77 @@ function extrudeFootprint(points: THREE.Vector2[], height: number, holePoints?: 
   return geometry;
 }
 
+/** How far out the terrace's toe reaches per metre of height. A vertical
+ *  face made the yard a plateau with a cliff the approach road could not
+ *  climb — it simply vanished into the bank short of the building. */
+const TERRACE_BATTER = 2.0;
+
+/**
+ * The station terrace as an earth bank: a flat top on the footprint, and
+ * battered sides running out to a toe on the terrain.
+ */
+function terraceBankGeometry(points: THREE.Vector2[], height: number, batter: number): THREE.BufferGeometry {
+  const centre = centroidOf(points);
+  const toe = points.map((p) => {
+    const out = new THREE.Vector2().subVectors(p, centre);
+    const length = out.length();
+    if (length < 1e-6) return p.clone();
+    return out.multiplyScalar((length + height * batter) / length).add(centre);
+  });
+
+  const positions: number[] = [];
+  const push = (p: THREE.Vector2, y: number) => positions.push(p.x, y, -p.y);
+  // the sloped skirt
+  for (let i = 0; i < points.length; i++) {
+    const j = (i + 1) % points.length;
+    push(toe[i], 0); push(toe[j], 0); push(points[j], height);
+    push(toe[i], 0); push(points[j], height); push(points[i], height);
+  }
+  // the flat top, fanned from the centroid
+  for (let i = 0; i < points.length; i++) {
+    const j = (i + 1) % points.length;
+    push(centre, height); push(points[i], height); push(points[j], height);
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+/**
+ * A large area laid on the ground, following it.
+ *
+ * A tint slab extruded flat and placed at its centroid's height is fine over
+ * a few metres and wrong over a hundred: the 緑駅前広場 is 10,000 m² on a
+ * slope, so one flat sheet buried one end and floated the other — a green
+ * pane hanging in the air across the front of the station. This triangulates
+ * the footprint and lifts each vertex to the ground under it instead.
+ */
+function drapedSurface(
+  points: THREE.Vector2[],
+  heightAt: (x: number, z: number) => number,
+  lift: number,
+): THREE.BufferGeometry {
+  // ShapeGeometry triangulates in XY; the footprint's y is World −Z.
+  const flat = new THREE.ShapeGeometry(new THREE.Shape(points));
+  const source = flat.getAttribute('position');
+  const positions = new Float32Array(source.count * 3);
+  for (let i = 0; i < source.count; i++) {
+    const x = source.getX(i);
+    const z = -source.getY(i);
+    positions[i * 3] = x;
+    positions[i * 3 + 1] = heightAt(x, z) + lift;
+    positions[i * 3 + 2] = z;
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  if (flat.index) geometry.setIndex(flat.index.clone());
+  geometry.computeVertexNormals();
+  flat.dispose();
+  return geometry;
+}
+
 function centroidOf(points: THREE.Vector2[]): THREE.Vector2 {
   return points.reduce((acc, p) => acc.add(p), new THREE.Vector2()).divideScalar(points.length);
 }
@@ -320,6 +391,11 @@ async function buildStationBuilding(
   const doorLeft = doorCentreX - doorWidth / 2;
   const doorRight = doorCentreX + doorWidth / 2;
   const innerX = halfW - wallThickness;
+  // matches REAR_DOOR_* in scripts/blender/build_station.py
+  const rearDoorCentreX = props.rear_door_centre_x_m ?? -0.1;
+  const rearDoorWidth = props.rear_door_width_m ?? 1.7;
+  const rearDoorLeft = rearDoorCentreX - rearDoorWidth / 2;
+  const rearDoorRight = rearDoorCentreX + rearDoorWidth / 2;
   const wallTop = 3.4;
   const box = (x0: number, x1: number, z0: number, z1: number) =>
     blockerFromLocalBox(
@@ -331,7 +407,12 @@ async function buildStationBuilding(
   group.userData.blockers = [
     box(-innerX, doorLeft, halfD - wallThickness, halfD),   // facade, left of the door
     box(doorRight, innerX, halfD - wallThickness, halfD),   // facade, right of the door
-    box(-innerX, innerX, -halfD, -halfD + wallThickness),   // platform-side wall
+    // The platform-side wall has a doorway in it too — the waiting room is a
+    // through room, in off the forecourt and out onto the platform. Blocking
+    // it whole made the room a dead end and the only way to the train was
+    // round the outside of the building.
+    box(-innerX, rearDoorLeft, -halfD, -halfD + wallThickness),
+    box(rearDoorRight, innerX, -halfD, -halfD + wallThickness),
     box(-halfW, -innerX, -halfD, halfD),                    // left end wall
     box(innerX, halfW, -halfD, halfD),                      // right end wall
   ];
@@ -616,6 +697,30 @@ export class BuildingGenerator {
 
       const points = projectRing(ring, tangentPlane);
 
+      if (structureType === 'station_terrace') {
+        // eslint-disable-next-line no-unused-expressions
+        void 0;
+        // The terrace is a solid, not a hint. StationTerrace raises the
+        // ground the player walks on, but the terrain MESH stays where the
+        // DEM put it — so with nothing here the platform, the station floor
+        // and the forecourt all stood 1.25 m over visible ground and the
+        // whole yard read as floating. This fills that step: an earth bank
+        // from the DEM's surface up to the terrace, with everything else
+        // laid on top of it.
+        const terraceCentroid = centroidOf(points);
+        const bank = new THREE.Mesh(
+          terraceBankGeometry(points, STATION_TERRACE_HEIGHT_M, TERRACE_BATTER),
+          new THREE.MeshStandardMaterial({ color: 0x8a7f70, roughness: 1 }),
+        );
+        bank.position.set(0, heightAt(terraceCentroid.x, -terraceCentroid.y), 0);
+        bank.castShadow = true;
+        bank.receiveShadow = true;
+        bank.name = feature.id;
+        bank.userData.realityData = feature;
+        group.add(bank);
+        continue;
+      }
+
       if (SURFACE_STRUCTURE_TYPES.has(structureType ?? '')) {
         // The terrain now carries 国土地理院's aerial photograph, which already
         // shows this ground as it is. These stay only as a light tint that
@@ -623,9 +728,8 @@ export class BuildingGenerator {
         // photograph of the real surface with a flat colour, which is a step
         // backwards.
         const colour = new THREE.Color((feature.properties.surface_colour as string | undefined) ?? '#6f7a52');
-        const surfaceCentroid = centroidOf(points);
         const slab = new THREE.Mesh(
-          extrudeFootprint(points, 0.06),
+          drapedSurface(points, heightAt, 0.06),
           new THREE.MeshStandardMaterial({
             color: colour,
             roughness: 1,
@@ -638,7 +742,6 @@ export class BuildingGenerator {
             depthWrite: false,
           }),
         );
-        slab.position.set(0, heightAt(surfaceCentroid.x, -surfaceCentroid.y), 0);
         slab.receiveShadow = true;
         slab.name = feature.id;
         slab.userData.realityData = feature;
