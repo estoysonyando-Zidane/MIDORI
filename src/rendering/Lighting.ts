@@ -66,7 +66,7 @@ export function createLighting(): THREE.Group {
   // facing away from the sun collapse to the same grey; a hemisphere light
   // fills those faces with sky colour from above and with the colour of the
   // ground below, so a cream wall still reads as cream in shade.
-  const sky = new THREE.HemisphereLight(0xcfe0ee, 0x6f7a52, 0.85);
+  const sky = new THREE.HemisphereLight(0xcfe0ee, 0x6f7a52, 0.45);
   group.add(sky);
 
   return group;

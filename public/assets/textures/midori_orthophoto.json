@@ -1,0 +1,15 @@
+{
+  "attribution": "出典: 国土地理院「シームレス空中写真（地理院タイル）」",
+  "source": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto",
+  "zoom": 16,
+  "fetched_at": "2026-09-07",
+  "bounds": {
+    "west": 144.47442603080182,
+    "east": 144.5360468699071,
+    "south": 43.69593189782413,
+    "north": 43.739352079154706
+  },
+  "size_px": 2048,
+  "metres_per_pixel": 2.421,
+  "note": "DEM (reality/dem.json) と同じ範囲・同じ緯度経度グリッドに再標本化してある。地形メッシュの 0..1 UV がそのままこの画像を指す。写真そのものは撮影年不明の現在時点のものであり、2010年の地表ではない。"
+}

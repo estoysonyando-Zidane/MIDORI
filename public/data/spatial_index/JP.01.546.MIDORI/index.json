@@ -10115,22 +10115,22 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          144.505791595,
-          43.718039680000004
+          144.50583613970392,
+          43.71806130333155
         ]
       },
       "orientation": {
-        "facade_bearing_deg": 56.8,
-        "note": "正面(三角ポーチのある面)は駅前広場側を向く。ホーム側下屋は反対側(線路側)。方位角はDirective 08で決定したperp_unit方向をそのまま換算した値。"
+        "facade_bearing_deg": 56.6,
+        "note": "正面(三角ポーチのある面)は駅前広場側、ホーム側下屋は線路側。方位角は駅点における釧網本線センターラインの接線に直交する向きとして再計算した値。"
       },
       "confidence": "C",
       "evidence_type": "inference",
       "source_ids": [],
       "frontier_status": "defined",
       "detail_ref": "reality/buildings.geojson#STR_MIDORI_STATION_BUILDING",
-      "note": "Directive 08でClaude Codeが実装上の必要から決めた配置(駅点への隣接、線路接線方向への整列)をそのまま採用し、Index側の情報として昇格。座標そのものの根拠は実測ではない。再計算・再配置は行っていない(Directive 09 §5.3の指示通り)。",
+      "note": "scripts/rebuild-station-yard.mjs による再構成。駅点(confidence A / public_gis)を唯一のアンカーとし、線路中心からホーム面 1.8 m、ホーム幅 3.5 m、駅舎奥行 6 m の順に積み上げて中心を決めている。旧座標は Directive 08 が実装上の都合で置いたもので、線路中心から 4.0 m — 6.0 m 奥行の建物のホーム側壁が線路から 1.0 m の位置に来る、建築限界上ありえない配置だった。実測ではないので confidence C / inference のまま据え置く。",
       "position_status": "approximate",
-      "position_accuracy_m": 15
+      "position_accuracy_m": 8
     },
     {
       "id": "JP.01.546.MIDORI/STATION_PLAZA",
@@ -10140,8 +10140,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          144.505683,
-          43.718193
+          144.50595581554447,
+          43.71811868698505
         ]
       },
       "confidence": "A",
@@ -10151,9 +10151,9 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/buildings.geojson#STR_MIDORI_PLAZA_PAVEMENT",
-      "note": "Directive 09 §5.2の指示値をそのまま登録。広場の存在自体はcontemporary_photoでconfidence A(仕様書§8: 駅前広場舗装が緑色に塗装されている事実)。ただし下位のReality Data (STR_MIDORI_PLAZA_PAVEMENT) 側では、舗装の具体的な形状/範囲が未測量であることを理由にconfidence Cとしている — Index層の『存在の確からしさ』と、詳細層の『この形状で正しいかの確からしさ』は別の問いであり、一致しない場合があることの一例。差異は本セッションの報告で明示する。",
+      "note": "scripts/rebuild-station-yard.mjs による再構成。広場が緑色に塗装されている事実は写真によりconfidence A。奥行きは国土地理院 電子国土基本図の道路縁(ftCode 2201)までの距離として決めており、駅舎正面から約 17.1 m。以前の版はここを17 mの矩形と推定していたが、実際には道路が駅舎のすぐ前を通る。",
       "position_status": "approximate",
-      "position_accuracy_m": 30
+      "position_accuracy_m": 12
     },
     {
       "id": "JP.01.546.MIDORI/PLATFORM_1",
@@ -10163,21 +10163,21 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          144.5057422,
-          43.71801631
+          144.50593730303922,
+          43.71787153279629
         ]
       },
-      "confidence": "B",
-      "evidence_type": "contemporary_photo",
+      "confidence": "C",
+      "evidence_type": "inference",
       "source_ids": [
         "SRC_PHOTO_20090520",
         "SRC_WIKI_JA_MIDORI"
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/buildings.geojson#STR_MIDORI_PLATFORM_1",
-      "note": null,
+      "note": "scripts/rebuild-station-yard.mjs による再構成。長さ 60 m、幅 3.5 m、線路中心からホーム面 1.8 m。長さと幅は写真013/014の見えから、線路中心からの離れはJRの低ホームの一般値による。",
       "position_status": "approximate",
-      "position_accuracy_m": 15
+      "position_accuracy_m": 8
     },
     {
       "id": "JP.01.546.MIDORI/PLATFORM_2",
@@ -10187,21 +10187,21 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          144.505664205,
-          43.71797941
+          144.50582106633033,
+          43.71781579818022
         ]
       },
-      "confidence": "B",
-      "evidence_type": "contemporary_photo",
+      "confidence": "C",
+      "evidence_type": "inference",
       "source_ids": [
         "SRC_PHOTO_20090520",
         "SRC_WIKI_JA_MIDORI"
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/buildings.geojson#STR_MIDORI_PLATFORM_2",
-      "note": null,
+      "note": "scripts/rebuild-station-yard.mjs による再構成。Wikipedia「緑駅」§駅構造の「相対式ホーム2面2線」および「2番のりばへは構内踏切を通る」という記述に従い、2番線の向こう側に1番線と相対して置いている。線路中心間隔 4.1 m はJRの平面区間の標準値、ホームの寸法は1番線と同じとした。",
       "position_status": "approximate",
-      "position_accuracy_m": 15
+      "position_accuracy_m": 8
     },
     {
       "id": "JP.01.546.MIDORI/MIDORINOYU",
@@ -10842,6 +10842,188 @@
       "detail_ref": null,
       "note": "Directive 09.1 §5.2: 国土数値情報 土地利用細分メッシュ(L03-b、建物用地区分)を試行したが、FOREST_WESTと同じ理由(ダウンロードURLがJS経由で特定不能)で取得できず。基盤地図情報(建築物外周線)もfgd.gsi.go.jpの502で不通。衛星画像からの目視測定は行っていない。位置はunlocatedとした。",
       "position_status": "unlocated"
+    },
+    {
+      "id": "JP.01.546.MIDORI/TOWN_ONSEN",
+      "name": "緑の湯",
+      "category": "building",
+      "geometry_type": "point",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.50560552,
+          43.72006556
+        ]
+      },
+      "confidence": "B",
+      "evidence_type": "public_gis",
+      "source_ids": [
+        "SRC_GSI_BVMAP",
+        "SRC_OSM_OVERPASS"
+      ],
+      "frontier_status": "defined",
+      "detail_ref": "reality/buildings.geojson#STR_MIDORI_ONSEN",
+      "note": "外形は国土地理院 電子国土基本図。名称はOSM/Wikipedia由来で、最寄りの外形に対応付けた推定であり、GSI自身がこの建物にこの名称を与えているわけではない。",
+      "position_status": "located"
+    },
+    {
+      "id": "JP.01.546.MIDORI/TOWN_SCHOOL",
+      "name": "緑町小学校",
+      "category": "building",
+      "geometry_type": "point",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.50920284,
+          43.72371389
+        ]
+      },
+      "confidence": "B",
+      "evidence_type": "public_gis",
+      "source_ids": [
+        "SRC_GSI_BVMAP",
+        "SRC_OSM_OVERPASS"
+      ],
+      "frontier_status": "defined",
+      "detail_ref": "reality/buildings.geojson#STR_MIDORI_SCHOOL",
+      "note": "外形は国土地理院 電子国土基本図。名称はOSM/Wikipedia由来で、最寄りの外形に対応付けた推定であり、GSI自身がこの建物にこの名称を与えているわけではない。",
+      "position_status": "located"
+    },
+    {
+      "id": "JP.01.546.MIDORI/TOWN_POST_OFFICE",
+      "name": "緑郵便局",
+      "category": "building",
+      "geometry_type": "point",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.5074439,
+          43.71911362
+        ]
+      },
+      "confidence": "B",
+      "evidence_type": "public_gis",
+      "source_ids": [
+        "SRC_GSI_BVMAP"
+      ],
+      "frontier_status": "defined",
+      "detail_ref": "reality/buildings.geojson#STR_MIDORI_POST_OFFICE",
+      "note": "外形は国土地理院 電子国土基本図。名称は地理院地図の注記由来で、最寄りの外形に対応付けた推定であり、GSI自身がこの建物にこの名称を与えているわけではない。",
+      "position_status": "located"
+    },
+    {
+      "id": "JP.01.546.MIDORI/TOWN_CENTRE",
+      "name": "緑センター",
+      "category": "building",
+      "geometry_type": "point",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.50832152,
+          43.71827336
+        ]
+      },
+      "confidence": "B",
+      "evidence_type": "public_gis",
+      "source_ids": [
+        "SRC_GSI_BVMAP",
+        "SRC_OSM_OVERPASS"
+      ],
+      "frontier_status": "defined",
+      "detail_ref": "reality/buildings.geojson#STR_MIDORI_CENTRE",
+      "note": "外形は国土地理院 電子国土基本図。名称はOSM/Wikipedia由来で、最寄りの外形に対応付けた推定であり、GSI自身がこの建物にこの名称を与えているわけではない。",
+      "position_status": "located"
+    },
+    {
+      "id": "JP.01.546.MIDORI/TOWN_POLICE_BOX",
+      "name": "斜里警察署緑駐在所",
+      "category": "building",
+      "geometry_type": "point",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.50780265,
+          43.71965615
+        ]
+      },
+      "confidence": "B",
+      "evidence_type": "public_gis",
+      "source_ids": [
+        "SRC_GSI_BVMAP"
+      ],
+      "frontier_status": "defined",
+      "detail_ref": "reality/buildings.geojson#STR_MIDORI_POLICE_BOX",
+      "note": "外形は国土地理院 電子国土基本図。名称は地理院地図の注記由来で、最寄りの外形に対応付けた推定であり、GSI自身がこの建物にこの名称を与えているわけではない。",
+      "position_status": "located"
+    },
+    {
+      "id": "JP.01.546.MIDORI/TOWN_FIRE_STATION",
+      "name": "第3分団消防庁舎",
+      "category": "building",
+      "geometry_type": "point",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.50796774,
+          43.71877412
+        ]
+      },
+      "confidence": "B",
+      "evidence_type": "public_gis",
+      "source_ids": [
+        "SRC_GSI_BVMAP",
+        "SRC_OSM_OVERPASS"
+      ],
+      "frontier_status": "defined",
+      "detail_ref": "reality/buildings.geojson#STR_MIDORI_FIRE_STATION",
+      "note": "外形は国土地理院 電子国土基本図。名称はOSM/Wikipedia由来で、最寄りの外形に対応付けた推定であり、GSI自身がこの建物にこの名称を与えているわけではない。",
+      "position_status": "located"
+    },
+    {
+      "id": "JP.01.546.MIDORI/TOWN_SKI_GROUND",
+      "name": "緑スキー場",
+      "category": "facility",
+      "geometry_type": "point",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.5006727,
+          43.7192461
+        ]
+      },
+      "confidence": "B",
+      "evidence_type": "public_gis",
+      "source_ids": [
+        "SRC_GSI_BVMAP"
+      ],
+      "frontier_status": "stub",
+      "detail_ref": null,
+      "note": "国土地理院 電子国土基本図の注記。位置は注記のアンカー点で、施設の範囲ではない。",
+      "position_status": "approximate",
+      "position_accuracy_m": 60
+    },
+    {
+      "id": "JP.01.546.MIDORI/FESTIVAL_STAGE",
+      "name": "緑駅前広場 舞台",
+      "category": "facility",
+      "geometry_type": "point",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.5064729,
+          43.7177164
+        ]
+      },
+      "confidence": "C",
+      "evidence_type": "user_survey",
+      "source_ids": [
+        "SRC_GSI_BVMAP",
+        "SRC_USER_TESTIMONY_2026"
+      ],
+      "frontier_status": "defined",
+      "detail_ref": "reality/buildings.geojson#STR_MIDORI_STAGE",
+      "note": "外形は国土地理院 電子国土基本図の建築物。舞台であるという同定は当事者証言にもとづく推論。",
+      "position_status": "located"
     }
   ],
   "last_updated": "2026-09-06"

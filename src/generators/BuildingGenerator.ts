@@ -9,13 +9,43 @@ import type { StationTextureSet } from './stationTextures';
 
 const DEFAULT_HEIGHT_M = 5;
 
+/**
+ * How high the station terrace stands above the rails.
+ *
+ * In every photograph of 緑駅 the plaza, the station floor and the platform
+ * deck are all one level, and the track is below, retained by the sheet
+ * piling along the platform's face. The DEM is a 10 m grid and has no such
+ * step in it, so the terrace is applied here: the platform, the station
+ * building and the forecourt all sit this far above the terrain the rails
+ * are laid on. It is the platform's own height, so the two agree by
+ * construction rather than by coincidence.
+ */
+export const STATION_TERRACE_HEIGHT_M = 0.8;
+
 /** Directive 08 §4.3: colors for the small fixed-shape structures that
  * aren't plain building boxes. Anything not listed keeps the original
  * generic building color. */
+/** Handled by TownGenerator, not by the generic box path below. */
+const TOWN_STRUCTURE_TYPES = new Set([
+  'town_building', 'bathhouse', 'school', 'post_office',
+  'community_centre', 'police_box', 'fire_station', 'stage',
+]);
+
+/** Flat ground surfaces: school grounds, the sports field, the park golf
+ *  course on the station forecourt. Drawn as a thin slab on the terrain. */
+const SURFACE_STRUCTURE_TYPES = new Set([
+  'school_grounds', 'sports_ground', 'park_golf', 'station_square',
+]);
+
 const STRUCTURE_COLORS: Record<string, number> = {
   container: 0x2f5a3a,
   level_crossing: 0x4a3b2a,
-  plaza_pavement: 0x2e6b3e,
+  // The forecourt really is painted green — photographs 001, 011, 016, 028,
+  // 032 and 033 all show green-painted asphalt, worn through to grey in the
+  // middle where the cars turn. An earlier pass here changed it to gravel on
+  // the strength of the platform-side photographs, which is the wrong side of
+  // the building: the gravel is behind, on the platform.
+  plaza_pavement: 0x5c7d6e,
 };
 
 function projectRing(
@@ -117,7 +147,9 @@ async function buildStationBuilding(
   // numerically against Directive 08's original hand-built basis).
   const forward = new THREE.Vector3(Math.sin(bearingRad), 0, -Math.cos(bearingRad));
   const right = new THREE.Vector3(forward.z, 0, -forward.x);
-  const baseY = heightAt(local.x, local.z);
+  // The station stands on the terrace, level with the platform deck, not on
+  // the trackbed — see STATION_TERRACE_HEIGHT_M.
+  const baseY = heightAt(local.x, local.z) + STATION_TERRACE_HEIGHT_M;
 
   // The solid form's dimensions now live in the Blender script and the GLB
   // it produces. What is still read here are the dimensions the planar
@@ -219,10 +251,18 @@ async function buildStationBuilding(
 
   // 駅名標 — the standing nameboard on the platform.
   const nameboardTexture = makeStationNameboardTexture(NAMEBOARD_WITH_NUMBER);
-  const nameboardMat = new THREE.MeshStandardMaterial({ map: nameboardTexture, roughness: 0.8, side: THREE.DoubleSide });
-  const nameboard = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 0.85), nameboardMat);
-  nameboard.position.set(-2.2, 1.85, -halfD - 2.2);
-  group.add(nameboard);
+  // A 駅名標 is read from both sides — from the platform and from the train.
+  // One double-sided plane gave the correct face to the plaza, which nobody
+  // stands on, and a mirror-image 「みどり」 to the platform, which is the only
+  // side anyone actually reads it from. Two back-to-back single-sided faces
+  // put the lettering the right way round in both directions.
+  const nameboardMat = new THREE.MeshStandardMaterial({ map: nameboardTexture, roughness: 0.8 });
+  for (const facing of [0, Math.PI]) {
+    const nameboard = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 0.85), nameboardMat);
+    nameboard.rotation.y = facing;
+    nameboard.position.set(-2.2, 1.85, -halfD - 2.2 + (facing === 0 ? 0.012 : -0.012));
+    group.add(nameboard);
+  }
   const postMat = new THREE.MeshStandardMaterial({ color: 0x7a3b32, roughness: 0.8 });
   for (const px of [-3.0, -1.4]) {
     const post = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 1.9, 8), postMat);
@@ -234,18 +274,28 @@ async function buildStationBuilding(
   namebeam.position.set(-2.2, 1.9, -halfD - 2.2);
   group.add(namebeam);
 
+  group.add(buildPlanters(halfD));
+
   // Two fluorescent battens on the waiting room's ceiling. Every photograph
   // of the interior has them lit, and without them the room the player just
   // walked into is a dark box.
   const ceilingH = (props.interior_ceiling_height_m ?? 2.6) + foundationRise;
-  const battenMat = new THREE.MeshBasicMaterial({ color: 0xfff6e2 });
+  // The tube itself glows but is not pure white — a MeshBasicMaterial at
+  // full white clipped to a featureless blob. The light is inverse-square,
+  // so hanging it a hand's width below the ceiling put a 200× hotspot on the
+  // plasterboard directly above it; dropping it to the batten's own height
+  // and cutting the intensity leaves the room lit without the ceiling
+  // burning out.
+  const battenMat = new THREE.MeshStandardMaterial({
+    color: 0xf2ecdc, emissive: 0xffefd0, emissiveIntensity: 0.9, roughness: 0.4,
+  });
   for (const bz of [-1.3, 1.1]) {
     const batten = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.06, 0.12), battenMat);
     batten.position.set(0, ceilingH - 0.06, bz);
     group.add(batten);
 
-    const lamp = new THREE.PointLight(0xffeccd, 12, 9, 2);
-    lamp.position.set(0, ceilingH - 0.25, bz);
+    const lamp = new THREE.PointLight(0xffeccd, 4.5, 8, 2);
+    lamp.position.set(0, ceilingH - 0.55, bz);
     group.add(lamp);
   }
 
@@ -278,6 +328,78 @@ async function buildStationBuilding(
   return group;
 }
 
+/**
+ * The flower planters along the platform frontage.
+ *
+ * Photographs 005, 013 and 014 all show a row of them in front of the
+ * building — timber half-barrels and concrete tubs, planted and clearly
+ * tended. They are the most distinctive thing about this platform and the
+ * World had none.
+ *
+ * THAT there are planters here is evidence; exactly where each one stands is
+ * not. They are laid out along the frontage on a fixed pattern, in the
+ * building's own frame, so they follow it wherever the Index puts it.
+ */
+function buildPlanters(halfD: number): THREE.Group {
+  const group = new THREE.Group();
+  group.name = 'Planters';
+
+  const timber = new THREE.MeshStandardMaterial({ color: 0x6b4a33, roughness: 0.95 });
+  const concrete = new THREE.MeshStandardMaterial({ color: 0x9c968c, roughness: 1 });
+  const soil = new THREE.MeshStandardMaterial({ color: 0x3b2f26, roughness: 1 });
+  const foliage = new THREE.MeshStandardMaterial({ color: 0x4e7a3a, roughness: 0.9 });
+  const blooms = [0xd94f4f, 0xe8c34a, 0xd97fb0, 0xe8e2d0].map(
+    (color) => new THREE.MeshStandardMaterial({ color, roughness: 0.7 }),
+  );
+
+  // (x along the frontage, distance out from the platform-side wall, barrel?)
+  // They stand under and just beyond the canopy, well back from the platform
+  // edge — an earlier pass had them out on the very lip of the drop.
+  const layout: [number, number, boolean][] = [
+    [-3.3, 1.1, false], [-1.9, 2.0, true], [-0.4, 1.2, false],
+    [1.3, 2.1, true], [2.8, 1.1, false], [4.2, 1.9, true],
+  ];
+
+  layout.forEach(([x, out, barrel], index) => {
+    const z = -halfD - out;
+    const radius = barrel ? 0.34 : 0.28;
+    const height = barrel ? 0.42 : 0.30;
+
+    const tub = new THREE.Mesh(
+      new THREE.CylinderGeometry(radius, radius * 0.88, height, barrel ? 12 : 8),
+      barrel ? timber : concrete,
+    );
+    tub.position.set(x, height / 2, z);
+    tub.castShadow = true;
+    tub.receiveShadow = true;
+    group.add(tub);
+
+    const fill = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.9, radius * 0.9, 0.04, 10), soil);
+    fill.position.set(x, height - 0.02, z);
+    group.add(fill);
+
+    // a low mound of leaves with a few flower heads standing out of it
+    const mound = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.95, 8, 5), foliage);
+    mound.scale.set(1, 0.55, 1);
+    mound.position.set(x, height + 0.10, z);
+    mound.castShadow = true;
+    group.add(mound);
+
+    for (let i = 0; i < 5; i++) {
+      const angle = (i / 5) * Math.PI * 2 + index;
+      const r = radius * 0.55;
+      const bloom = new THREE.Mesh(
+        new THREE.SphereGeometry(0.055, 6, 4),
+        blooms[(index + i) % blooms.length],
+      );
+      bloom.position.set(x + Math.cos(angle) * r, height + 0.22, z + Math.sin(angle) * r);
+      group.add(bloom);
+    }
+  });
+
+  return group;
+}
+
 /** Directive 08 §4.2: platform box with a distinct teal painted edge band. */
 function buildPlatform(
   feature: RealityData,
@@ -292,22 +414,145 @@ function buildPlatform(
   if (geometry.type !== 'Polygon') throw new Error('platform requires a Polygon footprint');
   const ring = geometry.coordinates[0];
   const points = projectRing(ring.slice(0, 4) as [number, number][], tangentPlane);
-  const height = (feature.properties.height_m as number | undefined) ?? 0.8;
+  const height = (feature.properties.height_m as number | undefined) ?? STATION_TERRACE_HEIGHT_M;
   const edgeWidth = (feature.properties.edge_width_m as number | undefined) ?? 0.225;
 
   const centroid = centroidOf(points);
   const base = heightAt(centroid.x, -centroid.y);
 
-  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x6b6258, roughness: 1 }); // 暗色の波形鋼板/矢板 + 砂利敷き
+  // Photographs 013 and 014 show the platform retained by dark steel sheet
+  // piling, not a plain earth bank: vertical piles with horizontal walings
+  // bolted across them, and a coping along the top. The source frames are
+  // 400-560 px wide, far too coarse to crop as a texture, so the piling is
+  // modelled instead — at the 400 mm pitch of standard 鋼矢板, which is a
+  // catalogue dimension rather than something read off the photograph.
+  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x3c3a35, roughness: 0.85, metalness: 0.25 });
   const body = new THREE.Mesh(extrudeFootprint(points, height), bodyMat);
   body.position.set(0, base, 0);
+  body.receiveShadow = true;
   group.add(body);
 
+  // The deck itself is gravel, a different surface from the steel face.
+  const deckMat = new THREE.MeshStandardMaterial({ color: 0x8a837a, roughness: 1 });
+  const deck = new THREE.Mesh(extrudeFootprint(points, 0.02), deckMat);
+  deck.position.set(0, base + height, 0);
+  deck.receiveShadow = true;
+  group.add(deck);
+
+  group.add(buildSheetPiling(points, base, height, bodyMat));
+
+  // The painted warning line goes on the track edge only. Painting it round
+  // the whole ring, as this did, drew a line along the back of the platform
+  // where nothing arrives — and on an opposed pair, along the two faces that
+  // look at each other across the tracks.
   const edgeMat = new THREE.MeshStandardMaterial({ color: 0x1f7a72, roughness: 0.6 }); // ティール（青緑）
-  const insetPoints = insetQuad(points, edgeWidth);
-  const edge = new THREE.Mesh(extrudeFootprint(points, 0.02, insetPoints), edgeMat);
-  edge.position.set(0, base + height, 0);
+  const trackEdge = feature.properties.track_edge_index as number | undefined;
+  const stripe = trackEdge === undefined
+    ? extrudeFootprint(points, 0.02, insetQuad(points, edgeWidth))
+    : extrudeFootprint(edgeStripe(points, trackEdge, edgeWidth), 0.02);
+  const edge = new THREE.Mesh(stripe, edgeMat);
+  edge.position.set(0, base + height + 0.02, 0);
   group.add(edge);
+
+  return group;
+}
+
+/** The quad covering one edge of a footprint, `width` metres deep inward. */
+function edgeStripe(points: THREE.Vector2[], edgeIndex: number, width: number): THREE.Vector2[] {
+  const a = points[edgeIndex % points.length];
+  const b = points[(edgeIndex + 1) % points.length];
+  const centre = centroidOf(points);
+  const along = new THREE.Vector2().subVectors(b, a).normalize();
+  // inward normal: whichever perpendicular points at the footprint's centre
+  let inward = new THREE.Vector2(-along.y, along.x);
+  if (inward.dot(new THREE.Vector2().subVectors(centre, a)) < 0) inward.negate();
+  const offset = inward.multiplyScalar(width);
+  return [
+    a.clone(),
+    b.clone(),
+    b.clone().add(offset),
+    a.clone().add(offset),
+  ];
+}
+
+/** Pile pitch of standard 鋼矢板 (Type II and up), in metres. */
+const SHEET_PILE_PITCH_M = 0.4;
+
+/**
+ * The vertical piles and horizontal walings on a platform's retaining face.
+ *
+ * Built as instances around the footprint's perimeter: the shape is what
+ * makes the platform read as a retained embankment rather than a slab of
+ * flat colour, and it is the same detail at every point along it.
+ */
+function buildSheetPiling(
+  points: THREE.Vector2[],
+  base: number,
+  height: number,
+  material: THREE.Material,
+): THREE.Group {
+  const group = new THREE.Group();
+  group.name = 'SheetPiling';
+
+  const RIB_WIDTH = 0.07;
+  const RIB_PROUD = 0.05;
+  const up = new THREE.Vector3(0, 1, 0);
+
+  const ribs: THREE.Matrix4[] = [];
+  const walings: THREE.Matrix4[] = [];
+  const matrix = new THREE.Matrix4();
+  const quaternion = new THREE.Quaternion();
+
+  for (let i = 0; i < points.length; i++) {
+    const a = points[i];
+    const b = points[(i + 1) % points.length];
+    // shape space is (x, -z), so the World edge runs from (a.x,-a.y)
+    const ax = a.x, az = -a.y;
+    const bx = b.x, bz = -b.y;
+    const dx = bx - ax, dz = bz - az;
+    const length = Math.hypot(dx, dz);
+    if (length < 1e-3) continue;
+    const angle = Math.atan2(dx, dz);
+    quaternion.setFromAxisAngle(up, angle);
+
+    const count = Math.max(1, Math.round(length / SHEET_PILE_PITCH_M));
+    for (let j = 0; j <= count; j++) {
+      const t = j / count;
+      ribs.push(matrix.compose(
+        new THREE.Vector3(ax + dx * t, base + height / 2, az + dz * t),
+        quaternion,
+        new THREE.Vector3(1, 1, 1),
+      ).clone());
+    }
+    // two walings across the piles, at a third and two thirds of the height
+    for (const f of [0.34, 0.68]) {
+      walings.push(matrix.compose(
+        new THREE.Vector3(ax + dx / 2, base + height * f, az + dz / 2),
+        quaternion,
+        new THREE.Vector3(1, 1, length / 2),
+      ).clone());
+    }
+  }
+
+  // After the rotation above, the box's local +Z runs along the edge and
+  // its local +X points out of the face — so the pile is thin in Z (its
+  // width along the wall) and shallow in X (how far it stands proud).
+  const ribGeom = new THREE.BoxGeometry(RIB_PROUD * 2, height, RIB_WIDTH);
+  const ribMesh = new THREE.InstancedMesh(ribGeom, material, ribs.length);
+  ribs.forEach((m, i) => ribMesh.setMatrixAt(i, m));
+  ribMesh.instanceMatrix.needsUpdate = true;
+  ribMesh.castShadow = true;
+  ribMesh.frustumCulled = false;
+  group.add(ribMesh);
+
+  // scale z on the 2 m waling box gives the edge's own length
+  const walingGeom = new THREE.BoxGeometry(RIB_PROUD * 1.4, 0.09, 2);
+  const walingMesh = new THREE.InstancedMesh(walingGeom, material, walings.length);
+  walings.forEach((m, i) => walingMesh.setMatrixAt(i, m));
+  walingMesh.instanceMatrix.needsUpdate = true;
+  walingMesh.castShadow = true;
+  walingMesh.frustumCulled = false;
+  group.add(walingMesh);
 
   return group;
 }
@@ -342,6 +587,9 @@ export class BuildingGenerator {
     for (const feature of buildingData) {
       const structureType = feature.properties.structure_type as string | undefined;
       if (structureType === 'station_building') continue; // Directive 10 §2: generated separately, position from Spatial Index
+      // The settlement is built by TownGenerator, which puts a roof on each
+      // outline instead of leaving it a flat-topped box.
+      if (TOWN_STRUCTURE_TYPES.has(structureType ?? '')) continue;
 
       if (feature.geometry.type !== 'Polygon') continue;
       const ring = feature.geometry.coordinates[0];
@@ -353,14 +601,45 @@ export class BuildingGenerator {
       }
 
       const points = projectRing(ring, tangentPlane);
+
+      if (SURFACE_STRUCTURE_TYPES.has(structureType ?? '')) {
+        // The terrain now carries 国土地理院's aerial photograph, which already
+        // shows this ground as it is. These stay only as a light tint that
+        // says "this area is one thing" — laid on opaque they replaced a
+        // photograph of the real surface with a flat colour, which is a step
+        // backwards.
+        const colour = new THREE.Color((feature.properties.surface_colour as string | undefined) ?? '#6f7a52');
+        const surfaceCentroid = centroidOf(points);
+        const slab = new THREE.Mesh(
+          extrudeFootprint(points, 0.06),
+          new THREE.MeshStandardMaterial({
+            color: colour, roughness: 1, transparent: true, opacity: 0.35, depthWrite: false,
+          }),
+        );
+        slab.position.set(0, heightAt(surfaceCentroid.x, -surfaceCentroid.y), 0);
+        slab.receiveShadow = true;
+        slab.name = feature.id;
+        slab.userData.realityData = feature;
+        group.add(slab);
+        continue;
+      }
+
       const buildingHeight = (feature.properties.height_m as number | undefined) ?? DEFAULT_HEIGHT_M;
       const geometry = extrudeFootprint(points, buildingHeight);
       const centroid = centroidOf(points);
-      const base = heightAt(centroid.x, -centroid.y);
+      // The forecourt and the rail container beside it are on the station
+      // terrace, level with the platform deck and the station floor; the
+      // 構内踏切 stays down at the rails, which is the point of it.
+      const onTerrace = structureType === 'plaza_pavement' || structureType === 'container';
+      const base = heightAt(centroid.x, -centroid.y) + (onTerrace ? STATION_TERRACE_HEIGHT_M : 0);
 
-      const material = structureType && STRUCTURE_COLORS[structureType] !== undefined
-        ? new THREE.MeshStandardMaterial({ color: STRUCTURE_COLORS[structureType], roughness: 0.9 })
-        : defaultMaterial;
+      const material = structureType === 'plaza_pavement'
+        ? new THREE.MeshStandardMaterial({
+          color: STRUCTURE_COLORS.plaza_pavement, roughness: 0.95, transparent: true, opacity: 0.5, depthWrite: false,
+        })
+        : structureType && STRUCTURE_COLORS[structureType] !== undefined
+          ? new THREE.MeshStandardMaterial({ color: STRUCTURE_COLORS[structureType], roughness: 0.9 })
+          : defaultMaterial;
 
       const mesh = new THREE.Mesh(geometry, material);
       mesh.position.set(0, base, 0);

@@ -14,6 +14,8 @@ import { CollisionWorld } from './player/Collision';
 import { TrainController } from './generators/TrainController';
 import { loadStationTextures } from './generators/stationTextures';
 import { VegetationGenerator } from './generators/VegetationGenerator';
+import { StationTerrace } from './generators/StationTerrace';
+import { TownGenerator } from './generators/TownGenerator';
 import type { Blocker } from './player/Collision';
 import type { ResolvedPosition } from './generators/BuildingGenerator';
 
@@ -77,7 +79,13 @@ async function bootstrap(): Promise<void> {
   let heightAt = (_x: number, _z: number) => 0;
 
   if (heightField) {
-    const terrain = TerrainGenerator.generate(heightField, world.tangentPlane);
+    // 国土地理院's own aerial photography, resampled onto the DEM's grid, so
+    // the ground carries the real fields, forest edges, tracks and yards
+    // instead of one flat green. 出典: 国土地理院「シームレス空中写真」.
+    const terrain = TerrainGenerator.generate(heightField, world.tangentPlane, {
+      orthophotoUrl: `${import.meta.env.BASE_URL}assets/textures/midori_orthophoto.jpg`,
+      renderer: sceneManager.renderer,
+    });
     heightAt = terrain.heightAt;
     world.group.add(terrain.mesh);
   }
@@ -98,6 +106,23 @@ async function bootstrap(): Promise<void> {
   world.group.add(RailwayGenerator.generate(world.find('railway'), world.tangentPlane, heightAt));
   world.group.add(RoadGenerator.generate(world.find('road'), world.tangentPlane, heightAt));
   world.group.add(BuildingGenerator.generate(world.find('building'), world.tangentPlane, heightAt));
+
+  // 緑町 itself — about 300 OpenStreetMap footprints, each given a roof so
+  // the street reads as the row of low houses with coloured tin roofs the
+  // photographs show. See scripts/import-osm-town.mjs for what in this is
+  // survey data (the outlines) and what is not (everything above them).
+  world.group.add(TownGenerator.generate(world.find('building'), world.tangentPlane, heightAt));
+
+  // The station's platforms and forecourt stand about 0.8 m above the rails,
+  // and the station floor with them. `heightAt` is the bare DEM and knows
+  // nothing about that, so the player used to walk at trackbed level with the
+  // platform deck over their head and the waiting room out of reach.
+  // `groundAt` is the same terrain with the station's terrace raised over the
+  // footprints Reality Data already carries, ramped at the edges so it can be
+  // walked up. Everything laid ON the terrain — the trackbed, the roads, the
+  // platform boxes themselves — keeps using the bare `heightAt`.
+  const terrace = new StationTerrace(world.find('building'), world.tangentPlane);
+  const groundAt = terrace.wrap(heightAt);
 
   // Structures the player cannot walk through — currently the station
   // building's walls, so its waiting room is a room you enter through the
@@ -170,6 +195,29 @@ async function bootstrap(): Promise<void> {
         return new THREE.Vector3(p.x, 0, p.z);
       }));
     }
+    // Every building and open-ground footprint becomes a circle the scatter
+    // steps around, so the forest stops at the settlement instead of growing
+    // through it.
+    const keepClearOfCircles = world.find('building')
+      .filter((f) => f.geometry.type === 'Polygon')
+      .map((f) => {
+        const ring = (f.geometry.coordinates as [number, number][][])[0];
+        let x = 0;
+        let z = 0;
+        const n = ring.length - 1;
+        let maxR = 0;
+        for (let i = 0; i < n; i++) {
+          const local = world.tangentPlane.project(ring[i][1], ring[i][0]);
+          x += local.x / n;
+          z += local.z / n;
+        }
+        for (let i = 0; i < n; i++) {
+          const local = world.tangentPlane.project(ring[i][1], ring[i][0]);
+          maxR = Math.max(maxR, Math.hypot(local.x - x, local.z - z));
+        }
+        return { x, z, radius: maxR + 5 };
+      });
+
     world.group.add(VegetationGenerator.generate({
       heightAt,
       clearingCentre: stationWorldPosition,
@@ -177,6 +225,7 @@ async function bootstrap(): Promise<void> {
       extentM: 640,
       keepClearOf,
       keepClearRadiusM: 13,
+      keepClearOfCircles,
       count: 7000,
     }));
   }
@@ -196,11 +245,11 @@ async function bootstrap(): Promise<void> {
     startX = local.x + 15;
     startZ = local.z + 10;
   }
-  const startY = heightAt(startX, startZ);
+  const startY = groundAt(startX, startZ);
   const player = new PlayerController({
     camera: sceneManager.camera,
     domElement: sceneManager.renderer.domElement,
-    heightAt,
+    heightAt: groundAt,
     start: new THREE.Vector3(startX, startY, startZ),
     joystickElement: joystick,
     settings,
@@ -279,13 +328,13 @@ async function bootstrap(): Promise<void> {
 
     // Directive 09.1 §6: overlay/credit/unlocated-list visibility follows
     // actual height above ground, not the overview-toggle flag directly.
-    const agl = player.position.y - heightAt(player.position.x, player.position.z);
+    const agl = player.position.y - groundAt(player.position.x, player.position.z);
     const showOverlay = agl > OVERVIEW_AGL_THRESHOLD_M;
     osmCredit.style.display = showOverlay ? 'block' : 'none';
     document.body.classList.toggle('overview-mode', showOverlay);
     if (indexOverlay) {
       indexOverlay.setVisible(showOverlay);
-      indexOverlay.update(heightAt);
+      indexOverlay.update(groundAt);
     }
     // The ground-level fog (near=200, far=1800) is an atmospheric effect
     // for walking around at eye level — from a high overview vantage it

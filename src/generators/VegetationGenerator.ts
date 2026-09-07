@@ -27,6 +27,10 @@ export interface VegetationOptions {
   /** Polylines (railway, roads) to keep clear of, in World XZ. */
   keepClearOf: THREE.Vector3[][];
   keepClearRadiusM: number;
+  /** Circles to leave alone — the town's buildings and its open ground.
+   *  Trees growing through three hundred houses is the single loudest way to
+   *  say "this scatter has never met the settlement it is scattered over". */
+  keepClearOfCircles?: { x: number; z: number; radius: number }[];
   count: number;
 }
 
@@ -138,6 +142,7 @@ export class VegetationGenerator {
       const z = options.clearingCentre.z + Math.sin(angle) * radius;
 
       if (distanceToPolylines(x, z, options.keepClearOf) < options.keepClearRadiusM) continue;
+      if (options.keepClearOfCircles?.some((c) => Math.hypot(x - c.x, z - c.z) < c.radius)) continue;
 
       const y = options.heightAt(x, z);
       position.set(x, y, z);
