@@ -2,11 +2,21 @@ import * as THREE from 'three';
 import type { RealityData } from '../reality/RealityData';
 import type { LocalTangentPlane } from '../core/Coordinates';
 import {
+  BALLAST_TOP_M,
+  FISHPLATE_DEPTH_M,
+  FISHPLATE_HEIGHT_M,
+  FISHPLATE_LENGTH_M,
   RAIL_CENTRE_OFFSET_M,
+  RAIL_HEIGHT_M,
   SLEEPER_DEPTH_M,
   SLEEPER_LENGTH_M,
   SLEEPER_WIDTH_M,
+  TIE_PLATE_DEPTH_M,
+  TIE_PLATE_LENGTH_M,
+  TIE_PLATE_WIDTH_M,
   ballastProfile,
+  jointDistances,
+  pointAt,
   railProfile,
   sleeperPlacements,
   sweepProfile,
@@ -86,6 +96,8 @@ function makeBallastTexture(): THREE.Texture {
   return texture;
 }
 
+const UP = new THREE.Vector3(0, 1, 0);
+
 export class RailwayGenerator {
   static generate(
     railwayData: RealityData[],
@@ -103,8 +115,24 @@ export class RailwayGenerator {
     // material, biased to the bright side, because the head is what is seen.
     const railMat = new THREE.MeshStandardMaterial({ color: 0x9a9490, roughness: 0.35, metalness: 0.85 });
 
-    const sleeperGeometry = new THREE.BoxGeometry(SLEEPER_WIDTH_M, SLEEPER_DEPTH_M, SLEEPER_LENGTH_M);
+    // Fastenings are steel, and darker and shinier than the rail's flank.
+    const steelMat = new THREE.MeshStandardMaterial({ color: 0x6a635d, roughness: 0.55, metalness: 0.7 });
+
+    // The instance basis (see sleeperPlacements) maps local X across the track
+    // and local Z along it, so the 2.1 m dimension is X. Built the other way
+    // round, as this was, every sleeper lay 2.1 m ALONG the rails at a 0.64 m
+    // pitch — they overlapped three deep and the track read as a plank.
+    const sleeperGeometry = new THREE.BoxGeometry(SLEEPER_LENGTH_M, SLEEPER_DEPTH_M, SLEEPER_WIDTH_M);
     const allSleepers: THREE.Matrix4[] = [];
+    const allTiePlates: THREE.Matrix4[] = [];
+    const allFishplates: THREE.Matrix4[] = [];
+    // Everything bolted to the rail is drawn only where the player can be —
+    // a tie plate is 300 mm long and there are 17,000 of them over 5.5 km.
+    const FASTENING_RADIUS_M = 320;
+    const centre = new THREE.Vector3(0, 0, 0);
+    const basis = new THREE.Matrix4();
+    const quaternion = new THREE.Quaternion();
+    const unit = new THREE.Vector3(1, 1, 1);
 
     for (const feature of railwayData) {
       if (feature.geometry.type !== 'LineString') continue;
@@ -132,6 +160,35 @@ export class RailwayGenerator {
       // the standard pitch the full 5.5 km is about 8,500 boxes, which is one
       // instanced draw.
       allSleepers.push(...sleeperPlacements(path, null, 0));
+
+      // タイプレート: one under each rail seat, on the sleeper's top face.
+      for (const seat of sleeperPlacements(path, centre, FASTENING_RADIUS_M)) {
+        for (const side of [-1, 1]) {
+          const m = new THREE.Matrix4().copy(seat);
+          m.multiply(new THREE.Matrix4().makeTranslation(
+            side * RAIL_CENTRE_OFFSET_M,
+            SLEEPER_DEPTH_M / 2 + TIE_PLATE_DEPTH_M / 2,
+            0,
+          ));
+          allTiePlates.push(m);
+        }
+      }
+
+      // 継目板: a pair bolted across the web at every 25 m rail joint.
+      for (const d of jointDistances(path, centre, FASTENING_RADIUS_M)) {
+        const p = pointAt(path, d);
+        if (!p) continue;
+        const normal = new THREE.Vector3().crossVectors(p.side, UP).normalize();
+        quaternion.setFromRotationMatrix(basis.makeBasis(p.side, UP, normal));
+        for (const side of [-1, 1]) {
+          for (const face of [-1, 1]) {
+            const position = new THREE.Vector3().copy(p.position)
+              .addScaledVector(p.side, side * RAIL_CENTRE_OFFSET_M + face * 0.042)
+              .add(new THREE.Vector3(0, BALLAST_TOP_M + RAIL_HEIGHT_M * 0.45, 0));
+            allFishplates.push(new THREE.Matrix4().compose(position, quaternion, unit));
+          }
+        }
+      }
     }
 
     if (allSleepers.length > 0) {
@@ -151,6 +208,33 @@ export class RailwayGenerator {
       }
       sleepers.instanceColor.needsUpdate = true;
       group.add(sleepers);
+    }
+
+    if (allTiePlates.length > 0) {
+      const plates = new THREE.InstancedMesh(
+        new THREE.BoxGeometry(TIE_PLATE_LENGTH_M, TIE_PLATE_DEPTH_M, TIE_PLATE_WIDTH_M),
+        steelMat, allTiePlates.length,
+      );
+      allTiePlates.forEach((m, i) => plates.setMatrixAt(i, m));
+      plates.instanceMatrix.needsUpdate = true;
+      plates.castShadow = true;
+      plates.receiveShadow = true;
+      plates.frustumCulled = false;
+      plates.name = 'TiePlates';
+      group.add(plates);
+    }
+
+    if (allFishplates.length > 0) {
+      const plates = new THREE.InstancedMesh(
+        new THREE.BoxGeometry(FISHPLATE_DEPTH_M, FISHPLATE_HEIGHT_M, FISHPLATE_LENGTH_M),
+        steelMat, allFishplates.length,
+      );
+      allFishplates.forEach((m, i) => plates.setMatrixAt(i, m));
+      plates.instanceMatrix.needsUpdate = true;
+      plates.castShadow = true;
+      plates.frustumCulled = false;
+      plates.name = 'Fishplates';
+      group.add(plates);
     }
 
     return group;

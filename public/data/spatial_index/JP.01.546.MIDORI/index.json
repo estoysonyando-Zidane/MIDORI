@@ -10115,8 +10115,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          144.50583613970392,
-          43.71806130333155
+          144.50583276676372,
+          43.718059686032426
         ]
       },
       "orientation": {
@@ -10128,7 +10128,7 @@
       "source_ids": [],
       "frontier_status": "defined",
       "detail_ref": "reality/buildings.geojson#STR_MIDORI_STATION_BUILDING",
-      "note": "scripts/rebuild-station-yard.mjs による再構成。駅点(confidence A / public_gis)を唯一のアンカーとし、線路中心からホーム面 1.8 m、ホーム幅 3.5 m、駅舎奥行 6 m の順に積み上げて中心を決めている。旧座標は Directive 08 が実装上の都合で置いたもので、線路中心から 4.0 m — 6.0 m 奥行の建物のホーム側壁が線路から 1.0 m の位置に来る、建築限界上ありえない配置だった。実測ではないので confidence C / inference のまま据え置く。",
+      "note": "scripts/rebuild-station-yard.mjs による再構成。駅点(confidence A / public_gis)を唯一のアンカーとし、線路中心からホーム面 1.475 m、ホーム幅 3.5 m、駅舎奥行 6 m の順に積み上げて中心を決めている。旧座標は Directive 08 が実装上の都合で置いたもので、線路中心から 4.0 m — 6.0 m 奥行の建物のホーム側壁が線路から 1.0 m の位置に来る、建築限界上ありえない配置だった。実測ではないので confidence C / inference のまま据え置く。",
       "position_status": "approximate",
       "position_accuracy_m": 8
     },
@@ -10140,8 +10140,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          144.50586371125,
-          43.71822038547688
+          144.50586202477987,
+          43.71821957682732
         ]
       },
       "confidence": "A",
@@ -10151,7 +10151,7 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/buildings.geojson#STR_MIDORI_PLAZA_PAVEMENT",
-      "note": "scripts/rebuild-station-yard.mjs による再構成。広場が緑色に塗装されている事実は写真によりconfidence A。奥行きは国土地理院 電子国土基本図の道路縁(ftCode 2201)までの距離として決めており、駅舎正面から約 17.1 m。以前の版はここを17 mの矩形と推定していたが、実際には道路が駅舎のすぐ前を通る。",
+      "note": "scripts/rebuild-station-yard.mjs による再構成。広場が緑色に塗装されている事実は写真によりconfidence A。奥行きは国土地理院 電子国土基本図の道路縁(ftCode 2201)までの距離として決めており、駅舎正面から約 17.4 m。以前の版はここを17 mの矩形と推定していたが、実際には道路が駅舎のすぐ前を通る。",
       "position_status": "approximate",
       "position_accuracy_m": 12
     },
@@ -10163,8 +10163,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          144.50599201582241,
-          43.71781112076484
+          144.50598864288222,
+          43.717809503465716
         ]
       },
       "confidence": "C",
@@ -10175,7 +10175,7 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/buildings.geojson#STR_MIDORI_PLATFORM_1",
-      "note": "scripts/rebuild-station-yard.mjs による再構成。長さ 120 m、幅 3.5 m、線路中心からホーム面 1.8 m。長さと幅は写真013/014の見えから、線路中心からの離れはJRの低ホームの一般値による。",
+      "note": "scripts/rebuild-station-yard.mjs による再構成。長さ 120 m、幅 3.5 m、線路中心からホーム面 1.475 m。長さと幅は写真013/014の見えから、線路中心からの離れはJRの低ホームの一般値による。",
       "position_status": "approximate",
       "position_accuracy_m": 8
     },
@@ -10187,8 +10187,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          144.50587577911352,
-          43.717755386148774
+          144.50587915205372,
+          43.7177570034479
         ]
       },
       "confidence": "C",
