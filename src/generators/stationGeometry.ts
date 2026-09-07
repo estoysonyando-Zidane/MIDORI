@@ -25,27 +25,43 @@ function finishGeometry(positions: number[]): THREE.BufferGeometry {
 }
 
 /**
- * A symmetric gable roof: ridge running along X at `ridgeY`, sloping down
- * to `eaveY` at z = ±halfDepth, spanning x = ±halfWidth. Closed with
- * triangular gable-end walls at both ends (winding verified by hand so
- * every face's outward normal actually points outward — see Directive 08
- * session notes for the derivation).
+ * Directive 10 / spec v1.2 §4.3: the main gable roof, with its RIDGE
+ * RUNNING ALONG Z (the building's depth/front-back axis — "奥行き方向"),
+ * not along X as Directive 08 mistakenly built (spec v1.1 never defined
+ * the ridge direction at all, so that was an invented default). Eaves sit
+ * at x = ±halfWidth, height `eaveY`; the ridge runs from `westZ` to
+ * `eastZ` at constant height `ridgeY`, closed with a triangular gable-end
+ * wall at BOTH ends (the east one is what's "seen as a triangle from the
+ * front (東面)" per spec — the west one mostly disappears behind the
+ * platform-side canopy, but is still real geometry, not an open box).
+ *
+ * Winding: the two slopes reuse the exact triangle order already verified
+ * for buildPorchRoof's slopes (same shape, this is just the same two
+ * slopes at building scale); the added west gable triangle's winding was
+ * independently re-derived via the cross-product method (see Directive 10
+ * session notes) to confirm its outward normal points -Z.
  */
-export function buildGableRoof(halfWidth: number, halfDepth: number, eaveY: number, ridgeY: number): THREE.BufferGeometry {
-  const A = new THREE.Vector3(-halfWidth, eaveY, -halfDepth);
-  const B = new THREE.Vector3(halfWidth, eaveY, -halfDepth);
-  const C = new THREE.Vector3(halfWidth, eaveY, halfDepth);
-  const D = new THREE.Vector3(-halfWidth, eaveY, halfDepth);
-  const R0 = new THREE.Vector3(-halfWidth, ridgeY, 0);
-  const R1 = new THREE.Vector3(halfWidth, ridgeY, 0);
+export function buildGableRoofZAxis(
+  halfWidth: number,
+  westZ: number,
+  eastZ: number,
+  eaveY: number,
+  ridgeY: number,
+): THREE.BufferGeometry {
+  const BL = new THREE.Vector3(-halfWidth, eaveY, westZ);
+  const BR = new THREE.Vector3(halfWidth, eaveY, westZ);
+  const FL = new THREE.Vector3(-halfWidth, eaveY, eastZ);
+  const FR = new THREE.Vector3(halfWidth, eaveY, eastZ);
+  const RidgeWest = new THREE.Vector3(0, ridgeY, westZ);
+  const RidgeEast = new THREE.Vector3(0, ridgeY, eastZ);
 
   const positions: number[] = [];
-  pushTri(positions, A, R0, R1); // rear slope
-  pushTri(positions, A, R1, B);
-  pushTri(positions, D, R1, R0); // front slope
-  pushTri(positions, D, C, R1);
-  pushTri(positions, A, D, R0); // left gable end
-  pushTri(positions, B, R1, C); // right gable end
+  pushTri(positions, BL, FL, RidgeWest); // -X slope
+  pushTri(positions, FL, RidgeEast, RidgeWest);
+  pushTri(positions, BR, RidgeWest, FR); // +X slope
+  pushTri(positions, FR, RidgeWest, RidgeEast);
+  pushTri(positions, FL, FR, RidgeEast); // east gable end (the visible 妻面, front)
+  pushTri(positions, BR, BL, RidgeWest); // west gable end (mostly behind the canopy)
   return finishGeometry(positions);
 }
 
