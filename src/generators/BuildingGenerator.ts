@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import type { RealityData } from '../reality/RealityData';
 import type { LocalTangentPlane } from '../core/Coordinates';
-import { buildGableRoofZAxis, buildLeanToRoof, buildPorchRoof, makeLabelTexture, makeMuralTexture } from './stationGeometry';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { makeLabelTexture, makeMuralTexture } from './stationGeometry';
 
 const DEFAULT_HEIGHT_M = 5;
 
@@ -72,25 +73,30 @@ export interface ResolvedPosition {
 }
 
 /**
- * Directive 10 §4.3 / spec v1.2: the station building's compound mesh.
- * Position and orientation come from `position` (resolved by the caller
- * from the Spatial Index entity JP.01.546.MIDORI/STATION_BUILDING — see
- * main.ts) — never from `feature.geometry`, which this function does not
- * read at all. Only dimensions/appearance come from Reality Data
- * (`feature.properties`).
+ * Directive 11 §4: the station building's solid form is no longer generated
+ * here. It is loaded from `modelUrl` — a Blender-authored glTF asset built
+ * by scripts/blender/build_station.py straight from spec v1.2's dimensions,
+ * so the shape lives in an engine-neutral format rather than in this
+ * renderer's code.
  *
- * Roof ridge runs along local +Z (the depth/front-back axis) per spec
- * v1.2 §4.3 — Directive 08 built it along +X (width axis) because v1.1
- * never defined the ridge direction; that produced the "twisted floating
- * panel" failure this rebuild corrects. See stationGeometry.ts for the
- * per-triangle winding derivation.
+ * What this function still builds are the planar elements Directive 11 §3.5
+ * keeps on the Three.js side: the windows, the "みどり" signboards, the
+ * "緑　駅" lettering, the mural band, the platform nameboard and the
+ * entrance door. All of them are textured plane polygons, not solid form.
+ *
+ * Position and orientation come from `position` (resolved by the caller from
+ * the Spatial Index entity JP.01.546.MIDORI/STATION_BUILDING — see main.ts),
+ * never from `feature.geometry`, which this function does not read at all.
+ * The GLB's origin is the centre of the building's ground contact plane and
+ * its axes match this group's, so it needs no transform of its own.
  */
-function buildStationBuilding(
+async function buildStationBuilding(
   feature: RealityData,
   position: ResolvedPosition,
   tangentPlane: LocalTangentPlane,
   heightAt: (x: number, z: number) => number,
-): THREE.Group {
+  modelUrl: string,
+): Promise<THREE.Group> {
   const local = tangentPlane.project(position.lat, position.lon);
   const bearingRad = (position.facadeBearingDeg * Math.PI) / 180;
   // forward = the direction the front (porch) faces, in World XZ.
@@ -101,24 +107,22 @@ function buildStationBuilding(
   const right = new THREE.Vector3(forward.z, 0, -forward.x);
   const baseY = heightAt(local.x, local.z);
 
+  // The solid form's dimensions now live in the Blender script and the GLB
+  // it produces. What is still read here are the dimensions the planar
+  // elements below are positioned against — they have to agree with the
+  // model, so they come from the same Reality Data values the Blender
+  // script's constants were taken from.
   const props = feature.properties as Record<string, number>;
   const width = props.width_m ?? 7.0;
   const depth = props.depth_m ?? 6.0;
   const eaveH = props.eave_height_m ?? 3.5;
-  const ridgeH = props.ridge_height_m ?? 4.5;
-  const porchApex = props.porch_apex_height_m ?? 4.8;
   const porchBaseH = props.porch_base_height_m ?? 2.6;
-  const canopyDepth = props.canopy_depth_m ?? 2.75;
-  const foundationRise = props.foundation_rise_m ?? 0.4;
+  const porchApex = props.porch_apex_height_m ?? 4.8;
   const porchWidth = props.porch_width_m ?? 2.6;
   const porchDepth = props.porch_depth_m ?? 1.0;
+  const foundationRise = props.foundation_rise_m ?? 0.4;
   const doorHeight = props.door_height_m ?? 2.25;
   const doorWidth = props.door_width_m ?? 1.8;
-  // Directive 10 / spec v1.2 §4.3 gives the slope as an exact relationship
-  // — eave 3.5m to ridge 4.5m over a half-width of exactly 3.5m (the
-  // wall's own half-width, not a wider figure) — so the main roof carries
-  // NO overhang beyond the wall face; adding one would silently change the
-  // slope away from spec's stated ~16°. (Confirmed: atan(1.0/3.5) = 15.95°.)
 
   const group = new THREE.Group();
   group.name = feature.id;
@@ -126,23 +130,6 @@ function buildStationBuilding(
   group.position.set(local.x, baseY, local.z);
   group.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(right, new THREE.Vector3(0, 1, 0), forward));
 
-  // Directive 10 Visual QA cycle 1 finding: on faces angled away from the
-  // scene's single directional sun (src/rendering/Lighting.ts, not touched
-  // here — it's shared by the whole World), a purely diffuse cream material
-  // shades down to a flat gray, visually reproducing Directive 08's "gray
-  // wall" defect through lighting rather than color. A small matching
-  // emissive term keeps the cream/off-white hue readable in shadow without
-  // changing the material's declared (spec-derived) color or adding new
-  // geometry.
-  const wallMat = new THREE.MeshStandardMaterial({
-    color: 0xe8dfc8, roughness: 0.9, emissive: 0xe8dfc8, emissiveIntensity: 0.12,
-  }); // 淡いクリーム色〜アイボリー、全周
-  const roofMat = new THREE.MeshStandardMaterial({ color: 0x1f3d2b, roughness: 0.7, side: THREE.DoubleSide }); // 濃緑・金属横葺き
-  const gableWallMat = new THREE.MeshStandardMaterial({
-    color: 0xf2efe6, roughness: 0.85, emissive: 0xf2efe6, emissiveIntensity: 0.12,
-  }); // 白〜オフホワイト
-  const trimMat = new THREE.MeshStandardMaterial({ color: 0x1f3d2b, roughness: 0.6 }); // 濃緑の縁取り
-  const foundationMat = new THREE.MeshStandardMaterial({ color: 0x9a9a92, roughness: 1 });
   const doorMat = new THREE.MeshStandardMaterial({
     color: 0xbfd6dc, metalness: 0.3, roughness: 0.2, transparent: true, opacity: 0.75, side: THREE.DoubleSide,
   });
@@ -157,61 +144,15 @@ function buildStationBuilding(
 
   const halfW = width / 2;
   const halfD = depth / 2;
-  // Directive 10 / spec v1.2 §4.3: "各高さ（地面＝舗装面を0とする）" — eave/
-  // ridge/porch heights are ALL measured from true ground (y=0), and the
-  // v1.2-corrected 3.5m eave figure already INCLUDES the foundation rise
-  // (v1.1's 2.8m had dropped the foundation entirely — spec §13-1). So the
-  // foundation is a sub-span of eaveH, not stacked additively on top of it
-  // the way Directive 08 built it.
-  const wallTopY = eaveH;
-  const wallSidingHeight = eaveH - foundationRise;
 
-  // foundation (visible concrete plinth, y=0..foundationRise)
-  const foundation = new THREE.Mesh(new THREE.BoxGeometry(width * 0.98, foundationRise, depth * 0.98), foundationMat);
-  foundation.position.set(0, foundationRise / 2, 0);
-  group.add(foundation);
-
-  // main walls (siding, y=foundationRise..eaveH) — a single box, single
-  // material: all four faces are the same cream siding (spec v1.2 §4.4
-  // "適用範囲: 建物の全周（四面すべて）").
-  const walls = new THREE.Mesh(new THREE.BoxGeometry(width, wallSidingHeight, depth), wallMat);
-  walls.position.set(0, foundationRise + wallSidingHeight / 2, 0);
-  group.add(walls);
-
-  // main gable roof — ridge along Z (spec v1.2 §4.3), eaves flush with the
-  // wall top (wallTopY) so there is no vertical gap between wall and roof.
-  const roof = new THREE.Mesh(
-    buildGableRoofZAxis(halfW, -halfD, halfD, wallTopY, ridgeH),
-    roofMat,
-  );
-  group.add(roof);
-
-  // ホーム側下屋 (canopy): attaches at the west wall's top (eave height),
-  // extends further west (toward the track) by canopyDepth, sloping down.
-  const canopy = new THREE.Mesh(
-    buildLeanToRoof(halfW, -halfD, wallTopY, -(halfD + canopyDepth), wallTopY - 0.3),
-    roofMat,
-  );
-  group.add(canopy);
-
-  // 三角ポーチ: a small separate gable protruding east from the main
-  // building's east wall, base at porchBaseH, apex at porchApex — nearly
-  // equilateral, narrowing upward (spec v1.2 §4.3).
-  const porchHalfW = porchWidth / 2;
-  const porch = new THREE.Mesh(
-    buildPorchRoof(porchHalfW, halfD, halfD + porchDepth, porchBaseH, porchApex),
-    roofMat,
-  );
-  group.add(porch);
-  // porch pediment (妻壁) — the visible triangular wall face under the roof
-  const pedimentShape = new THREE.Shape([
-    new THREE.Vector2(-porchHalfW, 0),
-    new THREE.Vector2(porchHalfW, 0),
-    new THREE.Vector2(0, porchApex - porchBaseH),
-  ]);
-  const pediment = new THREE.Mesh(new THREE.ShapeGeometry(pedimentShape), gableWallMat);
-  pediment.position.set(0, porchBaseH, halfD + porchDepth);
-  group.add(pediment);
+  // Directive 11 §4: the solid form — foundation, walls, main roof,
+  // triangular porch and its trim, platform-side canopy — arrives as one
+  // glTF asset. Its origin is the centre of the building's ground contact
+  // plane and its axes match this group's, so it is added untransformed.
+  const gltf = await new GLTFLoader().loadAsync(modelUrl);
+  const shell = gltf.scene;
+  shell.name = `${feature.id}__SHELL`;
+  group.add(shell);
 
   // "緑　駅" sign on the pediment
   const signTexture = makeLabelTexture('緑　駅', { bg: 'rgba(0,0,0,0)', fg: '#1f7a3f', fontPx: 40 });
@@ -219,11 +160,6 @@ function buildStationBuilding(
   const sign = new THREE.Mesh(new THREE.PlaneGeometry(porchWidth * 0.75, (porchApex - porchBaseH) * 0.7), signMat);
   sign.position.set(0, porchBaseH + (porchApex - porchBaseH) * 0.4, halfD + porchDepth + 0.02);
   group.add(sign);
-
-  // porch trim (concrete-green edge described in spec §4.4)
-  const trim = new THREE.Mesh(new THREE.BoxGeometry(porchWidth + 0.05, 0.06, porchDepth + 0.05), trimMat);
-  trim.position.set(0, porchBaseH + 0.03, halfD + porchDepth / 2);
-  group.add(trim);
 
   // central double glass door, set into the front (east) wall
   const door = new THREE.Mesh(new THREE.PlaneGeometry(doorWidth, doorHeight), doorMat);
@@ -387,13 +323,19 @@ export class BuildingGenerator {
 
   /** Directive 10 §2/AC08: the station building, generated separately from
    * the main loop because its position comes from the Spatial Index, not
-   * a Reality Data polygon. `feature` still supplies dimensions/appearance. */
+   * a Reality Data polygon.
+   *
+   * Directive 11 §4: asynchronous, because the solid form is now fetched as
+   * a glTF asset from `modelUrl` rather than generated in code. `feature`
+   * still supplies the dimensions the remaining planar elements sit
+   * against. */
   static generateStationBuilding(
     feature: RealityData,
     position: ResolvedPosition,
     tangentPlane: LocalTangentPlane,
     heightAt: (x: number, z: number) => number,
-  ): THREE.Group {
-    return buildStationBuilding(feature, position, tangentPlane, heightAt);
+    modelUrl: string,
+  ): Promise<THREE.Group> {
+    return buildStationBuilding(feature, position, tangentPlane, heightAt, modelUrl);
   }
 }
