@@ -344,6 +344,36 @@
       "description": "Directive 09.1 section 4: the operator located the facility on Google Maps and supplied its WGS84 coordinate (144.505676, 43.719922) directly. Not this session's own retrieval -- recorded as evidence_type 'user_survey' (new this pass) rather than 'inference', since it is a real position reading, not a guess, but also not a session-fetched official_record. Cross-checked: 211m north / 6m east of LOC_MIDORI_STATION, consistent with the town site's own walking-distance description.",
       "temporal_coverage": "current",
       "status": "acquired"
+    },
+    {
+      "id": "SRC_WP_KIHA54",
+      "provider": "Wikipedia (ja)",
+      "dataset_name": "国鉄キハ54形気動車",
+      "url": "https://ja.wikipedia.org/wiki/国鉄キハ54形気動車",
+      "access_date": "2026-09-07",
+      "data_date": "unknown",
+      "publication_date": "unknown",
+      "license": "CC BY-SA",
+      "description": "キハ54形500番台（北海道仕様車）の諸元と車体仕様。全長21,300mm／全幅2,920mm／全高3,620mm(501-)／自重38.7t。ステンレス製軽量車体、車体裾は絞りのない直線形状、側面窓上下にビード加工、客用扉は車体両端に片側2扉（850mm片開き引戸）、両運転台・低運転台、正面は平妻貫通式で運転台窓回りを黒色とした大窓風、運転台窓上に種別・行先表示器、前面と側面の接合部に白色FRPの額縁、客室窓は小型一段上昇式の二重窓、冷房なしで屋上に押し込み式通風器、水タンクは屋上、運転台下にスカート。塗装は赤16号を主体に下部へクリーム10号と灰茶8号の細線。",
+      "temporal_coverage": "1986-present",
+      "status": "acquired",
+      "evidence_type": "encyclopedia",
+      "note": "百科事典であり一次資料ではない。confidence は B が上限。車体形状・塗色の読み取りに用い、2010-05-30 当日の運用車両の直接証拠としては用いない。"
+    },
+    {
+      "id": "SRC_WP_SENMO",
+      "provider": "Wikipedia (ja)",
+      "dataset_name": "釧網本線",
+      "url": "https://ja.wikipedia.org/wiki/釧網本線",
+      "access_date": "2026-09-07",
+      "data_date": "unknown",
+      "publication_date": "unknown",
+      "license": "CC BY-SA",
+      "description": "路線データ：全線単線・非電化、軌間1,067mm、最急勾配25.0‰（緑—川湯温泉間）、最高速度 夏季80km/h・冬季75km/h、緑駅は起点から100.9km、隣駅は川湯温泉(86.4km)と札弦(109.2km)。運行：釧路—摩周間と緑—網走間の区間列車が存在し、「摩周&川湯温泉足湯めぐり号」の愛称は摩周(釧路)発が2010年の運行より、緑(網走)発が2011年7月1日より命名。掲載写真に「一部列車で運用されていたキハ40形（2009年5月 緑駅）」がある。",
+      "temporal_coverage": "1927-present",
+      "status": "acquired",
+      "evidence_type": "encyclopedia",
+      "note": "百科事典であり一次資料ではない。confidence は B が上限。"
     }
   ]
 }

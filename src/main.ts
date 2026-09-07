@@ -11,6 +11,7 @@ import { Settings } from './state/Settings';
 import { SpatialIndexLoader } from './spatial/SpatialIndexLoader';
 import { IndexOverlay } from './spatial/IndexOverlay';
 import { CollisionWorld } from './player/Collision';
+import { TrainController } from './generators/TrainController';
 import type { Blocker } from './player/Collision';
 import type { ResolvedPosition } from './generators/BuildingGenerator';
 
@@ -30,6 +31,9 @@ const WORLD_URL = `${import.meta.env.BASE_URL}data/worlds/JP_HOKKAIDO_KIYOSATO_M
 // Directive 11 §3.3: the station building's solid form, authored in Blender
 // from spec v1.2 and exported as engine-neutral glTF.
 const STATION_MODEL_URL = `${import.meta.env.BASE_URL}assets/models/midori_station.glb`;
+
+// キハ54形500番台 — the railcar that worked these services through 緑駅.
+const RAILCAR_MODEL_URL = `${import.meta.env.BASE_URL}assets/models/kiha54.glb`;
 
 const IS_TOUCH_DEVICE = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
@@ -98,6 +102,11 @@ async function bootstrap(): Promise<void> {
   // door rather than a shape you pass through.
   const collision = new CollisionWorld();
 
+  // Where the station stands in the World — the train stops at the point on
+  // the line closest to it. Falls back to the World origin if the station
+  // could not be placed.
+  let stationWorldPosition = new THREE.Vector3();
+
   const stationBuildingEntity = spatialIndex?.entities.find((e) => e.id === `${PLACE_PATH}/STATION_BUILDING`);
   const stationBuildingFeature = world.findById('STR_MIDORI_STATION_BUILDING');
   if (stationBuildingEntity?.geometry?.type === 'Point' && stationBuildingEntity.orientation && stationBuildingFeature) {
@@ -112,6 +121,7 @@ async function bootstrap(): Promise<void> {
         STATION_MODEL_URL,
       );
       world.group.add(stationGroup);
+      stationWorldPosition = stationGroup.position.clone();
       collision.addAll((stationGroup.userData.blockers as Blocker[] | undefined) ?? []);
     } catch (err) {
       // Directive 11 §4: the station's solid form is an external glTF asset
@@ -121,6 +131,23 @@ async function bootstrap(): Promise<void> {
     }
   } else {
     console.warn('Station building not generated: Spatial Index entity or Reality Data feature missing.');
+  }
+
+  // A train working the line through the station. It runs on the same
+  // railway centreline the trackbed is drawn from, stopping at whichever
+  // point on the line is closest to the station building.
+  let train: TrainController | null = null;
+  try {
+    train = await TrainController.create({
+      railways: world.find('railway'),
+      tangentPlane: world.tangentPlane,
+      heightAt,
+      modelUrl: RAILCAR_MODEL_URL,
+      platformAt: stationWorldPosition,
+    });
+    if (train) world.group.add(train.group);
+  } catch (err) {
+    console.warn('Train not generated: model or route unavailable', err);
   }
 
   sceneManager.scene.add(world.group);
@@ -216,6 +243,7 @@ async function bootstrap(): Promise<void> {
 
   sceneManager.start((dt) => {
     player.update(dt);
+    train?.update(dt);
     debugMode.update(player.position);
 
     // Directive 09.1 §6: overlay/credit/unlocated-list visibility follows
