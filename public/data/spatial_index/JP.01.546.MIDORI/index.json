@@ -10842,6 +10842,138 @@
       "detail_ref": null,
       "note": "Directive 09.1 §5.2: 国土数値情報 土地利用細分メッシュ(L03-b、建物用地区分)を試行したが、FOREST_WESTと同じ理由(ダウンロードURLがJS経由で特定不能)で取得できず。基盤地図情報(建築物外周線)もfgd.gsi.go.jpの502で不通。衛星画像からの目視測定は行っていない。位置はunlocatedとした。",
       "position_status": "unlocated"
+    },
+    {
+      "id": "JP.01.546.MIDORI/TOWN_CENTRE",
+      "name": "緑センター",
+      "category": "building",
+      "geometry_type": "point",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.50830545,
+          43.7184936
+        ]
+      },
+      "confidence": "B",
+      "evidence_type": "public_gis",
+      "source_ids": [
+        "SRC_OSM_OVERPASS"
+      ],
+      "frontier_status": "defined",
+      "detail_ref": "reality/buildings.geojson#STR_MIDORI_CENTRE",
+      "note": "OpenStreetMap way 629137333 (community_centre)。scripts/import-osm-town.mjs による取り込み。外形は実測相当だが、建物の高さ・外観は推定。",
+      "position_status": "located"
+    },
+    {
+      "id": "JP.01.546.MIDORI/TOWN_POLICE_BOX",
+      "name": "斜里警察署緑駐在所",
+      "category": "building",
+      "geometry_type": "point",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.5077602,
+          43.7197375
+        ]
+      },
+      "confidence": "B",
+      "evidence_type": "public_gis",
+      "source_ids": [
+        "SRC_OSM_OVERPASS"
+      ],
+      "frontier_status": "defined",
+      "detail_ref": "reality/buildings.geojson#STR_MIDORI_POLICE_BOX",
+      "note": "OpenStreetMap way 629137336 (police)。scripts/import-osm-town.mjs による取り込み。外形は実測相当だが、建物の高さ・外観は推定。",
+      "position_status": "located"
+    },
+    {
+      "id": "JP.01.546.MIDORI/TOWN_POST_OFFICE",
+      "name": "緑郵便局",
+      "category": "building",
+      "geometry_type": "point",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.50748232,
+          43.7191157
+        ]
+      },
+      "confidence": "B",
+      "evidence_type": "public_gis",
+      "source_ids": [
+        "SRC_OSM_OVERPASS"
+      ],
+      "frontier_status": "defined",
+      "detail_ref": "reality/buildings.geojson#STR_MIDORI_POST_OFFICE",
+      "note": "OpenStreetMap way 629137337 (post_office)。scripts/import-osm-town.mjs による取り込み。外形は実測相当だが、建物の高さ・外観は推定。",
+      "position_status": "located"
+    },
+    {
+      "id": "JP.01.546.MIDORI/TOWN_ONSEN",
+      "name": "緑の湯",
+      "category": "building",
+      "geometry_type": "point",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.50570712,
+          43.71987113
+        ]
+      },
+      "confidence": "B",
+      "evidence_type": "public_gis",
+      "source_ids": [
+        "SRC_OSM_OVERPASS"
+      ],
+      "frontier_status": "defined",
+      "detail_ref": "reality/buildings.geojson#STR_MIDORI_ONSEN",
+      "note": "OpenStreetMap way 629137341 (public_bath)。scripts/import-osm-town.mjs による取り込み。外形は実測相当だが、建物の高さ・外観は推定。",
+      "position_status": "located"
+    },
+    {
+      "id": "JP.01.546.MIDORI/TOWN_SCHOOL",
+      "name": "緑町小学校",
+      "category": "building",
+      "geometry_type": "point",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.50931709,
+          43.72367203
+        ]
+      },
+      "confidence": "B",
+      "evidence_type": "public_gis",
+      "source_ids": [
+        "SRC_OSM_OVERPASS"
+      ],
+      "frontier_status": "defined",
+      "detail_ref": "reality/buildings.geojson#STR_MIDORI_SCHOOL",
+      "note": "OpenStreetMap way 629137345 (school)。scripts/import-osm-town.mjs による取り込み。外形は実測相当だが、建物の高さ・外観は推定。",
+      "position_status": "located"
+    },
+    {
+      "id": "JP.01.546.MIDORI/TOWN_FIRE_STATION",
+      "name": "第3分団消防庁舎",
+      "category": "building",
+      "geometry_type": "point",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.50830738,
+          43.7188653
+        ]
+      },
+      "confidence": "B",
+      "evidence_type": "public_gis",
+      "source_ids": [
+        "SRC_OSM_OVERPASS"
+      ],
+      "frontier_status": "defined",
+      "detail_ref": "reality/buildings.geojson#STR_MIDORI_FIRE_STATION",
+      "note": "OpenStreetMap way 648729124 (yes)。scripts/import-osm-town.mjs による取り込み。外形は実測相当だが、建物の高さ・外観は推定。",
+      "position_status": "located"
     }
   ],
   "last_updated": "2026-09-06"

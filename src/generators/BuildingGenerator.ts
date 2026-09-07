@@ -25,6 +25,16 @@ export const STATION_TERRACE_HEIGHT_M = 0.8;
 /** Directive 08 §4.3: colors for the small fixed-shape structures that
  * aren't plain building boxes. Anything not listed keeps the original
  * generic building color. */
+/** Handled by TownGenerator, not by the generic box path below. */
+const TOWN_STRUCTURE_TYPES = new Set([
+  'town_building', 'bathhouse', 'school', 'post_office',
+  'community_centre', 'police_box', 'fire_station',
+]);
+
+/** Flat ground surfaces: school grounds, the sports field, the park golf
+ *  course on the station forecourt. Drawn as a thin slab on the terrain. */
+const SURFACE_STRUCTURE_TYPES = new Set(['school_grounds', 'sports_ground', 'park_golf']);
+
 const STRUCTURE_COLORS: Record<string, number> = {
   container: 0x2f5a3a,
   level_crossing: 0x4a3b2a,
@@ -575,6 +585,9 @@ export class BuildingGenerator {
     for (const feature of buildingData) {
       const structureType = feature.properties.structure_type as string | undefined;
       if (structureType === 'station_building') continue; // Directive 10 §2: generated separately, position from Spatial Index
+      // The settlement is built by TownGenerator, which puts a roof on each
+      // outline instead of leaving it a flat-topped box.
+      if (TOWN_STRUCTURE_TYPES.has(structureType ?? '')) continue;
 
       if (feature.geometry.type !== 'Polygon') continue;
       const ring = feature.geometry.coordinates[0];
@@ -586,6 +599,22 @@ export class BuildingGenerator {
       }
 
       const points = projectRing(ring, tangentPlane);
+
+      if (SURFACE_STRUCTURE_TYPES.has(structureType ?? '')) {
+        const colour = new THREE.Color((feature.properties.surface_colour as string | undefined) ?? '#6f7a52');
+        const surfaceCentroid = centroidOf(points);
+        const slab = new THREE.Mesh(
+          extrudeFootprint(points, 0.06),
+          new THREE.MeshStandardMaterial({ color: colour, roughness: 1 }),
+        );
+        slab.position.set(0, heightAt(surfaceCentroid.x, -surfaceCentroid.y), 0);
+        slab.receiveShadow = true;
+        slab.name = feature.id;
+        slab.userData.realityData = feature;
+        group.add(slab);
+        continue;
+      }
+
       const buildingHeight = (feature.properties.height_m as number | undefined) ?? DEFAULT_HEIGHT_M;
       const geometry = extrudeFootprint(points, buildingHeight);
       const centroid = centroidOf(points);
