@@ -172,6 +172,17 @@
         "confidence": "B",
         "reason": "Directive 09.1 section 4: the facility's position in reality/poi.geojson was updated from Directive 04's direction-unsourced ~65m NW distance-only estimate to a real coordinate (144.505676, 43.719922) the operator read directly off Google Maps. Kept in sync with the Spatial Index entity JP.01.546.MIDORI/MIDORINOYU, which uses the same coordinate. Existence confidence (B, the facility opened in 1999 per the town's own site) is unchanged -- only the geometry improved, from geometry_confidence C to B. The retired coordinate is preserved in evidence/removed_coordinates.json."
       }
+    },
+    {
+      "id": "STR_MIDORI_STATION_BUILDING/ROOF_FORM",
+      "historical_reconstruction": {
+        "target_date": "2010-05-30",
+        "evidence": [
+          "SRC_PHOTO_SET_USER_2026"
+        ],
+        "confidence": "B",
+        "reason": "屋根形状の是正記録。MIDORI_STATION_REALITY_SPEC v1.0〜v1.3 は一貫して「主屋根の棟は正面と直交する方向に走り、正面には妻面（三角形）が見える」としており、Directive 10・11 はその通りに実装した。実測により、これは誤りである。\n\n根拠（独立した3つの観察の突き合わせ）：(1) ほぼ正射投影の正面写真において、屋根の上端（棟線）が軒と同じく全幅にわたり水平で、端に向かって収束しない。寄棟なら上端は軒より短くなり、正面が妻面なら上端は中央の一点に収束する。いずれでもない。(2) 同写真で屋根面に水平の継ぎ目（横葺きのリブ）が全幅に走る。(3) 斜め四分の三の写真で、建物の端（短辺側）に破風で終わる三角形の妻面が見える。\n\nしたがって主屋根は単純な切妻で、棟は正面と平行（建物の長手方向＝線路と平行）に走り、妻面は左右の端に向く。正面に見える唯一の三角形は三角ポーチである。v1.0以降の仕様は、このポーチを主屋根の妻面と読み違えたものと考えられる。\n\n寸法は正面写真から実測し、写真と仕様が一致する唯一の値である軒高3.5mでスケールを合わせた：正面幅7.4m、勾配 atan(1.0/3.0)=18.4°、軒の出0.45m、基礎立上り0.30m、ポーチ外幅3.0m・頂部5.0m（棟より0.5m高い）・底辺2.5m、窓の頭を2.10mで揃える。v1.3 の軒高2.7mは採らない。2.7mを成立させるスケールでは両開き戸の幅が1.3m程度となり、駅舎の出入口として成立しないためである。\n\nconfidence は B。撮影年次不明の写真からの読み取りであり、2010-05-30 当日の直接証拠ではない。屋根の色は旧い写真で濃緑、2025年の映像で赤茶であり、塗り替えられている。目標日に近い時期の写真が濃緑であることから濃緑を採用した（B）。"
+      }
     }
   ],
   "unresolved": [
