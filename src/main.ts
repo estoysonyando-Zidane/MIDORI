@@ -12,6 +12,8 @@ import { SpatialIndexLoader } from './spatial/SpatialIndexLoader';
 import { IndexOverlay } from './spatial/IndexOverlay';
 import { CollisionWorld } from './player/Collision';
 import { TrainController } from './generators/TrainController';
+import { loadStationTextures } from './generators/stationTextures';
+import { VegetationGenerator } from './generators/VegetationGenerator';
 import type { Blocker } from './player/Collision';
 import type { ResolvedPosition } from './generators/BuildingGenerator';
 
@@ -102,6 +104,10 @@ async function bootstrap(): Promise<void> {
   // door rather than a shape you pass through.
   const collision = new CollisionWorld();
 
+  // Photographic surfaces for the station — the facade, the siding's board
+  // lines and the roof's standing seams, cropped from the front elevation.
+  const stationTextures = loadStationTextures(import.meta.env.BASE_URL, sceneManager.renderer);
+
   // Where the station stands in the World — the train stops at the point on
   // the line closest to it. Falls back to the World origin if the station
   // could not be placed.
@@ -119,6 +125,7 @@ async function bootstrap(): Promise<void> {
         world.tangentPlane,
         heightAt,
         STATION_MODEL_URL,
+        stationTextures,
       );
       world.group.add(stationGroup);
       stationWorldPosition = stationGroup.position.clone();
@@ -148,6 +155,30 @@ async function bootstrap(): Promise<void> {
     if (train) world.group.add(train.group);
   } catch (err) {
     console.warn('Train not generated: model or route unavailable', err);
+  }
+
+  // The forest. Every photograph of 緑 has trees in it; the World had none,
+  // which did more than anything else to make it read as a diagram rather
+  // than a place. Scenery, not Reality Data — that the site is wooded is
+  // evidence, where any individual tree stands is not.
+  {
+    const keepClearOf: THREE.Vector3[][] = [];
+    for (const feature of [...world.find('railway'), ...world.find('road')]) {
+      if (feature.geometry.type !== 'LineString') continue;
+      keepClearOf.push((feature.geometry.coordinates as [number, number][]).map(([lon, lat]) => {
+        const p = world.tangentPlane.project(lat, lon);
+        return new THREE.Vector3(p.x, 0, p.z);
+      }));
+    }
+    world.group.add(VegetationGenerator.generate({
+      heightAt,
+      clearingCentre: stationWorldPosition,
+      clearingRadiusM: 33,
+      extentM: 640,
+      keepClearOf,
+      keepClearRadiusM: 13,
+      count: 7000,
+    }));
   }
 
   sceneManager.scene.add(world.group);

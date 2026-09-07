@@ -156,6 +156,13 @@ export class TrainController {
     }
 
     const gltf = await new GLTFLoader().loadAsync(options.modelUrl);
+    gltf.scene.traverse((node) => {
+      const mesh = node as THREE.Mesh;
+      if (mesh.isMesh) {
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+      }
+    });
     return new TrainController(route, stopDistance, gltf.scene);
   }
 
