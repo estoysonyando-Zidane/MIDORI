@@ -459,17 +459,24 @@
       },
       "properties": {
         "id": "SURF_OSM_629137352",
-        "name": "緑駅前広場パークゴルフ場",
-        "structure_type": "park_golf",
-        "surface_colour": "#5f7d4a",
+        "name": "緑駅前広場",
+        "structure_type": "station_square",
+        "surface_colour": "#6d8a4e",
         "height_m": 0.05,
         "confidence": "B",
         "evidence_type": "public_gis",
         "historical_status": "plausible",
         "source_ids": [
-          "SRC_OSM_OVERPASS"
+          "SRC_OSM_OVERPASS",
+          "SRC_USER_TESTIMONY_2026"
         ],
-        "note": "scripts/import-osm-town.mjs による取り込み。範囲はOSM(public_gis)、地表の色は推定。"
+        "note": "緑駅前広場。範囲はOpenStreetMapが「緑駅前広場パークゴルフ場」として持つ外形による（public_gis だが実測ではなく航空写真のトレース）。みどりのフェスティバルの会場であることは当事者証言（user_survey）。この範囲は行事の存在から逆算したものではない。",
+        "current_use": "パークゴルフ場",
+        "detail_confidence": {
+          "extent": "B (public_gis — OSM。ただしトレース由来)",
+          "is_festival_venue": "B (user_survey — 当事者証言)",
+          "surface": "C (inference — 空中写真では刈られた芝地)"
+        }
       }
     },
     {
@@ -535,17 +542,24 @@
       },
       "properties": {
         "id": "SURF_OSM_629137353",
-        "name": "緑駅前広場パークゴルフ場",
-        "structure_type": "park_golf",
-        "surface_colour": "#5f7d4a",
+        "name": "緑駅前広場",
+        "structure_type": "station_square",
+        "surface_colour": "#6d8a4e",
         "height_m": 0.05,
         "confidence": "B",
         "evidence_type": "public_gis",
         "historical_status": "plausible",
         "source_ids": [
-          "SRC_OSM_OVERPASS"
+          "SRC_OSM_OVERPASS",
+          "SRC_USER_TESTIMONY_2026"
         ],
-        "note": "scripts/import-osm-town.mjs による取り込み。範囲はOSM(public_gis)、地表の色は推定。"
+        "note": "緑駅前広場。範囲はOpenStreetMapが「緑駅前広場パークゴルフ場」として持つ外形による（public_gis だが実測ではなく航空写真のトレース）。みどりのフェスティバルの会場であることは当事者証言（user_survey）。この範囲は行事の存在から逆算したものではない。",
+        "current_use": "パークゴルフ場",
+        "detail_confidence": {
+          "extent": "B (public_gis — OSM。ただしトレース由来)",
+          "is_festival_venue": "B (user_survey — 当事者証言)",
+          "surface": "C (inference — 空中写真では刈られた芝地)"
+        }
       }
     },
     {
@@ -5614,65 +5628,6 @@
         "eave_height_m": 3,
         "ridge_height_m": 5,
         "roof_colour": "#2f6146",
-        "roof_shape": "gable",
-        "confidence": "B",
-        "evidence_type": "public_gis",
-        "historical_status": "plausible",
-        "source_ids": [
-          "SRC_GSI_BVMAP"
-        ],
-        "detail_confidence": {
-          "footprint": "B (public_gis — 国土地理院 電子国土基本図 ftCode 3101, 1/25000)",
-          "identification": "U (unknown — GSIは用途名を持たない)",
-          "eave_ridge_height": "C (inference — 面積から段階分け。GSIも高さを持たない)",
-          "roof_colour": "C (inference — 写真003の色をIDのハッシュで割当)",
-          "roof_shape": "C (inference)"
-        },
-        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              144.5064917,
-              43.7177825
-            ],
-            [
-              144.5065534,
-              43.7177321
-            ],
-            [
-              144.5065534,
-              43.7177098
-            ],
-            [
-              144.5064139,
-              43.717642
-            ],
-            [
-              144.5063522,
-              43.7177157
-            ],
-            [
-              144.5064917,
-              43.7177825
-            ]
-          ]
-        ]
-      },
-      "properties": {
-        "id": "BLDG_GSI_1p7aja9",
-        "name": null,
-        "structure_type": "town_building",
-        "gsi_ft_code": 3101,
-        "area_m2": 134,
-        "eave_height_m": 3,
-        "ridge_height_m": 5,
-        "roof_colour": "#2f5a7a",
         "roof_shape": "gable",
         "confidence": "B",
         "evidence_type": "public_gis",
@@ -11428,6 +11383,62 @@
           "footprint_completeness": "C — タイル境界で切れている可能性あり"
         },
         "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              144.5064917,
+              43.7177825
+            ],
+            [
+              144.5065534,
+              43.7177321
+            ],
+            [
+              144.5065534,
+              43.7177098
+            ],
+            [
+              144.5064139,
+              43.717642
+            ],
+            [
+              144.5063522,
+              43.7177157
+            ],
+            [
+              144.5064917,
+              43.7177825
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "STR_MIDORI_STAGE",
+        "name": "緑駅前広場 舞台",
+        "structure_type": "stage",
+        "deck_height_m": 0.9,
+        "roof_height_m": 4.6,
+        "facing_bearing_deg": 334.7,
+        "confidence": "C",
+        "evidence_type": "user_survey",
+        "historical_status": "plausible",
+        "source_ids": [
+          "SRC_GSI_BVMAP",
+          "SRC_USER_TESTIMONY_2026"
+        ],
+        "detail_confidence": {
+          "footprint": "B (public_gis — 国土地理院 電子国土基本図 ftCode 3101)",
+          "is_a_stage": "C (inference — 「駅前広場に舞台がある」は当事者証言 A 相当だが、GSIのこの外形がその舞台だと同定したのは推論。広場内に単独で建つ構造物は他にない)",
+          "deck_and_roof_height": "C (inference — 屋外ステージの一般的な寸法)",
+          "facing": "C (inference — 広場の重心の方を向くものとした)"
+        },
+        "note": "scripts/import-station-square.mjs。外形は国土地理院の実測、「舞台である」という同定は当事者証言にもとづく推論。みどりのフェスティバルでクマゲラ太鼓がこの前で演奏された（証言）。"
       }
     }
   ]

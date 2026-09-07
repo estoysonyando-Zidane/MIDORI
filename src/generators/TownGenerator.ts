@@ -193,6 +193,99 @@ function flatRoofGeometry(points: THREE.Vector2[], thickness: number): THREE.Buf
   return geometry;
 }
 
+/**
+ * The stage in 緑駅前広場.
+ *
+ * 国土地理院 gives the outline; that it is a stage, and that the school
+ * children's クマゲラ太鼓 was played in front of it at みどりのフェスティバル,
+ * is the operator's own testimony. So the outline is survey and the form —
+ * a raised deck under a roof on posts, open to the square — is what an
+ * outdoor community stage is, not a measurement of this one.
+ */
+function buildStage(
+  feature: RealityData,
+  tangentPlane: LocalTangentPlane,
+  heightAt: (x: number, z: number) => number,
+): THREE.Group {
+  const group = new THREE.Group();
+  group.name = feature.id;
+  group.userData.realityData = feature;
+
+  const ring = (feature.geometry.coordinates[0] as [number, number][]).slice(0, -1);
+  const points = ring.map(([lon, lat]) => {
+    const local = tangentPlane.project(lat, lon);
+    return new THREE.Vector2(local.x, -local.z);
+  });
+  const centre = points.reduce((acc, p) => acc.add(p), new THREE.Vector2()).divideScalar(points.length);
+  const base = heightAt(centre.x, -centre.y);
+
+  const deckHeight = (feature.properties.deck_height_m as number | undefined) ?? 0.9;
+  const roofHeight = (feature.properties.roof_height_m as number | undefined) ?? 4.6;
+  const facing = ((feature.properties.facing_bearing_deg as number | undefined) ?? 0) * (Math.PI / 180);
+
+  const deckMat = new THREE.MeshStandardMaterial({ color: 0x9d968a, roughness: 0.95 });
+  const boardMat = new THREE.MeshStandardMaterial({ color: 0xa8865c, roughness: 0.85 });
+  const postMat = new THREE.MeshStandardMaterial({ color: 0x6d6a63, roughness: 0.7, metalness: 0.3 });
+  const roofMat = new THREE.MeshStandardMaterial({ color: 0x4a5a63, roughness: 0.5, metalness: 0.3 });
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0xd3d0c6, roughness: 0.9 });
+
+  const deck = new THREE.Mesh(wallGeometry(points, deckHeight), deckMat);
+  deck.position.set(0, base, 0);
+  deck.castShadow = true;
+  deck.receiveShadow = true;
+  group.add(deck);
+
+  const boards = new THREE.Mesh(flatRoofGeometry(points, 0.06), boardMat);
+  boards.position.set(0, base + deckHeight, 0);
+  boards.receiveShadow = true;
+  group.add(boards);
+
+  // the box the outline sits in, so posts and back wall follow the building
+  const box = orientedBox(points);
+  const along = new THREE.Vector3(box.axis.x, 0, -box.axis.y);
+  const across = new THREE.Vector3(box.axis.y, 0, box.axis.x);
+  const worldCentre = new THREE.Vector3(box.centre.x, base, -box.centre.y);
+  const at = (u: number, v: number, y: number) => new THREE.Vector3()
+    .copy(worldCentre).addScaledVector(along, u).addScaledVector(across, v).setY(base + y);
+
+  // which way is the front: whichever of +across / -across points the way
+  // the stage faces
+  const front = new THREE.Vector3(Math.sin(facing), 0, -Math.cos(facing));
+  const backSign = across.dot(front) > 0 ? -1 : 1;
+
+  for (const u of [-box.halfLong + 0.5, 0, box.halfLong - 0.5]) {
+    for (const v of [-box.halfShort + 0.4, box.halfShort - 0.4]) {
+      const post = new THREE.Mesh(new THREE.BoxGeometry(0.16, roofHeight - deckHeight, 0.16), postMat);
+      post.position.copy(at(u, v, deckHeight + (roofHeight - deckHeight) / 2));
+      post.castShadow = true;
+      group.add(post);
+    }
+  }
+
+  const backWall = new THREE.Mesh(
+    new THREE.BoxGeometry(box.halfLong * 2, roofHeight - deckHeight, 0.18),
+    wallMat,
+  );
+  backWall.position.copy(at(0, backSign * (box.halfShort - 0.3), deckHeight + (roofHeight - deckHeight) / 2));
+  backWall.quaternion.setFromRotationMatrix(
+    new THREE.Matrix4().makeBasis(along, new THREE.Vector3(0, 1, 0), across),
+  );
+  backWall.castShadow = true;
+  backWall.receiveShadow = true;
+  group.add(backWall);
+
+  const roof = new THREE.Mesh(
+    new THREE.BoxGeometry(box.halfLong * 2 + 0.8, 0.22, box.halfShort * 2 + 0.8),
+    roofMat,
+  );
+  roof.position.copy(at(0, 0, roofHeight));
+  roof.quaternion.copy(backWall.quaternion);
+  roof.castShadow = true;
+  group.add(roof);
+
+  return group;
+}
+
 export class TownGenerator {
   static generate(
     features: RealityData[],
@@ -232,6 +325,10 @@ export class TownGenerator {
 
     for (const feature of features) {
       const type = feature.properties.structure_type as string | undefined;
+      if (type === 'stage') {
+        group.add(buildStage(feature, tangentPlane, heightAt));
+        continue;
+      }
       if (type !== 'town_building'
         && type !== 'bathhouse' && type !== 'school' && type !== 'post_office'
         && type !== 'community_centre' && type !== 'police_box' && type !== 'fire_station') continue;

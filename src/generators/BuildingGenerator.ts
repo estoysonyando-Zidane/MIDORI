@@ -28,12 +28,14 @@ export const STATION_TERRACE_HEIGHT_M = 0.8;
 /** Handled by TownGenerator, not by the generic box path below. */
 const TOWN_STRUCTURE_TYPES = new Set([
   'town_building', 'bathhouse', 'school', 'post_office',
-  'community_centre', 'police_box', 'fire_station',
+  'community_centre', 'police_box', 'fire_station', 'stage',
 ]);
 
 /** Flat ground surfaces: school grounds, the sports field, the park golf
  *  course on the station forecourt. Drawn as a thin slab on the terrain. */
-const SURFACE_STRUCTURE_TYPES = new Set(['school_grounds', 'sports_ground', 'park_golf']);
+const SURFACE_STRUCTURE_TYPES = new Set([
+  'school_grounds', 'sports_ground', 'park_golf', 'station_square',
+]);
 
 const STRUCTURE_COLORS: Record<string, number> = {
   container: 0x2f5a3a,

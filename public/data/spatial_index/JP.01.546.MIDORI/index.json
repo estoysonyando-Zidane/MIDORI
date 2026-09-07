@@ -11001,6 +11001,29 @@
       "note": "国土地理院 電子国土基本図の注記。位置は注記のアンカー点で、施設の範囲ではない。",
       "position_status": "approximate",
       "position_accuracy_m": 60
+    },
+    {
+      "id": "JP.01.546.MIDORI/FESTIVAL_STAGE",
+      "name": "緑駅前広場 舞台",
+      "category": "facility",
+      "geometry_type": "point",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.5064729,
+          43.7177164
+        ]
+      },
+      "confidence": "C",
+      "evidence_type": "user_survey",
+      "source_ids": [
+        "SRC_GSI_BVMAP",
+        "SRC_USER_TESTIMONY_2026"
+      ],
+      "frontier_status": "defined",
+      "detail_ref": "reality/buildings.geojson#STR_MIDORI_STAGE",
+      "note": "外形は国土地理院 電子国土基本図の建築物。舞台であるという同定は当事者証言にもとづく推論。",
+      "position_status": "located"
     }
   ],
   "last_updated": "2026-09-06"

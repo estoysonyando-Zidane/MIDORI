@@ -398,6 +398,32 @@
       "type": "public_gis",
       "attribution": "出典: 国土地理院「地理院地図Vector（地理院タイル）」",
       "note": "電子国土基本図（1/25,000相当）をベクトルタイルで配信したもの。建築物(ftCode 3101/3111)、道路構成線(2701, 幅員ランク付き)、鉄道中心線(8201, 単複区分付き)、注記を含む。scripts/fetch-gsi-basemap.mjs で取得し scripts/data/gsi_midori.json に固定。OSMと異なり第一次の測量成果である。"
+    },
+    {
+      "id": "SRC_USER_TESTIMONY_2026",
+      "provider": "本ワールドの依頼者（当時の緑町住民）",
+      "dataset_name": "当事者証言（2026年、対話中）",
+      "url": null,
+      "access_date": "2026-09-07",
+      "data_date": "2010年前後",
+      "publication_date": "unpublished",
+      "license": "n/a",
+      "description": "緑町に居住していた本人による一次証言。本セッションで得たもの: 「みどりのフェスティバルの会場は駅前広場」「駅前広場に舞台がある」「クマゲラ太鼓をその舞台の前で演奏した」。一次情報だが記憶であり、寸法・位置の測量値ではない。個人を特定しうる日付等はリポジトリに記録していない（本人の指示による）。",
+      "temporal_coverage": "2010年前後",
+      "status": "active"
+    },
+    {
+      "id": "SRC_KIYOSATO_KANKOU_EVENTS",
+      "provider": "NPO法人きよさと観光協会",
+      "dataset_name": "きよさと町のイベント",
+      "url": "https://www.kiyosatokankou.com/event.html",
+      "access_date": "2026-09-07",
+      "data_date": "current",
+      "publication_date": "unknown",
+      "license": "unknown (公式サイト、参照のみ)",
+      "description": "みどりのフェスティバルの開催規則「毎年5月 最終日曜日」および内容（木とのふれあいコーナー、賞金総額10万円の丸太ころがし選手権、小学生のクマゲラ太鼓）を掲載。2010-05-30 が5月最終日曜日であることと整合する。会場の記載はない。",
+      "temporal_coverage": "current",
+      "status": "active"
     }
   ]
 }

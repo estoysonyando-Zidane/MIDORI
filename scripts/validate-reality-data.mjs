@@ -36,9 +36,16 @@ const HISTORICAL_STATUSES = new Set(['confirmed', 'plausible', 'unknown', 'curre
 const EVIDENCE_TYPES = new Set([
   'contemporary_record', 'contemporary_photo', 'official_record', 'public_gis',
   'encyclopedia', 'satellite_imagery', 'secondary_photo', 'inference',
+  // First-hand testimony from someone who was there. It is primary — nothing
+  // else in this World can say what a stage was used for — but it is memory,
+  // it carries no measurements, and no third party can check it.
+  'user_survey',
 ]);
 // Directive 08 §7.1: these evidence types alone can never justify confidence A.
-const WEAK_EVIDENCE_FOR_A = new Set(['encyclopedia', 'secondary_photo', 'inference']);
+// user_survey is here for that last reason, not because testimony is weak:
+// it can establish that a thing existed and what happened there, so it
+// reaches B, but Confirmed needs something another reader can verify.
+const WEAK_EVIDENCE_FOR_A = new Set(['encyclopedia', 'secondary_photo', 'inference', 'user_survey']);
 // Directive 08 §7.2: ids from this prefix set are "spec-derived" and must
 // always carry source_ids, regardless of confidence (unlike the generic
 // A/B-only rule below, which predates this directive).
