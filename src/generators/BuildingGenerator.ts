@@ -11,8 +11,19 @@ import { RAIL_HEAD_M } from './TrackGeometry';
 const DEFAULT_HEIGHT_M = 5;
 
 /**
- * Platform deck above the rail head. 旧国鉄以来の地方交通線の低いホームで、
- * 緑駅の写真でも車両の床より明らかに低く、乗降にステップを使っている。
+ * Platform deck above the rail head.
+ *
+ * 旧国鉄以来の地方交通線の低いホーム。緑駅の写真でも車両の床より明らかに低く、
+ * 乗降にステップを使っている。
+ *
+ * NOT YET SOURCED to a document. 760 mm is the figure the abolished
+ * 普通鉄道構造規則 set for a low platform, and the 建築限界 in the current
+ * 省令解釈基準 第1図 (SRC_MLIT_TECH_KAISHAKU) is drawn with a step at
+ * 920 mm — the band a 760 mm platform sits inside, which is why the
+ * platform's edge is 1,475 mm off the track centre. But the regulation
+ * itself was repealed in 2002 and I have not been able to read its text,
+ * so 760 is inherited rather than cited. The edge offset it implies IS
+ * cited; this height is not.
  */
 export const PLATFORM_ABOVE_RAIL_M = 0.76;
 

@@ -55,9 +55,20 @@ const FT_ROAD_EDGE = 2201;
 // leaves the station point).
 // ---------------------------------------------------------------------
 
-/** Platform edge to track centre. JR low platforms sit about 1.5-1.7 m off
- *  centre; 1.8 m keeps the modelled edge clear of the modelled railcar. */
-const PLATFORM_FACE_OFFSET_M = 1.8;
+/** Platform edge to track centre: 1,475 mm.
+ *
+ *  Not a guess any more. 鉄道に関する技術上の基準を定める省令等の解釈基準
+ *  (国鉄技第157号, SRC_MLIT_TECH_KAISHAKU) 第20条 第1図 — the 建築限界 for a
+ *  普通鉄道 — puts the side limit at 1,475 mm from the track centre for
+ *  anything up to 920 mm above rail level. A 760 mm platform is inside that
+ *  band, so its edge stands there. The same article's table gives the other
+ *  way to the same number: the 車両限界 基礎限界 is 1,425 mm half-width at
+ *  that height (第4図, L2 = 2,850 mm) and a platform must clear it by 50 mm.
+ *
+ *  This was 1.8 m, with a comment saying that kept the modelled edge clear
+ *  of the modelled railcar — a 325 mm slack the railway does not allow, and
+ *  the reason the platform felt wide and the train felt far away. */
+const PLATFORM_FACE_OFFSET_M = 1.475;
 /** Platform width. Photographs 005, 013 and 014 show room for a row of
  *  planters plus a walking width in front of the building. */
 const PLATFORM_WIDTH_M = 3.5;
@@ -71,9 +82,37 @@ const PLATFORM_LONG_LEG_M = 90;
 const PLATFORM_SHORT_LEG_M = 30;
 
 /** Second track. Wikipedia 緑駅 §駅構造: 相対式ホーム2面2線 — two opposed
- *  platforms on two tracks, platform 2 reached by the 構内踏切. 4.1 m is
- *  the JR standard centre-to-centre spacing on plain line. */
+ *  platforms on two tracks, platform 2 reached by the 構内踏切.
+ *
+ *  4.1 m centres. 省令解釈基準 Ⅲ-11 第22条(1)① sets the floor: the 軌道中心間隔
+ *  on a straight main line is the 車両限界 基礎限界's greatest width plus
+ *  600 mm, i.e. 3,000 + 600 = 3,600 mm. 4.1 m is the 国鉄以来の停車場内の常用値
+ *  and clears that; it is a choice within the rule, not a measurement. */
 const TRACK_2_OFFSET_M = -4.1;
+/** The floor 第22条 sets, kept here so the choice above can be checked. */
+const MIN_TRACK_CENTRES_M = 3.6;
+
+/** The passing loop.
+ *
+ *  A second track that runs parallel for ever is not a railway. 緑 is a
+ *  交換駅: track 2 leaves track 1 through a turnout at each end of the yard,
+ *  runs alongside the platform, and comes back. What is reconstructed here
+ *  is that shape — two turnouts and the straight between them.
+ *
+ *  番数 is the frog number: a 1-in-N turnout opens sideways one metre for
+ *  every N along. 省令解釈基準 第23条 refers turnout design to 鉄道構造物等
+ *  設計標準（軌道構造）, which is not public; the one operator's standard I
+ *  could read requires 8番以上の片開き (甲賀市線路構造実施基準 第23条18), so
+ *  8番 is the shallowest a station like this would use. At 1-in-8 the 4.1 m
+ *  offset takes 32.8 m of divergence.
+ *
+ *  The loop's length is NOT sourced. It is set so the straight covers the
+ *  120 m platform with a train's length of standing room at each end. The
+ *  1974-78 aerial photograph (SRC_GSI_PHOTO_GAZO1) shows the yard widened
+ *  over several hundred metres, which is consistent, but at 1.2 m a pixel it
+ *  cannot place a turnout. */
+const TURNOUT_NUMBER = 8;
+const LOOP_STRAIGHT_HALF_M = 110;
 
 /** Building depth, from the Blender model's BODY_DEPTH_M. Its platform-side
  *  wall lands on the back edge of the platform, as the photographs show. */
@@ -400,26 +439,46 @@ function main() {
   // through route, so it has to be reconstructed here.
   railway.features = railway.features.filter(
     (f) => f.properties.id !== 'RAIL_SENMO_MIDORI_LOOP' && f.properties.id !== 'RAIL_SENMO_MIDORI_TRACK2');
+  // The loop, centred on the platform: turnout, divergence at 1-in-N, the
+  // straight past the platform, then back the same way.
+  const platformCentre = (PLATFORM_SHORT_LEG_M - PLATFORM_LONG_LEG_M) / 2;
+  const lead = Math.abs(TRACK_2_OFFSET_M) * TURNOUT_NUMBER;
+  const loopStart = platformCentre - LOOP_STRAIGHT_HALF_M;
+  const loopEnd = platformCentre + LOOP_STRAIGHT_HALF_M;
+  const loopCoordinates = [
+    at(loopStart - lead, 0),
+    at(loopStart, TRACK_2_OFFSET_M),
+    at(loopEnd, TRACK_2_OFFSET_M),
+    at(loopEnd + lead, 0),
+  ];
   railway.features.push({
     type: 'Feature',
-    geometry: {
-      type: 'LineString',
-      coordinates: [at(-150, TRACK_2_OFFSET_M), at(60, TRACK_2_OFFSET_M)],
-    },
+    geometry: { type: 'LineString', coordinates: loopCoordinates },
     properties: {
       id: 'RAIL_SENMO_MIDORI_TRACK2',
-      name: '釧網本線 緑駅 2番線',
+      name: '釧網本線 緑駅 2番線（交換設備）',
       confidence: 'C',
       evidence_type: 'inference',
       historical_status: 'plausible',
-      source_ids: ['SRC_PHOTO_SET_USER_2026', 'SRC_WIKI_JA_MIDORI'],
+      source_ids: [
+        'SRC_PHOTO_SET_USER_2026', 'SRC_WIKI_JA_MIDORI',
+        'SRC_MLIT_TECH_KAISHAKU', 'SRC_SHIGARAKI_JISSHI_KIJUN', 'SRC_GSI_PHOTO_GAZO1',
+      ],
       note:
         'Wikipedia「緑駅」§駅構造の「相対式ホーム2面2線」と、写真013/014/034に写る2本目の線路による。'
         + '国土数値情報(KSJ N02)は本線のセンターラインしか持たないため、2番線はここで再構成した。'
-        + '線路中心間隔4.1 mはJRの平面区間の標準値、延長と分岐位置は資料からは決まらないので便宜的な値。',
+        + `線路中心間隔 ${Math.abs(TRACK_2_OFFSET_M)} m は省令解釈基準 第22条(1)①の下限 ${MIN_TRACK_CENTRES_M} m`
+        + '（車両限界の基礎限界の最大幅3,000 mm + 600 mm）を満たす国鉄以来の停車場内常用値。'
+        + `両端に${TURNOUT_NUMBER}番片開き分岐器相当の開き（1:${TURNOUT_NUMBER}、リード ${lead.toFixed(1)} m）を置き、`
+        + `ホームを含む ${LOOP_STRAIGHT_HALF_M * 2} m を平行区間とした。`
+        + '以前は分岐を持たない平行2直線で、これは鉄道として成立していなかった。'
+        + '分岐器の番数は甲賀市線路構造実施基準 第23条18の「8番以上の片開き」による下限であり、'
+        + '緑駅の実際の番数と交換有効長は文献に当たれていない。分岐器のリードは直線近似で、'
+        + 'トングレール・クロッシングの実形状は再現していない。',
     },
   });
-  note('RAIL_SENMO_MIDORI_TRACK2', `second platform track added at ${Math.abs(TRACK_2_OFFSET_M)} m centres`);
+  note('RAIL_SENMO_MIDORI_TRACK2',
+    `passing loop: 1:${TURNOUT_NUMBER} turnouts, ${lead.toFixed(1)} m lead, ${LOOP_STRAIGHT_HALF_M * 2} m parallel`);
 
   writeJson(INDEX, index);
   writeJson(join(WORLD, 'reality/buildings.geojson'), buildings);
