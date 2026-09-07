@@ -399,17 +399,18 @@
       },
       "properties": {
         "id": "SURF_OSM_629137344",
-        "name": null,
+        "name": "緑町小学校 運動場",
         "structure_type": "sports_ground",
-        "surface_colour": "#7a7f57",
+        "surface_colour": "#a49480",
         "height_m": 0.05,
         "confidence": "B",
         "evidence_type": "public_gis",
         "historical_status": "plausible",
         "source_ids": [
-          "SRC_OSM_OVERPASS"
+          "SRC_OSM_OVERPASS",
+          "SRC_GMAP_PHOTOS"
         ],
-        "note": "scripts/import-osm-town.mjs による取り込み。範囲はOSM(public_gis)、地表の色は推定。"
+        "note": "グラウンド。範囲はOSM、地表が芝ではなく転圧された土でトラックが引かれていることは Google Earth 2011年5月26日の画像による。"
       }
     },
     {
@@ -914,28 +915,29 @@
       },
       "properties": {
         "id": "BLDG_GSI_t3k54n",
-        "name": null,
-        "structure_type": "town_building",
+        "name": "緑町小学校 体育館",
+        "structure_type": "school_annex",
         "gsi_ft_code": 3101,
         "area_m2": 244,
-        "eave_height_m": 3.6,
-        "ridge_height_m": 6,
-        "roof_colour": "#8a6a3a",
+        "eave_height_m": 5.2,
+        "ridge_height_m": 8.4,
+        "roof_colour": "#e2ddc8",
         "roof_shape": "gable",
         "confidence": "B",
         "evidence_type": "public_gis",
         "historical_status": "plausible",
         "source_ids": [
-          "SRC_GSI_BVMAP"
+          "SRC_GSI_BVMAP",
+          "SRC_GMAP_PHOTOS"
         ],
         "detail_confidence": {
           "footprint": "B (public_gis — 国土地理院 電子国土基本図 ftCode 3101, 1/25000)",
           "identification": "U (unknown — GSIは用途名を持たない)",
           "eave_ridge_height": "C (inference — 面積から段階分け。GSIも高さを持たない)",
-          "roof_colour": "C (inference — 写真003の色をIDのハッシュで割当)",
+          "roof_colour": "B (secondary_photo — Google Earth 2011-05-26 の画像で赤系であることを確認。以前はパレットからのハッシュで青にしていた)",
           "roof_shape": "C (inference)"
         },
-        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。"
+        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。 屋根色は Google Earth 2011年5月26日の画像による（目標日2010-05-30の4日違い・同季節）。画像は再配布していない。 屋根色は Google Earth 2011年5月26日の画像による（目標日2010-05-30の4日違い・同季節）。画像は再配布していない。 屋根色は Google Earth 2011年5月26日の画像による（目標日2010-05-30の4日違い・同季節）。画像は再配布していない。"
       }
     },
     {
@@ -1059,24 +1061,25 @@
         "area_m2": 1456,
         "eave_height_m": 6.4,
         "ridge_height_m": 8.6,
-        "roof_colour": "#2f5a7a",
+        "roof_colour": "#c05a52",
         "roof_shape": "flat",
         "confidence": "B",
         "evidence_type": "public_gis",
         "historical_status": "plausible",
         "source_ids": [
-          "SRC_GSI_BVMAP"
+          "SRC_GSI_BVMAP",
+          "SRC_GMAP_PHOTOS"
         ],
         "tile_clipped": true,
         "detail_confidence": {
           "footprint": "B (public_gis — 国土地理院 電子国土基本図 ftCode 3101, 1/25000)",
           "identification": "C (inference — 名称はOSM/Wikipedia由来、最寄りのGSI外形に18 mで対応付けたもの)",
           "eave_ridge_height": "C (inference — 面積から段階分け。GSIも高さを持たない)",
-          "roof_colour": "C (inference — 写真003の色をIDのハッシュで割当)",
+          "roof_colour": "B (secondary_photo — Google Earth 2011-05-26 の画像で赤系であることを確認。以前はパレットからのハッシュで青にしていた)",
           "roof_shape": "C (inference)",
           "footprint_completeness": "C — タイル境界で切れている可能性あり"
         },
-        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。"
+        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。 屋根色は Google Earth 2011年5月26日の画像による（目標日2010-05-30の4日違い・同季節）。画像は再配布していない。 屋根色は Google Earth 2011年5月26日の画像による（目標日2010-05-30の4日違い・同季節）。画像は再配布していない。 屋根色は Google Earth 2011年5月26日の画像による（目標日2010-05-30の4日違い・同季節）。画像は再配布していない。 屋根色は Google Earth 2011年5月26日の画像による（目標日2010-05-30の4日違い・同季節）。画像は再配布していない。"
       }
     },
     {
@@ -1111,27 +1114,28 @@
       "properties": {
         "id": "BLDG_GSI_111p5gm",
         "name": null,
-        "structure_type": "town_building",
+        "structure_type": "school_annex",
         "gsi_ft_code": 3101,
         "area_m2": 76,
-        "eave_height_m": 3,
+        "eave_height_m": 3.2,
         "ridge_height_m": 5,
-        "roof_colour": "#2f5a7a",
+        "roof_colour": "#c05a52",
         "roof_shape": "gable",
         "confidence": "B",
         "evidence_type": "public_gis",
         "historical_status": "plausible",
         "source_ids": [
-          "SRC_GSI_BVMAP"
+          "SRC_GSI_BVMAP",
+          "SRC_GMAP_PHOTOS"
         ],
         "detail_confidence": {
           "footprint": "B (public_gis — 国土地理院 電子国土基本図 ftCode 3101, 1/25000)",
           "identification": "U (unknown — GSIは用途名を持たない)",
           "eave_ridge_height": "C (inference — 面積から段階分け。GSIも高さを持たない)",
-          "roof_colour": "C (inference — 写真003の色をIDのハッシュで割当)",
+          "roof_colour": "B (secondary_photo — Google Earth 2011-05-26 の画像で赤系であることを確認。以前はパレットからのハッシュで青にしていた)",
           "roof_shape": "C (inference)"
         },
-        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。"
+        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。 屋根色は Google Earth 2011年5月26日の画像による（目標日2010-05-30の4日違い・同季節）。画像は再配布していない。 屋根色は Google Earth 2011年5月26日の画像による（目標日2010-05-30の4日違い・同季節）。画像は再配布していない。 屋根色は Google Earth 2011年5月26日の画像による（目標日2010-05-30の4日違い・同季節）。画像は再配布していない。"
       }
     },
     {
@@ -1166,27 +1170,28 @@
       "properties": {
         "id": "BLDG_GSI_aqbv0n",
         "name": null,
-        "structure_type": "town_building",
+        "structure_type": "school_annex",
         "gsi_ft_code": 3101,
         "area_m2": 97,
-        "eave_height_m": 3,
+        "eave_height_m": 3.2,
         "ridge_height_m": 5,
-        "roof_colour": "#2f5a7a",
+        "roof_colour": "#c05a52",
         "roof_shape": "gable",
         "confidence": "B",
         "evidence_type": "public_gis",
         "historical_status": "plausible",
         "source_ids": [
-          "SRC_GSI_BVMAP"
+          "SRC_GSI_BVMAP",
+          "SRC_GMAP_PHOTOS"
         ],
         "detail_confidence": {
           "footprint": "B (public_gis — 国土地理院 電子国土基本図 ftCode 3101, 1/25000)",
           "identification": "U (unknown — GSIは用途名を持たない)",
           "eave_ridge_height": "C (inference — 面積から段階分け。GSIも高さを持たない)",
-          "roof_colour": "C (inference — 写真003の色をIDのハッシュで割当)",
+          "roof_colour": "B (secondary_photo — Google Earth 2011-05-26 の画像で赤系であることを確認。以前はパレットからのハッシュで青にしていた)",
           "roof_shape": "C (inference)"
         },
-        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。"
+        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。 屋根色は Google Earth 2011年5月26日の画像による（目標日2010-05-30の4日違い・同季節）。画像は再配布していない。 屋根色は Google Earth 2011年5月26日の画像による（目標日2010-05-30の4日違い・同季節）。画像は再配布していない。 屋根色は Google Earth 2011年5月26日の画像による（目標日2010-05-30の4日違い・同季節）。画像は再配布していない。"
       }
     },
     {
@@ -4178,27 +4183,28 @@
       "properties": {
         "id": "BLDG_GSI_1f3qa7n",
         "name": null,
-        "structure_type": "town_building",
+        "structure_type": "school_annex",
         "gsi_ft_code": 3101,
         "area_m2": 93,
-        "eave_height_m": 3,
+        "eave_height_m": 3.2,
         "ridge_height_m": 5,
-        "roof_colour": "#8c3a32",
+        "roof_colour": "#c05a52",
         "roof_shape": "gable",
         "confidence": "B",
         "evidence_type": "public_gis",
         "historical_status": "plausible",
         "source_ids": [
-          "SRC_GSI_BVMAP"
+          "SRC_GSI_BVMAP",
+          "SRC_GMAP_PHOTOS"
         ],
         "detail_confidence": {
           "footprint": "B (public_gis — 国土地理院 電子国土基本図 ftCode 3101, 1/25000)",
           "identification": "U (unknown — GSIは用途名を持たない)",
           "eave_ridge_height": "C (inference — 面積から段階分け。GSIも高さを持たない)",
-          "roof_colour": "C (inference — 写真003の色をIDのハッシュで割当)",
+          "roof_colour": "B (secondary_photo — Google Earth 2011-05-26 の画像で赤系であることを確認。以前はパレットからのハッシュで青にしていた)",
           "roof_shape": "C (inference)"
         },
-        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。"
+        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。 屋根色は Google Earth 2011年5月26日の画像による（目標日2010-05-30の4日違い・同季節）。画像は再配布していない。 屋根色は Google Earth 2011年5月26日の画像による（目標日2010-05-30の4日違い・同季節）。画像は再配布していない。 屋根色は Google Earth 2011年5月26日の画像による（目標日2010-05-30の4日違い・同季節）。画像は再配布していない。"
       }
     },
     {
@@ -11439,6 +11445,54 @@
           "facing": "C (inference — 広場の重心の方を向くものとした)"
         },
         "note": "scripts/import-station-square.mjs。外形は国土地理院の実測、「舞台である」という同定は当事者証言にもとづく推論。みどりのフェスティバルでクマゲラ太鼓がこの前で演奏された（証言）。"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              144.50862874,
+              43.72321491
+            ],
+            [
+              144.50953091,
+              43.72321491
+            ],
+            [
+              144.50953091,
+              43.72345004
+            ],
+            [
+              144.50862874,
+              43.72345004
+            ],
+            [
+              144.50862874,
+              43.72321491
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "SURF_SCHOOL_YARD",
+        "name": "緑町小学校 校庭",
+        "structure_type": "school_yard",
+        "surface_colour": "#4c4b49",
+        "height_m": 0.05,
+        "confidence": "C",
+        "evidence_type": "secondary_photo",
+        "historical_status": "plausible",
+        "source_ids": [
+          "SRC_GMAP_PHOTOS"
+        ],
+        "detail_confidence": {
+          "existence": "B (secondary_photo — Google Earth 2011-05-26。校舎とトラックの間に舗装され遊具の線が引かれた yard があることは画像で明瞭)",
+          "extent": "C (inference — 校舎の南縁とトラックの西縁の間として構成。画像から画素実測したものではない)"
+        },
+        "note": "アスファルトの校庭。存在は Google Earth 2011年5月26日の画像による。範囲は校舎とグラウンドの位置関係から構成したもので実測ではない。画像は再配布していない。"
       }
     }
   ]
