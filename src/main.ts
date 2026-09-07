@@ -14,6 +14,7 @@ import { CollisionWorld } from './player/Collision';
 import { TrainController } from './generators/TrainController';
 import { loadStationTextures } from './generators/stationTextures';
 import { VegetationGenerator } from './generators/VegetationGenerator';
+import { CanopyMask } from './generators/CanopyMask';
 import { StationTerrace } from './generators/StationTerrace';
 import { TownGenerator } from './generators/TownGenerator';
 import type { Blocker } from './player/Collision';
@@ -222,15 +223,30 @@ async function bootstrap(): Promise<void> {
         return { x, z, radius: maxR + 5 };
       });
 
+    // Where the forest is, off 国土地理院's photograph rather than off a
+    // random number generator. If it cannot be loaded the scatter still
+    // runs, just without knowing the ground — the World does not fail
+    // because a derived asset is missing.
+    let canopy: CanopyMask | undefined;
+    try {
+      const response = await fetch(`${import.meta.env.BASE_URL}assets/textures/midori_canopy.json`);
+      if (response.ok) canopy = new CanopyMask(await response.json(), world.tangentPlane);
+    } catch {
+      canopy = undefined;
+    }
+
     world.group.add(VegetationGenerator.generate({
       heightAt,
       clearingCentre: stationWorldPosition,
-      clearingRadiusM: 33,
-      extentM: 640,
+      clearingRadiusM: canopy ? 12 : 33,
+      // The mask reaches as far as the photograph does, so the wood can now
+      // run to the hills instead of stopping at a 640 m ring.
+      extentM: canopy ? 900 : 640,
       keepClearOf,
       keepClearRadiusM: 13,
       keepClearOfCircles,
-      count: 7000,
+      canopyAt: canopy ? (x, z) => canopy.at(x, z) : undefined,
+      count: canopy ? 18000 : 7000,
     }));
   }
 
