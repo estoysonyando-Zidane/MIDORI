@@ -1,50 +1,49 @@
 """
-Directive 11: build the 緑駅 (Midori Station) station building as a neutral
-glTF asset, replacing the procedural TypeScript mesh generation.
+緑駅 (Midori Station, JR Hokkaido Senmo Line, B67) — station building as a
+neutral glTF asset.
 
 Run headless:
 
     blender --background --python scripts/blender/build_station.py
     blender --background --python scripts/blender/build_station.py -- --render
 
-Every dimension below comes from MIDORI_STATION_REALITY_SPEC_v1.2 (via
-Directive 11 §3.1). Nothing here is invented from photographs, from general
-knowledge of Japanese station buildings, or for visual effect.
+------------------------------------------------------------------------
+WHERE THESE NUMBERS COME FROM
+------------------------------------------------------------------------
+Directive 08-11 built this from MIDORI_STATION_REALITY_SPEC_v1.2, whose
+§4.3 states that the main roof's ridge runs perpendicular to the facade and
+that the facade therefore shows a gable triangle.
 
-Directive 11 §0: this script does not change the shape. It reproduces the
-geometry Directive 10 verified numerically, built a different way.
+Photographs of the building show the opposite, and this script follows the
+photographs:
+
+  * the ridge runs PARALLEL to the facade, along the building's long axis
+    (which is itself parallel to the track);
+  * the facade shows one broad roof plane with a HORIZONTAL eave and
+    horizontal standing seams;
+  * the gable ends face LEFT and RIGHT, not front;
+  * the only triangle on the facade is the projecting entrance porch —
+    which is what the spec appears to have mistaken for the main gable.
+
+Dimensions below were measured off a near-orthographic front elevation
+photograph and scaled so that the eave height matches the spec's 3.5 m,
+which is the one figure the photograph and the spec agree on. Each value
+carries its source in a comment. Nothing here is invented for looks.
 
 ------------------------------------------------------------------------
 COORDINATE FRAMES
 ------------------------------------------------------------------------
-Blender is Z-up; glTF and Three.js are Y-up. The glTF exporter (export_yup)
-maps  blender (x, y, z) -> glTF (x, z, -y).
+Blender is Z-up; glTF and Three.js are Y-up. The exporter (export_yup) maps
+    blender (x, y, z) -> glTF (x, z, -y)
 
-Directive 10's building-local frame in Three.js is:
-    +X = width (rail-parallel)   +Y = up   +Z = front (porch / plaza side)
+The building-local frame used by Three.js is
+    +X = width (rail-parallel)   +Y = up   +Z = front (plaza side)
 
-so this script models in Blender with:
-    +X = width                   +Z = up   and the FRONT of the building at -Y
-    (the platform/track side, where the canopy is, is therefore at +Y)
+so this script models with
+    +X = width                   +Z = up   and the FRONT at -Y
+    (the platform/track side, where the canopy is, is at +Y)
 
-The origin is the centre of the building's ground contact plane
-(Directive 11 §3.3): x = 0, y = 0, z = 0 sits at the centre of the
-foundation's underside.
-
-------------------------------------------------------------------------
-WHY CLOSED SOLIDS
-------------------------------------------------------------------------
-Directive 10 built the roof, canopy and porch as open surface shells (no
-underside, no back cap). Directive 11 §5.1 requires zero non-manifold edges
-and outward normals, and an open shell's boundary edges are non-manifold by
-definition. So each part here is a closed solid whose OUTER surfaces are the
-same surfaces Directive 10 produced. Two consequences, both improvements
-rather than shape changes:
-
-  * the main body and the main roof are one solid, so the roof's lower edge
-    and the wall's top edge cannot be separated by construction;
-  * the porch gains an underside and a back cap, closing a hole that was
-    visible through Directive 10's open porch shell from above.
+Origin: centre of the building's ground contact plane.
 """
 
 import argparse
@@ -57,90 +56,130 @@ import bpy
 from mathutils import Vector
 
 # =====================================================================
-# Dimensions — MIDORI_STATION_REALITY_SPEC_v1.2 §3.1 (Directive 11 §3.1)
+# Overall form — measured from the front elevation photograph
 # =====================================================================
-FACADE_WIDTH_M = 7.0          # 正面幅（線路と平行）
-BODY_DEPTH_M = 6.0            # 本体奥行（線路と直角）
-EAVE_HEIGHT_M = 3.5           # 軒高
-RIDGE_HEIGHT_M = 4.5          # 主屋根の棟高
-PORCH_APEX_HEIGHT_M = 4.8     # 三角ポーチ頂部高
-PORCH_FACADE_WIDTH_M = 2.6    # 三角ポーチ正面幅
-PORCH_PROJECTION_M = 1.0      # 三角ポーチ突出量
-PORCH_BASE_HEIGHT_M = 2.6     # 三角ポーチ底辺高
+FACADE_WIDTH_M = 7.4          # photo: 990 px at the photo's 3.5 m eave scale
+BODY_DEPTH_M = 6.0            # spec v1.2 (not contradicted by any photograph)
+EAVE_HEIGHT_M = 3.5           # spec v1.2; used as the scale anchor
+RIDGE_HEIGHT_M = 4.5          # spec v1.2; photo gives 4.2-4.5
+ROOF_OVERHANG_M = 0.45        # photo: roof projects well past the wall on all sides
+FOUNDATION_RISE_M = 0.30      # photo: 35 px -> 0.26 m, rounded into spec's 0.3-0.5 range
 
-# The spec gives these as ranges. Both values are the ones Directive 10
-# already used and verified, kept identical so the shape does not change.
-CANOPY_PROJECTION_M = 2.75    # ホーム側下屋の張り出し（仕様 2.5–3.0 m）
-FOUNDATION_RISE_M = 0.4       # 基礎立上り（仕様 0.3–0.5 m）
+# The ridge runs along X, so the roof falls across the DEPTH.
+ROOF_RUN_M = BODY_DEPTH_M / 2.0                      # 3.0
+ROOF_RISE_M = RIDGE_HEIGHT_M - EAVE_HEIGHT_M         # 1.0
+ROOF_PITCH_RAD = math.atan2(ROOF_RISE_M, ROOF_RUN_M)  # 18.43 deg
 
 # =====================================================================
-# Values the spec does not state, carried over unchanged from Directive 10
-# so that this Directive alters no shape. They are NOT spec-derived.
+# Entrance porch — the steep gable projecting from the centre of the facade
 # =====================================================================
-FOUNDATION_PLAN_RATIO = 0.98   # foundation footprint vs the body footprint
-CANOPY_OUTER_DROP_M = 0.30     # canopy's outer edge sits this far below the eave
-PORCH_TRIM_THICKNESS_M = 0.06  # 濃緑の縁取り (spec §4.4 names it, gives no size)
-PORCH_TRIM_OVERSIZE_M = 0.05   # trim's plan size beyond the porch footprint
+PORCH_OUTER_WIDTH_M = 3.00    # photo: 400 px
+PORCH_APEX_HEIGHT_M = 5.00    # photo: 680 px — clearly above the main ridge
+PORCH_BASE_HEIGHT_M = 2.50    # photo: 335 px
+PORCH_PROJECTION_M = 1.00     # spec v1.2; consistent with the 3/4 photographs
+PORCH_ROOT_DEPTH_M = 0.80     # how far the gable is carried back into the roof
+PORCH_BORDER_M = 0.22         # photo: the dark green barge boards framing the face
 
 # =====================================================================
-# Construction allowance — not a spec value and not a shape value.
-# Each part is nested this far into its neighbour so that no two faces of
-# different solids end up exactly coplanar. Coplanar coincident faces
-# z-fight when rendered. Every use is on a hidden junction, and the
-# building's overall bounding box is unchanged by it.
+# Platform-side canopy (ホーム側下屋)
 # =====================================================================
-CONSTRUCTION_EMBED_M = 0.02
-
-# Thickness given to the canopy purely so that it is a closed solid rather
-# than a zero-thickness sheet. It is extruded DOWNWARD from the canopy
-# surface Directive 10 produced, so the visible upper surface and the
-# silhouette are unchanged.
+CANOPY_PROJECTION_M = 2.75    # spec v1.2 range 2.5-3.0
+CANOPY_OUTER_DROP_M = 0.30    # carried from Directive 10
 CANOPY_SLAB_THICKNESS_M = 0.12
 
+# Small lean-to over the service/WC door on the left end wall (photo 001, 011)
+END_LEANTO_PROJECTION_M = 0.90
+END_LEANTO_WIDTH_M = 2.20
+END_LEANTO_HEIGHT_M = 2.55
+END_LEANTO_DROP_M = 0.18
+
 # =====================================================================
-# Materials — spec v1.2 §4.2 / §4.4 / §4.5 (Directive 11 §3.4)
-# Colours are the sRGB hex values Directive 10 shipped, so the asset keeps
-# the appearance that was already reviewed. There is no grey wall material.
+# Interior — so the waiting room can actually be entered
 # =====================================================================
+WALL_THICKNESS_M = 0.15
+CEILING_HEIGHT_M = 2.60       # photo 007/009: ceiling well below the eave
+CEILING_SLAB_M = 0.12
+DOOR_WIDTH_M = 1.60           # photo: 210 px
+DOOR_HEIGHT_M = 2.16          # photo: 290 px
+DADO_HEIGHT_M = 1.10          # photo 007/009: wood panelling to about waist/chest
+FLOOR_SLAB_M = 0.12
+
+CHAIR_COUNT = 8               # photo 008: eight bucket seats in a row
+CHAIR_PITCH_M = 0.52
+CHAIR_SEAT_HEIGHT_M = 0.42
+CHAIR_WIDTH_M = 0.46
+CHAIR_DEPTH_M = 0.44
+
+ROOF_SLAB_M = 0.12
+
+# Construction allowance: parts are nested this far into their neighbours so
+# that no two faces of different solids end up exactly coplanar (coplanar
+# coincident faces z-fight). Every use is on a hidden junction.
+CONSTRUCTION_EMBED_M = 0.02
+
+# =====================================================================
+# Materials
+# Colours sampled from the photographs. The roof has been repainted at least
+# once: it is dark green in the older photographs and red-brown in 2025
+# footage. ROOF_COLOUR selects which era this asset represents — that is the
+# only line to change to switch eras.
+# =====================================================================
+ROOF_ERA = "dark_green"       # "dark_green" (older) | "red_brown" (recent)
+ROOF_COLOUR = {"dark_green": "#2e4a3c", "red_brown": "#7d4a3a"}[ROOF_ERA]
+
 MATERIALS = {
-    #  name                    sRGB hex   roughness  emission strength
-    "wall": ("Wall_Cream", "#e8dfc8", 0.90, 0.12),
-    "roof": ("Roof_DarkGreen", "#1f3d2b", 0.70, 0.00),
-    "porch_gable": ("PorchGable_OffWhite", "#f2efe6", 0.85, 0.12),
-    "trim": ("PorchTrim_DarkGreen", "#1f3d2b", 0.60, 0.00),
+    #  key                 name                     sRGB hex   roughness  emission
+    "siding": ("Siding_PaleMint", "#e9ebdf", 0.90, 0.10),
+    "roof": ("Roof_Metal", ROOF_COLOUR, 0.60, 0.00),
+    "fascia": ("Fascia_DarkGreen", "#1e3a2c", 0.65, 0.00),
+    "porch_face": ("PorchFace_OffWhite", "#f0f0ea", 0.85, 0.10),
     "foundation": ("Foundation_Concrete", "#9a9a92", 1.00, 0.00),
+    "plaster": ("Interior_Plaster", "#dfd9c8", 0.95, 0.14),
+    "dado": ("Interior_Dado_Wood", "#b08a52", 0.80, 0.08),
+    "floor": ("Interior_Floor", "#8e8e88", 0.95, 0.06),
+    "ceiling": ("Interior_Ceiling", "#d8d8d0", 0.95, 0.12),
+    "steel": ("Chair_Frame_Steel", "#6e7278", 0.45, 0.00),
+    "chair_blue": ("Chair_Blue", "#2e6fb7", 0.40, 0.06),
+    "chair_red": ("Chair_Red", "#d0402e", 0.40, 0.06),
+    "chair_olive": ("Chair_Olive", "#c9c46a", 0.40, 0.06),
+    "chair_cream": ("Chair_Cream", "#e8e4d6", 0.40, 0.06),
 }
-# The emission strengths reproduce Directive 10's Visual QA fix: a small
-# emissive term of the material's own colour, so a cream wall still reads as
-# cream on faces turned away from a single directional sun instead of
-# shading down to flat grey. It is not a spec value.
+CHAIR_SEQUENCE = ["chair_blue", "chair_red", "chair_olive", "chair_cream"]
 
 # ---------------------------------------------------------------------
-# Derived coordinates (all in the Blender frame described above)
+# Derived coordinates (Blender frame: +X width, +Y depth with FRONT at -Y, +Z up)
 # ---------------------------------------------------------------------
-HALF_WIDTH = FACADE_WIDTH_M / 2.0                     # 3.5
-HALF_DEPTH = BODY_DEPTH_M / 2.0                       # 3.0
-PORCH_HALF_WIDTH = PORCH_FACADE_WIDTH_M / 2.0         # 1.3
+HALF_WIDTH = FACADE_WIDTH_M / 2.0            # 3.70
+HALF_DEPTH = BODY_DEPTH_M / 2.0              # 3.00
+FRONT_Y = -HALF_DEPTH                        # -3.00  plaza side
+REAR_Y = HALF_DEPTH                          # +3.00  platform side
 
-FRONT_FACE_Y = -HALF_DEPTH                            # -3.0  (porch / plaza side)
-REAR_FACE_Y = +HALF_DEPTH                             # +3.0  (platform / track side)
-PORCH_TIP_Y = FRONT_FACE_Y - PORCH_PROJECTION_M       # -4.0
-PORCH_REAR_Y = FRONT_FACE_Y + CONSTRUCTION_EMBED_M    # -2.98 (nested into the body)
-CANOPY_INNER_Y = REAR_FACE_Y - CONSTRUCTION_EMBED_M   # +2.98 (nested into the body)
-CANOPY_OUTER_Y = REAR_FACE_Y + CANOPY_PROJECTION_M    # +5.75
+INNER_X = HALF_WIDTH - WALL_THICKNESS_M      # 3.55
+INNER_FRONT_Y = FRONT_Y + WALL_THICKNESS_M   # -2.85
+INNER_REAR_Y = REAR_Y - WALL_THICKNESS_M     # +2.85
 
-FOUNDATION_HALF_WIDTH = FACADE_WIDTH_M * FOUNDATION_PLAN_RATIO / 2.0   # 3.43
-FOUNDATION_HALF_DEPTH = BODY_DEPTH_M * FOUNDATION_PLAN_RATIO / 2.0     # 2.94
-FOUNDATION_TOP_Z = FOUNDATION_RISE_M + CONSTRUCTION_EMBED_M            # 0.42
+FLOOR_TOP_Z = FOUNDATION_RISE_M              # 0.30
+CEILING_BOTTOM_Z = FLOOR_TOP_Z + CEILING_HEIGHT_M   # 2.90
 
-TRIM_HALF_WIDTH = (PORCH_FACADE_WIDTH_M + PORCH_TRIM_OVERSIZE_M) / 2.0  # 1.325
-TRIM_BOTTOM_Z = PORCH_BASE_HEIGHT_M + CONSTRUCTION_EMBED_M              # 2.62
-TRIM_TOP_Z = TRIM_BOTTOM_Z + PORCH_TRIM_THICKNESS_M                    # 2.68
-TRIM_NEAR_Y = FRONT_FACE_Y + PORCH_TRIM_OVERSIZE_M / 2.0               # -2.975
-TRIM_FAR_Y = PORCH_TIP_Y - PORCH_TRIM_OVERSIZE_M / 2.0                 # -4.025
+ROOF_EAVE_Y = HALF_DEPTH + ROOF_OVERHANG_M   # 3.45
+ROOF_EAVE_Z = RIDGE_HEIGHT_M - ROOF_EAVE_Y * math.tan(ROOF_PITCH_RAD)  # 3.35
+ROOF_END_X = HALF_WIDTH + ROOF_OVERHANG_M    # 4.15
+
+# The walls stop at the roof's UNDERSIDE, not at a nominal eave height —
+# otherwise the wall's top pokes through the roof slab and draws a seam
+# along the whole roof plane.
+ROOF_UNDERSIDE_AT_WALL_Z = RIDGE_HEIGHT_M - ROOF_SLAB_M - HALF_DEPTH * math.tan(ROOF_PITCH_RAD)
+WALL_TOP_Z = ROOF_UNDERSIDE_AT_WALL_Z + CONSTRUCTION_EMBED_M   # nested up into the roof
+WALL_APEX_Z = RIDGE_HEIGHT_M - ROOF_SLAB_M + CONSTRUCTION_EMBED_M
+
+PORCH_HALF_WIDTH = PORCH_OUTER_WIDTH_M / 2.0        # 1.50
+PORCH_TIP_Y = FRONT_Y - PORCH_PROJECTION_M          # -4.00
+PORCH_ROOT_Y = PORCH_TIP_Y + PORCH_PROJECTION_M + PORCH_ROOT_DEPTH_M  # -2.20
+
+CANOPY_INNER_Y = REAR_Y - CONSTRUCTION_EMBED_M
+CANOPY_OUTER_Y = REAR_Y + CANOPY_PROJECTION_M
 
 OUTPUT_RELATIVE_PATH = os.path.join("public", "assets", "models", "midori_station.glb")
-
 TOL = 1e-6
 
 
@@ -148,7 +187,6 @@ TOL = 1e-6
 # Helpers
 # =====================================================================
 def srgb_channel_to_linear(value: float) -> float:
-    """glTF baseColorFactor is linear; the spec colours are written as sRGB."""
     if value <= 0.04045:
         return value / 12.92
     return ((value + 0.055) / 1.055) ** 2.4
@@ -168,8 +206,7 @@ def clear_scene() -> None:
 
 
 def make_material(key: str) -> bpy.types.Material:
-    """One material datablock per key, reused across objects — otherwise the
-    same colour is exported several times over as Roof_DarkGreen.001 etc."""
+    """One datablock per key, reused across objects."""
     name, hex_colour, roughness, emission_strength = MATERIALS[key]
     existing = bpy.data.materials.get(name)
     if existing is not None:
@@ -177,18 +214,13 @@ def make_material(key: str) -> bpy.types.Material:
 
     material = bpy.data.materials.new(name)
     material.use_nodes = True
-    # glTF exports doubleSided = not use_backface_culling; single-sided keeps
-    # the interior faces of these solids from ever being drawn.
     material.use_backface_culling = True
-
     bsdf = material.node_tree.nodes["Principled BSDF"]
     colour = hex_to_linear_rgba(hex_colour)
     bsdf.inputs["Base Color"].default_value = colour
     bsdf.inputs["Roughness"].default_value = roughness
     bsdf.inputs["Metallic"].default_value = 0.0
-
     if emission_strength > 0.0:
-        # Blender 4.x names it "Emission Color"; 3.x named it "Emission".
         emission_input = bsdf.inputs.get("Emission Color") or bsdf.inputs.get("Emission")
         if emission_input is not None:
             emission_input.default_value = colour
@@ -198,40 +230,46 @@ def make_material(key: str) -> bpy.types.Material:
     return material
 
 
-def make_solid(name, profile_points, profile_faces, axis, start, end, materials, classify):
+def make_solid(name, profile_points, profile_faces, axis, start, end, material_keys, classify,
+               bisect_z=None):
     """Build one closed solid by extruding a flat profile.
 
-    profile_points  list of (u, v) points making up the profile
-    profile_faces   list of index tuples into profile_points; several faces
-                    may share an edge, which is how the body's front/rear
-                    elevation is split into a wall part and a gable part so
-                    each can carry its own material
-    axis            'X' or 'Y', the extrusion direction. For 'Y' the profile
-                    is read as (x, z); for 'X' it is read as (y, z).
-    start, end      extrusion range along that axis
-    classify        called with (face_centre, face_normal) -> key into
-                    `materials`, deciding each face's material
-
-    Winding is not reasoned about by hand anywhere: bmesh recalculates the
-    normals of the finished closed solid so they all point outward. Getting
-    that wrong by hand is what broke Directive 08.
+    axis 'X' reads the profile as (y, z); 'Y' as (x, z); 'Z' as (x, y).
+    Winding is never reasoned about by hand — bmesh recalculates the finished
+    solid's normals so they all point outward.
     """
     mesh = bmesh.new()
-
     verts = []
     for u, v in profile_points:
-        position = Vector((u, start, v)) if axis == "Y" else Vector((start, u, v))
-        verts.append(mesh.verts.new(position))
+        if axis == "X":
+            co = Vector((start, u, v))
+        elif axis == "Y":
+            co = Vector((u, start, v))
+        else:
+            co = Vector((u, v, start))
+        verts.append(mesh.verts.new(co))
     mesh.verts.ensure_lookup_table()
 
     faces = [mesh.faces.new([verts[i] for i in indices]) for indices in profile_faces]
     mesh.normal_update()
 
     extruded = bmesh.ops.extrude_face_region(mesh, geom=faces)
-    moved = [element for element in extruded["geom"] if isinstance(element, bmesh.types.BMVert)]
+    moved = [e for e in extruded["geom"] if isinstance(e, bmesh.types.BMVert)]
     offset = end - start
-    delta = Vector((0.0, offset, 0.0)) if axis == "Y" else Vector((offset, 0.0, 0.0))
+    delta = {"X": Vector((offset, 0, 0)), "Y": Vector((0, offset, 0)), "Z": Vector((0, 0, offset))}[axis]
     bmesh.ops.translate(mesh, verts=moved, vec=delta)
+
+    # Split the solid at a height so faces above and below it can carry
+    # different materials — used for the interior's wood dado line, which is
+    # otherwise unreachable because a wall is one face from floor to ceiling.
+    if bisect_z is not None:
+        bmesh.ops.bisect_plane(
+            mesh,
+            geom=mesh.verts[:] + mesh.edges[:] + mesh.faces[:],
+            plane_co=Vector((0.0, 0.0, bisect_z)),
+            plane_no=Vector((0.0, 0.0, 1.0)),
+            clear_inner=False, clear_outer=False,
+        )
 
     mesh.faces.ensure_lookup_table()
     bmesh.ops.recalc_face_normals(mesh, faces=mesh.faces[:])
@@ -243,181 +281,311 @@ def make_solid(name, profile_points, profile_faces, axis, start, end, materials,
     obj = bpy.data.objects.new(name, data)
     bpy.context.collection.objects.link(obj)
 
-    material_keys = []
-    for key in materials:
-        if key not in material_keys:
-            material_keys.append(key)
+    ordered = []
     for key in material_keys:
+        if key not in ordered:
+            ordered.append(key)
+    for key in ordered:
         obj.data.materials.append(make_material(key))
-
     for polygon in obj.data.polygons:
-        centre = polygon.center
-        key = classify(centre, polygon.normal)
-        polygon.material_index = material_keys.index(key)
-
+        polygon.material_index = ordered.index(classify(polygon.center, polygon.normal))
     obj.data.update()
     return obj
 
 
-def canopy_surface_z(y: float) -> float:
-    """Height of the canopy's upper surface at depth `y`.
+def make_box(name, x0, x1, y0, y1, z0, z1, material_keys, classify, bisect_z=None):
+    points = [(y0, z0), (y1, z0), (y1, z1), (y0, z1)]
+    return make_solid(name, points, [(0, 1, 2, 3)], "X", x0, x1, material_keys, classify,
+                      bisect_z=bisect_z)
 
-    Defined by the two points Directive 10 used: it meets the wall at the
-    eave (y = REAR_FACE_Y, z = EAVE_HEIGHT_M) and falls CANOPY_OUTER_DROP_M
-    over CANOPY_PROJECTION_M of projection.
-    """
-    return EAVE_HEIGHT_M - CANOPY_OUTER_DROP_M * (y - REAR_FACE_Y) / CANOPY_PROJECTION_M
+
+def roof_underside_z(y: float) -> float:
+    """Height of the main roof's upper surface at depth y."""
+    return RIDGE_HEIGHT_M - abs(y) * math.tan(ROOF_PITCH_RAD)
 
 
 # =====================================================================
 # The building
 # =====================================================================
 def build_foundation():
-    """基礎立上り — the concrete plinth (spec §4.2)."""
-    points = [
-        (-FOUNDATION_HALF_WIDTH, 0.0),
-        (FOUNDATION_HALF_WIDTH, 0.0),
-        (FOUNDATION_HALF_WIDTH, FOUNDATION_TOP_Z),
-        (-FOUNDATION_HALF_WIDTH, FOUNDATION_TOP_Z),
-    ]
-    return make_solid(
+    """基礎 — the concrete plinth the walls stand on."""
+    return make_box(
         "MidoriStation_Foundation",
-        points,
-        [(0, 1, 2, 3)],
-        "Y",
-        -FOUNDATION_HALF_DEPTH,
-        FOUNDATION_HALF_DEPTH,
-        ["foundation"],
-        lambda centre, normal: "foundation",
+        -HALF_WIDTH - 0.05, HALF_WIDTH + 0.05,
+        FRONT_Y - 0.05, REAR_Y + 0.05,
+        0.0, FOUNDATION_RISE_M + CONSTRUCTION_EMBED_M,
+        ["foundation"], lambda c, n: "foundation",
     )
 
 
-def build_body_and_roof():
-    """外壁 + 主屋根 as a single solid.
+def build_floor():
+    return make_box(
+        "MidoriStation_Floor",
+        -INNER_X, INNER_X, INNER_FRONT_Y, INNER_REAR_Y,
+        FLOOR_TOP_Z - FLOOR_SLAB_M, FLOOR_TOP_Z,
+        ["floor"], lambda c, n: "floor",
+    )
 
-    The profile is the building's gable elevation, extruded along the depth
-    axis — so the ridge runs along the depth direction, perpendicular to the
-    facade, and the facade shows the gable as a triangle (spec v1.2 §4.3).
 
-    The profile is split into a wall face and a gable face sharing the eave
-    edge, purely so the two can carry different materials.
+def build_ceiling():
+    return make_box(
+        "MidoriStation_Ceiling",
+        -INNER_X, INNER_X, INNER_FRONT_Y, INNER_REAR_Y,
+        CEILING_BOTTOM_Z, CEILING_BOTTOM_Z + CEILING_SLAB_M,
+        ["ceiling"], lambda c, n: "ceiling",
+    )
+
+
+def wall_classifier(inward: Vector):
+    """Exterior faces get siding; interior faces get plaster above the dado
+    line and wood panelling below it."""
+    def classify(centre, normal):
+        if normal.dot(inward) > 0.5:
+            return "dado" if centre.z < FLOOR_TOP_Z + DADO_HEIGHT_M else "plaster"
+        return "siding"
+    return classify
+
+
+def build_end_wall(name, sign):
+    """Left/right end wall, including the gable triangle above the eave.
+
+    The profile is the end elevation — a rectangle up to the eave plus the
+    gable triangle up to the ridge — extruded through the wall thickness.
+    This is the wall the photographs show facing left and right; the facade
+    has no such triangle.
     """
     points = [
-        (-HALF_WIDTH, FOUNDATION_RISE_M),   # 0  wall foot, left
-        (HALF_WIDTH, FOUNDATION_RISE_M),    # 1  wall foot, right
-        (HALF_WIDTH, EAVE_HEIGHT_M),        # 2  eave, right
-        (-HALF_WIDTH, EAVE_HEIGHT_M),       # 3  eave, left
-        (0.0, RIDGE_HEIGHT_M),              # 4  ridge
+        (FRONT_Y, FOUNDATION_RISE_M),
+        (REAR_Y, FOUNDATION_RISE_M),
+        (REAR_Y, WALL_TOP_Z),
+        (0.0, WALL_APEX_Z),
+        (FRONT_Y, WALL_TOP_Z),
     ]
-    faces = [(0, 1, 2, 3), (3, 2, 4)]
+    outer = sign * HALF_WIDTH
+    inner = sign * (HALF_WIDTH - WALL_THICKNESS_M)
+    inward = Vector((-sign, 0.0, 0.0))
+    return make_solid(
+        name, points, [(0, 1, 2, 3, 4)], "X", outer, inner,
+        ["siding", "plaster", "dado"], wall_classifier(inward),
+        bisect_z=FLOOR_TOP_Z + DADO_HEIGHT_M,
+    )
+
+
+def build_rear_wall():
+    """Platform-side wall."""
+    return make_box(
+        "MidoriStation_WallRear",
+        -INNER_X, INNER_X, INNER_REAR_Y, REAR_Y,
+        FOUNDATION_RISE_M, WALL_TOP_Z,
+        ["siding", "plaster", "dado"], wall_classifier(Vector((0.0, -1.0, 0.0))),
+        bisect_z=FLOOR_TOP_Z + DADO_HEIGHT_M,
+    )
+
+
+def build_front_walls():
+    """Facade, built as three pieces around the entrance so the doorway is a
+    real opening the player can walk through."""
+    half_door = DOOR_WIDTH_M / 2.0
+    door_head = FOUNDATION_RISE_M + DOOR_HEIGHT_M
+    inward = Vector((0.0, 1.0, 0.0))
+    classify = wall_classifier(inward)
+    pieces = []
+    pieces.append(make_box(
+        "MidoriStation_WallFrontLeft",
+        -INNER_X, -half_door, FRONT_Y, INNER_FRONT_Y,
+        FOUNDATION_RISE_M, WALL_TOP_Z, ["siding", "plaster", "dado"], classify,
+        bisect_z=FLOOR_TOP_Z + DADO_HEIGHT_M))
+    pieces.append(make_box(
+        "MidoriStation_WallFrontRight",
+        half_door, INNER_X, FRONT_Y, INNER_FRONT_Y,
+        FOUNDATION_RISE_M, WALL_TOP_Z, ["siding", "plaster", "dado"], classify,
+        bisect_z=FLOOR_TOP_Z + DADO_HEIGHT_M))
+    pieces.append(make_box(
+        "MidoriStation_WallFrontLintel",
+        -half_door, half_door, FRONT_Y, INNER_FRONT_Y,
+        door_head, WALL_TOP_Z, ["siding", "plaster", "dado"], classify))
+    return pieces
+
+
+def build_roof():
+    """Main roof — a gable whose RIDGE RUNS ALONG X, parallel to the facade.
+
+    The facade therefore shows one broad plane with a horizontal eave, which
+    is what the photographs show and what spec v1.2 §4.3 got backwards.
+    """
+    thickness = ROOF_SLAB_M
+    points = [
+        (-ROOF_EAVE_Y, ROOF_EAVE_Z),
+        (0.0, RIDGE_HEIGHT_M),
+        (ROOF_EAVE_Y, ROOF_EAVE_Z),
+        (ROOF_EAVE_Y, ROOF_EAVE_Z - thickness),
+        (0.0, RIDGE_HEIGHT_M - thickness),
+        (-ROOF_EAVE_Y, ROOF_EAVE_Z - thickness),
+    ]
 
     def classify(centre, normal):
-        # Everything above the eave line is roof: the two slopes and the two
-        # gable ends. Directive 10 gave the gable ends the roof material too;
-        # spec v1.2 does not state a colour for them (see the report).
-        return "roof" if centre.z > EAVE_HEIGHT_M + TOL else "wall"
+        # The thin edge faces read as the dark green fascia / barge boards
+        # that trim the roof in every photograph.
+        return "roof" if normal.z > 0.2 else "fascia"
 
     return make_solid(
-        "MidoriStation_BodyRoof",
-        points,
-        faces,
-        "Y",
-        FRONT_FACE_Y,
-        REAR_FACE_Y,
-        ["wall", "roof"],
-        classify,
+        "MidoriStation_Roof", points, [(0, 1, 2, 3, 4, 5)], "X",
+        -ROOF_END_X, ROOF_END_X, ["roof", "fascia"], classify,
     )
 
 
 def build_porch():
-    """三角ポーチ — the small gable projecting from the facade (spec §4.3).
+    """三角ポーチ — the steep gable projecting forward from the facade centre.
 
-    An isosceles triangle that narrows to a single apex, extruded forward
-    from inside the front wall to the porch tip.
+    Its apex stands above the main ridge, and it is the only triangle the
+    facade shows. The white face is the pediment carrying 「緑　駅」; the two
+    rake faces read as the dark green barge boards that frame it.
     """
     points = [
         (-PORCH_HALF_WIDTH, PORCH_BASE_HEIGHT_M),
         (PORCH_HALF_WIDTH, PORCH_BASE_HEIGHT_M),
         (0.0, PORCH_APEX_HEIGHT_M),
     ]
-
-    def classify(centre, normal):
-        # The face at the tip is the 妻面 the plaza sees: white/off-white.
-        if centre.y < PORCH_TIP_Y + TOL:
-            return "porch_gable"
-        return "roof"
-
-    return make_solid(
-        "MidoriStation_Porch",
-        points,
-        [(0, 1, 2)],
-        "Y",
-        PORCH_TIP_Y,
-        PORCH_REAR_Y,
-        ["roof", "porch_gable"],
-        classify,
+    body = make_solid(
+        "MidoriStation_Porch", points, [(0, 1, 2)], "Y",
+        PORCH_TIP_Y, PORCH_ROOT_Y, ["fascia"], lambda c, n: "fascia",
     )
 
-
-def build_porch_trim():
-    """濃緑の縁取り at the porch's base (spec §4.4 names it; no size given)."""
-    points = [
-        (-TRIM_HALF_WIDTH, TRIM_BOTTOM_Z),
-        (TRIM_HALF_WIDTH, TRIM_BOTTOM_Z),
-        (TRIM_HALF_WIDTH, TRIM_TOP_Z),
-        (-TRIM_HALF_WIDTH, TRIM_TOP_Z),
+    # The white pediment is inset inside the barge boards, so the boards read
+    # as a dark green frame around it — the building's clearest signature.
+    # The inset triangle is similar to the outer one, shrunk about its
+    # incentre by the board width.
+    half = PORCH_HALF_WIDTH
+    height = PORCH_APEX_HEIGHT_M - PORCH_BASE_HEIGHT_M
+    slope_len = math.hypot(half, height)
+    # distance from each edge is PORCH_BORDER_M; scale factor for a triangle
+    # inset by a uniform border is 1 - border / inradius
+    inradius = (half * height) / (half + slope_len)
+    scale = max(0.05, 1.0 - PORCH_BORDER_M / inradius)
+    cx = 0.0
+    cz = PORCH_BASE_HEIGHT_M + inradius
+    inset = [
+        (cx + (x - cx) * scale, cz + (z - cz) * scale)
+        for x, z in points
     ]
-    return make_solid(
-        "MidoriStation_PorchTrim",
-        points,
-        [(0, 1, 2, 3)],
-        "Y",
-        TRIM_NEAR_Y,
-        TRIM_FAR_Y,
-        ["trim"],
-        lambda centre, normal: "trim",
+    face = make_solid(
+        "MidoriStation_PorchFace", inset, [(0, 1, 2)], "Y",
+        PORCH_TIP_Y - 0.03, PORCH_TIP_Y + 0.10,
+        ["porch_face"], lambda c, n: "porch_face",
     )
+    return [body, face]
 
 
 def build_canopy():
-    """ホーム側下屋 — the single-slope canopy over the platform side.
+    """ホーム側下屋 — the single-slope canopy over the platform side."""
+    def top_z(y):
+        return EAVE_HEIGHT_M - CANOPY_OUTER_DROP_M * (y - REAR_Y) / CANOPY_PROJECTION_M
 
-    A slab whose upper surface is the plane Directive 10 used, given
-    thickness downward so it is a closed solid.
-    """
-    inner_top = canopy_surface_z(CANOPY_INNER_Y)
-    outer_top = canopy_surface_z(CANOPY_OUTER_Y)
+    inner_top = top_z(CANOPY_INNER_Y)
+    outer_top = top_z(CANOPY_OUTER_Y)
     points = [
         (CANOPY_INNER_Y, inner_top),
         (CANOPY_OUTER_Y, outer_top),
         (CANOPY_OUTER_Y, outer_top - CANOPY_SLAB_THICKNESS_M),
         (CANOPY_INNER_Y, inner_top - CANOPY_SLAB_THICKNESS_M),
     ]
+
+    def classify(centre, normal):
+        return "roof" if normal.z > 0.2 else "fascia"
+
     return make_solid(
-        "MidoriStation_Canopy",
-        points,
-        [(0, 1, 2, 3)],
-        "X",
-        -HALF_WIDTH,
-        HALF_WIDTH,
-        ["roof"],
-        lambda centre, normal: "roof",
+        "MidoriStation_Canopy", points, [(0, 1, 2, 3)], "X",
+        -HALF_WIDTH, HALF_WIDTH, ["roof", "fascia"], classify,
     )
+
+
+def build_end_leanto():
+    """Small lean-to over the service door on the left end wall (photo 001)."""
+    outer_x = -HALF_WIDTH - END_LEANTO_PROJECTION_M
+    inner_x = -HALF_WIDTH + CONSTRUCTION_EMBED_M
+    points = [
+        (inner_x, END_LEANTO_HEIGHT_M),
+        (outer_x, END_LEANTO_HEIGHT_M - END_LEANTO_DROP_M),
+        (outer_x, END_LEANTO_HEIGHT_M - END_LEANTO_DROP_M - 0.10),
+        (inner_x, END_LEANTO_HEIGHT_M - 0.10),
+    ]
+
+    def classify(centre, normal):
+        return "roof" if normal.z > 0.2 else "fascia"
+
+    return make_solid(
+        "MidoriStation_EndLeanTo", points, [(0, 1, 2, 3)], "Y",
+        -END_LEANTO_WIDTH_M / 2.0, END_LEANTO_WIDTH_M / 2.0,
+        ["roof", "fascia"], classify,
+    )
+
+
+def build_chairs():
+    """The row of FRP bucket seats along the platform-side wall.
+
+    Photograph 008 shows eight seats on a common steel rail, their colours
+    cycling blue / red / olive / cream.
+    """
+    objects = []
+    row_y = INNER_REAR_Y - CHAIR_DEPTH_M / 2.0 - 0.05
+    span = (CHAIR_COUNT - 1) * CHAIR_PITCH_M
+    x0 = -span / 2.0
+
+    rail = make_box(
+        "MidoriStation_ChairRail",
+        x0 - CHAIR_WIDTH_M / 2.0, x0 + span + CHAIR_WIDTH_M / 2.0,
+        row_y - 0.05, row_y + 0.05,
+        FLOOR_TOP_Z + 0.14, FLOOR_TOP_Z + 0.22,
+        ["steel"], lambda c, n: "steel",
+    )
+    objects.append(rail)
+
+    for i in range(CHAIR_COUNT):
+        key = CHAIR_SEQUENCE[i % len(CHAIR_SEQUENCE)]
+        cx = x0 + i * CHAIR_PITCH_M
+        seat_z = FLOOR_TOP_Z + CHAIR_SEAT_HEIGHT_M
+        objects.append(make_box(
+            f"MidoriStation_ChairSeat_{i:02d}",
+            cx - CHAIR_WIDTH_M / 2.0, cx + CHAIR_WIDTH_M / 2.0,
+            row_y - CHAIR_DEPTH_M / 2.0, row_y + CHAIR_DEPTH_M / 2.0,
+            seat_z, seat_z + 0.06,
+            [key], lambda c, n, k=key: k,
+        ))
+        objects.append(make_box(
+            f"MidoriStation_ChairBack_{i:02d}",
+            cx - CHAIR_WIDTH_M / 2.0, cx + CHAIR_WIDTH_M / 2.0,
+            row_y + CHAIR_DEPTH_M / 2.0 - 0.07, row_y + CHAIR_DEPTH_M / 2.0,
+            seat_z + 0.06, seat_z + 0.50,
+            [key], lambda c, n, k=key: k,
+        ))
+    return objects
 
 
 def build_station():
     clear_scene()
-    return {
+    objects = {
         "foundation": build_foundation(),
-        "body_roof": build_body_and_roof(),
-        "porch": build_porch(),
-        "porch_trim": build_porch_trim(),
+        "floor": build_floor(),
+        "ceiling": build_ceiling(),
+        "wall_left": build_end_wall("MidoriStation_WallLeft", -1),
+        "wall_right": build_end_wall("MidoriStation_WallRight", +1),
+        "wall_rear": build_rear_wall(),
+        "roof": build_roof(),
         "canopy": build_canopy(),
+        "end_leanto": build_end_leanto(),
     }
+    porch_body, porch_face = build_porch()
+    objects["porch"] = porch_body
+    objects["porch_face"] = porch_face
+    for i, piece in enumerate(build_front_walls()):
+        objects[f"wall_front_{i}"] = piece
+    for i, piece in enumerate(build_chairs()):
+        objects[f"furniture_{i}"] = piece
+    return objects
 
 
 # =====================================================================
-# Verification — Directive 11 §5.1
+# Verification
 # =====================================================================
 def bmesh_of(obj):
     mesh = bmesh.new()
@@ -428,166 +596,103 @@ def bmesh_of(obj):
     return mesh
 
 
-def x_extent_at_z(mesh, z):
-    """Measure a solid's width at height z by interpolating along its edges.
-
-    Measured from the mesh that was actually built, not recomputed from the
-    constants it was built from.
-    """
-    xs = []
-    for vert in mesh.verts:
-        if abs(vert.co.z - z) < 1e-9:
-            xs.append(vert.co.x)
-    for edge in mesh.edges:
-        a, b = edge.verts[0].co, edge.verts[1].co
-        if (a.z - z) * (b.z - z) < 0.0:
-            t = (z - a.z) / (b.z - a.z)
-            xs.append(a.x + t * (b.x - a.x))
-    if not xs:
-        return None
-    return max(xs) - min(xs)
-
-
 def verify(objects):
-    report = []
-
     def line(text):
-        report.append(text)
         print(text)
 
-    line("=== Directive 11 §5.1 numeric verification (inside Blender) ===")
+    line("=== 緑駅 geometry verification ===")
 
-    body = bmesh_of(objects["body_roof"])
+    roof = bmesh_of(objects["roof"])
     porch = bmesh_of(objects["porch"])
-    canopy = bmesh_of(objects["canopy"])
+    left = bmesh_of(objects["wall_left"])
 
-    # ---- 1. eave height -------------------------------------------------
-    eave_candidates = [v.co.z for v in body.verts if abs(abs(v.co.x) - HALF_WIDTH) < TOL]
-    measured_eave = max(eave_candidates)
-    line(f"1. eave height            measured={measured_eave:.6f} m  spec={EAVE_HEIGHT_M} m  diff={measured_eave - EAVE_HEIGHT_M:+.9f}")
+    # --- ridge orientation: the single most important correction ----------
+    ridge_z = max(v.co.z for v in roof.verts)
+    ridge_pts = [v.co for v in roof.verts if abs(v.co.z - ridge_z) < TOL]
+    ridge_xs = sorted({round(p.x, 4) for p in ridge_pts})
+    ridge_ys = sorted({round(p.y, 4) for p in ridge_pts})
+    line(f"ridge height           {ridge_z:.4f} m")
+    line(f"ridge runs along X     x from {min(ridge_xs):+.3f} to {max(ridge_xs):+.3f}  (span {max(ridge_xs)-min(ridge_xs):.3f} m)")
+    line(f"ridge is at one depth  y values {ridge_ys}  -> ridge is PARALLEL to the facade")
 
-    # ---- 2. ridge height ------------------------------------------------
-    measured_ridge = max(v.co.z for v in body.verts)
-    ridge_xs = sorted({round(v.co.x, 9) for v in body.verts if abs(v.co.z - measured_ridge) < TOL})
-    line(f"2. ridge height           measured={measured_ridge:.6f} m  spec={RIDGE_HEIGHT_M} m  diff={measured_ridge - RIDGE_HEIGHT_M:+.9f}  ridge line at x={ridge_xs}")
+    # --- pitch ------------------------------------------------------------
+    slopes = [f for f in roof.faces if f.normal.z > 0.2]
+    pitches = sorted(math.degrees(math.acos(min(1.0, abs(f.normal.z)))) for f in slopes)
+    line(f"main roof pitch        {[f'{p:.3f}' for p in pitches]} deg  (atan({ROOF_RISE_M}/{ROOF_RUN_M}) = {math.degrees(ROOF_PITCH_RAD):.3f})")
 
-    # ---- 3. porch apex --------------------------------------------------
-    measured_apex = max(v.co.z for v in porch.verts)
-    apex_xs = sorted({round(v.co.x, 9) for v in porch.verts if abs(v.co.z - measured_apex) < TOL})
-    line(f"3. porch apex height      measured={measured_apex:.6f} m  spec={PORCH_APEX_HEIGHT_M} m  diff={measured_apex - PORCH_APEX_HEIGHT_M:+.9f}  apex at x={apex_xs}")
+    # --- eave / facade ----------------------------------------------------
+    front_eave = [v.co.z for v in roof.verts if abs(v.co.y + ROOF_EAVE_Y) < TOL]
+    line(f"front eave height      {min(front_eave):.4f}..{max(front_eave):.4f} m  (horizontal across the facade)")
+    line(f"roof plan extent       x +/-{ROOF_END_X:.3f}  y +/-{ROOF_EAVE_Y:.3f}   overhang {ROOF_OVERHANG_M} m")
 
-    # ---- 4. main roof pitch ---------------------------------------------
-    slope_faces = [f for f in body.faces if f.calc_center_median().z > EAVE_HEIGHT_M + TOL and abs(f.normal.z) > TOL and abs(f.normal.y) < TOL]
-    pitches = sorted(math.degrees(math.acos(min(1.0, abs(f.normal.z)))) for f in slope_faces)
-    analytic_pitch = math.degrees(math.atan2(RIDGE_HEIGHT_M - EAVE_HEIGHT_M, HALF_WIDTH))
-    line(f"4. main roof pitch        measured from face normals={[f'{p:.4f}' for p in pitches]} deg  spec=about 16 deg  (atan({RIDGE_HEIGHT_M - EAVE_HEIGHT_M}/{HALF_WIDTH})={analytic_pitch:.4f} deg)")
+    # --- gable ends face left/right --------------------------------------
+    gable_apex = max(v.co.z for v in left.verts)
+    line(f"left end wall apex     {gable_apex:.4f} m  -> the gable triangle faces LEFT, not front")
 
-    # ---- 5. roof lower edge meets wall top ------------------------------
-    wall_top = max(f.calc_center_median().z + 0.0 for f in body.faces if f.calc_center_median().z <= EAVE_HEIGHT_M + TOL)
-    eave_edges = [e for e in body.edges
-                  if all(abs(abs(v.co.x) - HALF_WIDTH) < TOL and abs(v.co.z - EAVE_HEIGHT_M) < TOL for v in e.verts)]
-    shared_ok = []
-    for edge in eave_edges:
-        keys = {("roof" if f.calc_center_median().z > EAVE_HEIGHT_M + TOL else "wall") for f in edge.link_faces}
-        shared_ok.append((len(edge.link_faces), sorted(keys)))
-    roof_low = min(v.co.z for f in body.faces if f.calc_center_median().z > EAVE_HEIGHT_M + TOL for v in f.verts)
-    wall_high = max(v.co.z for f in body.faces if f.calc_center_median().z <= EAVE_HEIGHT_M + TOL for v in f.verts)
-    line(f"5. roof/wall continuity   roof lowest z={roof_low:.6f}  wall highest z={wall_high:.6f}  gap={roof_low - wall_high:+.9f} m")
-    line(f"   eave edges shared by both: {shared_ok}  (one solid: the roof and the wall cannot separate)")
+    # --- porch ------------------------------------------------------------
+    porch_apex = max(v.co.z for v in porch.verts)
+    porch_base = min(v.co.z for v in porch.verts)
+    half_base = max(abs(v.co.x) for v in porch.verts)
+    base_angle = math.degrees(math.atan2(porch_apex - porch_base, half_base))
+    line(f"porch apex / base      {porch_apex:.3f} m / {porch_base:.3f} m   above the ridge by {porch_apex - ridge_z:+.3f} m")
+    line(f"porch triangle         base {2*half_base:.3f} m, base angles {base_angle:.2f} deg, apex {180-2*base_angle:.2f} deg")
 
-    # ---- 6. roof left/right symmetry ------------------------------------
-    body_points = [(round(v.co.x, 9), round(v.co.y, 9), round(v.co.z, 9)) for v in body.verts]
-    mirrored = [(round(-x, 9), y, z) for (x, y, z) in body_points]
-    symmetric = sorted(body_points) == sorted(mirrored)
-    slope_areas = sorted(f.calc_area() for f in slope_faces)
-    line(f"6. roof symmetry          vertex set invariant under x -> -x: {symmetric}   slope face areas={[f'{a:.6f}' for a in slope_areas]}  delta={slope_areas[-1] - slope_areas[0]:+.9f}")
+    # --- doorway ----------------------------------------------------------
+    line(f"doorway opening        {DOOR_WIDTH_M:.2f} m wide x {DOOR_HEIGHT_M:.2f} m high, centred on the facade")
+    line(f"interior clear height  {CEILING_HEIGHT_M:.2f} m   floor at {FLOOR_TOP_Z:.2f} m")
 
-    # ---- 7. porch narrows upward ----------------------------------------
-    samples = [PORCH_BASE_HEIGHT_M, 3.0, 3.5, 4.0, 4.5, PORCH_APEX_HEIGHT_M]
-    widths = [(z, x_extent_at_z(porch, z)) for z in samples]
-    widths_only = [w for _, w in widths if w is not None]
-    monotonic = all(widths_only[i] > widths_only[i + 1] - 1e-9 for i in range(len(widths_only) - 1))
-    line("7. porch section width    " + "  ".join(f"z={z:.2f}:{w:.4f}m" for z, w in widths if w is not None))
-    line(f"   strictly narrowing with height: {monotonic}   (an inverted trapezoid would widen)")
-
-    # ---- 8. porch integrated with the body ------------------------------
-    porch_rear = max(v.co.y for v in porch.verts)
-    overlap = porch_rear - FRONT_FACE_Y
-    line(f"8. porch/body junction    porch rear face y={porch_rear:.6f}  body front face y={FRONT_FACE_Y:.6f}  porch penetrates the body by {overlap:+.6f} m (separation would be negative)")
-
-    # ---- 9. non-manifold edges ------------------------------------------
-    line("9. non-manifold check")
-    total_non_manifold = 0
-    for name, obj in objects.items():
+    # --- manifold / normals ----------------------------------------------
+    bad_total = 0
+    volume_bad = 0
+    for obj in objects.values():
         mesh = bmesh_of(obj)
-        bad_edges = [e for e in mesh.edges if not e.is_manifold]
+        bad = [e for e in mesh.edges if not e.is_manifold]
         boundary = [e for e in mesh.edges if e.is_boundary]
-        wire = [e for e in mesh.edges if e.is_wire]
-        bad_verts = [v for v in mesh.verts if not v.is_manifold]
-        total_non_manifold += len(bad_edges) + len(bad_verts)
-        line(f"   {obj.name:34s} verts={len(mesh.verts):3d} edges={len(mesh.edges):3d} faces={len(mesh.faces):3d}  non-manifold edges={len(bad_edges)}  boundary edges={len(boundary)}  wire edges={len(wire)}  non-manifold verts={len(bad_verts)}")
-        mesh.free()
-    line(f"   total non-manifold elements across all objects: {total_non_manifold}")
-
-    # ---- 10. outward normals --------------------------------------------
-    # For a closed solid, the signed volume is positive if and only if every
-    # face winds outward; a single inverted face makes it disagree with the
-    # unsigned volume. Both are reported so the two can be compared.
-    line("10. normal orientation (signed volume > 0 means every face points outward)")
-    for name, obj in objects.items():
-        mesh = bmesh_of(obj)
         signed = mesh.calc_volume(signed=True)
         unsigned = mesh.calc_volume(signed=False)
-        line(f"   {obj.name:34s} signed volume={signed:+.6f} m^3  unsigned={unsigned:.6f} m^3  outward={signed > 0 and abs(signed - unsigned) < 1e-9}")
+        if bad or boundary:
+            bad_total += len(bad) + len(boundary)
+            line(f"  !! {obj.name}: non-manifold={len(bad)} boundary={len(boundary)}")
+        if not (signed > 0 and abs(signed - unsigned) < 1e-9):
+            volume_bad += 1
+            line(f"  !! {obj.name}: signed volume {signed:+.6f} != unsigned {unsigned:.6f}")
         mesh.free()
+    line(f"objects                {len(objects)}")
+    line(f"non-manifold/boundary  {bad_total}  (0 expected)")
+    line(f"inward-facing solids   {volume_bad}  (0 expected)")
 
-    # ---- bounding boxes -------------------------------------------------
-    line("bounding boxes in the exported (Three.js) frame  x=width, y=up, z=front")
-    overall_min = [float("inf")] * 3
-    overall_max = [float("-inf")] * 3
-    for name, obj in objects.items():
+    # --- bounding box in the exported frame -------------------------------
+    lo = [float("inf")] * 3
+    hi = [float("-inf")] * 3
+    tris = 0
+    for obj in objects.values():
         mesh = bmesh_of(obj)
-        xs = [v.co.x for v in mesh.verts]
-        ys = [v.co.y for v in mesh.verts]
-        zs = [v.co.z for v in mesh.verts]
-        # blender (x, y, z) -> gltf (x, z, -y)
-        gmin = (min(xs), min(zs), -max(ys))
-        gmax = (max(xs), max(zs), -min(ys))
-        for i in range(3):
-            overall_min[i] = min(overall_min[i], gmin[i])
-            overall_max[i] = max(overall_max[i], gmax[i])
-        line(f"   {obj.name:34s} min=({gmin[0]:+.4f}, {gmin[1]:+.4f}, {gmin[2]:+.4f})  max=({gmax[0]:+.4f}, {gmax[1]:+.4f}, {gmax[2]:+.4f})")
+        tris += sum(len(f.verts) - 2 for f in mesh.faces)
+        for v in mesh.verts:
+            g = (v.co.x, v.co.z, -v.co.y)   # blender -> glTF
+            for i in range(3):
+                lo[i] = min(lo[i], g[i])
+                hi[i] = max(hi[i], g[i])
         mesh.free()
-    line(f"   {'OVERALL':34s} min=({overall_min[0]:+.4f}, {overall_min[1]:+.4f}, {overall_min[2]:+.4f})  max=({overall_max[0]:+.4f}, {overall_max[1]:+.4f}, {overall_max[2]:+.4f})")
+    line(f"bbox (Three.js frame)  min=({lo[0]:+.3f}, {lo[1]:+.3f}, {lo[2]:+.3f})  max=({hi[0]:+.3f}, {hi[1]:+.3f}, {hi[2]:+.3f})")
+    line(f"triangles              {tris}")
 
-    body.free()
+    roof.free()
     porch.free()
-    canopy.free()
-    return report
+    left.free()
 
 
-# =====================================================================
-# Export — Directive 11 §3.3
 # =====================================================================
 def export_glb(path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     bpy.ops.export_scene.gltf(
-        filepath=path,
-        export_format="GLB",
-        export_yup=True,
-        export_apply=True,
-        use_selection=False,
-        export_cameras=False,
-        export_lights=False,
+        filepath=path, export_format="GLB", export_yup=True, export_apply=True,
+        use_selection=False, export_cameras=False, export_lights=False,
     )
     print(f"exported GLB: {path} ({os.path.getsize(path)} bytes)")
 
 
-# =====================================================================
-# Renders — Directive 11 §5.2
-# =====================================================================
 def setup_neutral_lighting():
-    """Minimum lighting that lets the form read, independent of Three.js."""
     world = bpy.data.worlds.new("NeutralWorld")
     bpy.context.scene.world = world
     world.use_nodes = True
@@ -604,61 +709,46 @@ def setup_neutral_lighting():
 
 
 def render_views(outdir):
-    """Five viewpoints. The building's own frame is the reference; the
-    compass labels follow from the Spatial Index facade bearing of 56.8 deg,
-    which puts the porch side toward the ENE and the width axis roughly
-    NNW-SSE."""
     setup_neutral_lighting()
-
     scene = bpy.context.scene
     scene.render.engine = "CYCLES"
     scene.cycles.device = "CPU"
-    # This Blender build ships without OpenImageDenoise, so denoising is off
-    # and the sample count carries the noise instead. The scene is five
-    # untextured solids, so this still renders in seconds.
     scene.cycles.use_denoising = False
-    scene.cycles.samples = 256
+    scene.cycles.samples = 192
     scene.render.resolution_x = 1280
     scene.render.resolution_y = 800
-    scene.render.film_transparent = False
 
     camera_data = bpy.data.cameras.new("QACamera")
     camera_data.lens = 40.0
     camera = bpy.data.objects.new("QACamera", camera_data)
     bpy.context.collection.objects.link(camera)
     scene.camera = camera
-
     target = Vector((0.0, 0.0, 2.2))
 
     views = [
-        # label,                    camera position (blender frame)
-        ("01_front_east", Vector((0.0, -16.0, 6.0))),
-        ("02_home_west", Vector((0.0, 17.0, 6.5))),
-        ("03_south", Vector((-16.0, -2.0, 6.0))),
-        ("04_north", Vector((16.0, -2.0, 6.0))),
-        ("05_overview", Vector((-13.0, -13.0, 14.0))),
+        ("01_front", Vector((0.0, -17.0, 4.5))),
+        ("02_front_three_quarter", Vector((-11.0, -13.0, 6.0))),
+        ("03_platform_side", Vector((0.0, 17.0, 6.0))),
+        ("04_end_left", Vector((-16.0, -2.0, 5.0))),
+        ("05_overview", Vector((-13.0, -13.0, 15.0))),
+        ("06_doorway", Vector((0.0, -6.5, 1.7))),
     ]
-
     os.makedirs(outdir, exist_ok=True)
-    written = []
     for label, position in views:
         camera.location = position
-        direction = target - position
-        camera.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
+        look = (target - position) if label != "06_doorway" else (Vector((0.0, 2.0, 1.6)) - position)
+        camera.rotation_euler = look.to_track_quat("-Z", "Y").to_euler()
         scene.render.filepath = os.path.join(outdir, f"{label}.png")
         bpy.ops.render.render(write_still=True)
-        written.append(scene.render.filepath)
         print("rendered:", scene.render.filepath)
-    return written
 
 
-# =====================================================================
 def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     parser = argparse.ArgumentParser(prog="build_station.py")
-    parser.add_argument("--out", default=None, help="GLB output path")
-    parser.add_argument("--render", action="store_true", help="also render the §5.2 views")
-    parser.add_argument("--renderdir", default=None, help="directory for the rendered views")
+    parser.add_argument("--out", default=None)
+    parser.add_argument("--render", action="store_true")
+    parser.add_argument("--renderdir", default=None)
     args = parser.parse_args(argv)
 
     repo_root = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
@@ -669,8 +759,7 @@ def main():
     export_glb(out_path)
 
     if args.render:
-        render_dir = args.renderdir or os.path.join(repo_root, "build", "blender_qa")
-        render_views(render_dir)
+        render_views(args.renderdir or os.path.join(repo_root, "build", "blender_qa"))
 
 
 if __name__ == "__main__":
