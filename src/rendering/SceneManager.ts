@@ -27,6 +27,13 @@ export class SceneManager {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    // Without tone mapping the renderer clamps anything over white, so a lit
+    // interior turned into a flat white blob around each lamp and the sunlit
+    // walls lost their surface. A filmic curve compresses those highlights
+    // back into range and keeps the shaded side off pure black, which is what
+    // a camera does and what makes the two sides of a wall read as one wall.
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1.35;
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     container.appendChild(this.renderer.domElement);
 

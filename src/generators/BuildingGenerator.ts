@@ -15,7 +15,10 @@ const DEFAULT_HEIGHT_M = 5;
 const STRUCTURE_COLORS: Record<string, number> = {
   container: 0x2f5a3a,
   level_crossing: 0x4a3b2a,
-  plaza_pavement: 0x2e6b3e,
+  // The forecourt is unsealed crushed stone in every photograph of it — the
+  // green it used to be made the busiest surface in front of the station read
+  // as a lawn.
+  plaza_pavement: 0x8b8378,
 };
 
 function projectRing(
@@ -219,10 +222,18 @@ async function buildStationBuilding(
 
   // 駅名標 — the standing nameboard on the platform.
   const nameboardTexture = makeStationNameboardTexture(NAMEBOARD_WITH_NUMBER);
-  const nameboardMat = new THREE.MeshStandardMaterial({ map: nameboardTexture, roughness: 0.8, side: THREE.DoubleSide });
-  const nameboard = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 0.85), nameboardMat);
-  nameboard.position.set(-2.2, 1.85, -halfD - 2.2);
-  group.add(nameboard);
+  // A 駅名標 is read from both sides — from the platform and from the train.
+  // One double-sided plane gave the correct face to the plaza, which nobody
+  // stands on, and a mirror-image 「みどり」 to the platform, which is the only
+  // side anyone actually reads it from. Two back-to-back single-sided faces
+  // put the lettering the right way round in both directions.
+  const nameboardMat = new THREE.MeshStandardMaterial({ map: nameboardTexture, roughness: 0.8 });
+  for (const facing of [0, Math.PI]) {
+    const nameboard = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 0.85), nameboardMat);
+    nameboard.rotation.y = facing;
+    nameboard.position.set(-2.2, 1.85, -halfD - 2.2 + (facing === 0 ? 0.012 : -0.012));
+    group.add(nameboard);
+  }
   const postMat = new THREE.MeshStandardMaterial({ color: 0x7a3b32, roughness: 0.8 });
   for (const px of [-3.0, -1.4]) {
     const post = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 1.9, 8), postMat);
@@ -238,14 +249,22 @@ async function buildStationBuilding(
   // of the interior has them lit, and without them the room the player just
   // walked into is a dark box.
   const ceilingH = (props.interior_ceiling_height_m ?? 2.6) + foundationRise;
-  const battenMat = new THREE.MeshBasicMaterial({ color: 0xfff6e2 });
+  // The tube itself glows but is not pure white — a MeshBasicMaterial at
+  // full white clipped to a featureless blob. The light is inverse-square,
+  // so hanging it a hand's width below the ceiling put a 200× hotspot on the
+  // plasterboard directly above it; dropping it to the batten's own height
+  // and cutting the intensity leaves the room lit without the ceiling
+  // burning out.
+  const battenMat = new THREE.MeshStandardMaterial({
+    color: 0xf2ecdc, emissive: 0xffefd0, emissiveIntensity: 0.9, roughness: 0.4,
+  });
   for (const bz of [-1.3, 1.1]) {
     const batten = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.06, 0.12), battenMat);
     batten.position.set(0, ceilingH - 0.06, bz);
     group.add(batten);
 
-    const lamp = new THREE.PointLight(0xffeccd, 12, 9, 2);
-    lamp.position.set(0, ceilingH - 0.25, bz);
+    const lamp = new THREE.PointLight(0xffeccd, 4.5, 8, 2);
+    lamp.position.set(0, ceilingH - 0.55, bz);
     group.add(lamp);
   }
 
