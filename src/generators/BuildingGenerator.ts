@@ -9,6 +9,19 @@ import type { StationTextureSet } from './stationTextures';
 
 const DEFAULT_HEIGHT_M = 5;
 
+/**
+ * How high the station terrace stands above the rails.
+ *
+ * In every photograph of 緑駅 the plaza, the station floor and the platform
+ * deck are all one level, and the track is below, retained by the sheet
+ * piling along the platform's face. The DEM is a 10 m grid and has no such
+ * step in it, so the terrace is applied here: the platform, the station
+ * building and the forecourt all sit this far above the terrain the rails
+ * are laid on. It is the platform's own height, so the two agree by
+ * construction rather than by coincidence.
+ */
+export const STATION_TERRACE_HEIGHT_M = 0.8;
+
 /** Directive 08 §4.3: colors for the small fixed-shape structures that
  * aren't plain building boxes. Anything not listed keeps the original
  * generic building color. */
@@ -122,7 +135,9 @@ async function buildStationBuilding(
   // numerically against Directive 08's original hand-built basis).
   const forward = new THREE.Vector3(Math.sin(bearingRad), 0, -Math.cos(bearingRad));
   const right = new THREE.Vector3(forward.z, 0, -forward.x);
-  const baseY = heightAt(local.x, local.z);
+  // The station stands on the terrace, level with the platform deck, not on
+  // the trackbed — see STATION_TERRACE_HEIGHT_M.
+  const baseY = heightAt(local.x, local.z) + STATION_TERRACE_HEIGHT_M;
 
   // The solid form's dimensions now live in the Blender script and the GLB
   // it produces. What is still read here are the dimensions the planar
@@ -326,9 +341,11 @@ function buildPlanters(halfD: number): THREE.Group {
   );
 
   // (x along the frontage, distance out from the platform-side wall, barrel?)
+  // They stand under and just beyond the canopy, well back from the platform
+  // edge — an earlier pass had them out on the very lip of the drop.
   const layout: [number, number, boolean][] = [
-    [-3.3, 3.6, false], [-1.9, 4.3, true], [-0.4, 3.7, false],
-    [1.3, 4.4, true], [2.8, 3.6, false], [4.2, 4.2, true],
+    [-3.3, 1.1, false], [-1.9, 2.0, true], [-0.4, 1.2, false],
+    [1.3, 2.1, true], [2.8, 1.1, false], [4.2, 1.9, true],
   ];
 
   layout.forEach(([x, out, barrel], index) => {
@@ -385,7 +402,7 @@ function buildPlatform(
   if (geometry.type !== 'Polygon') throw new Error('platform requires a Polygon footprint');
   const ring = geometry.coordinates[0];
   const points = projectRing(ring.slice(0, 4) as [number, number][], tangentPlane);
-  const height = (feature.properties.height_m as number | undefined) ?? 0.8;
+  const height = (feature.properties.height_m as number | undefined) ?? STATION_TERRACE_HEIGHT_M;
   const edgeWidth = (feature.properties.edge_width_m as number | undefined) ?? 0.225;
 
   const centroid = centroidOf(points);
@@ -412,13 +429,38 @@ function buildPlatform(
 
   group.add(buildSheetPiling(points, base, height, bodyMat));
 
+  // The painted warning line goes on the track edge only. Painting it round
+  // the whole ring, as this did, drew a line along the back of the platform
+  // where nothing arrives — and on an opposed pair, along the two faces that
+  // look at each other across the tracks.
   const edgeMat = new THREE.MeshStandardMaterial({ color: 0x1f7a72, roughness: 0.6 }); // ティール（青緑）
-  const insetPoints = insetQuad(points, edgeWidth);
-  const edge = new THREE.Mesh(extrudeFootprint(points, 0.02, insetPoints), edgeMat);
+  const trackEdge = feature.properties.track_edge_index as number | undefined;
+  const stripe = trackEdge === undefined
+    ? extrudeFootprint(points, 0.02, insetQuad(points, edgeWidth))
+    : extrudeFootprint(edgeStripe(points, trackEdge, edgeWidth), 0.02);
+  const edge = new THREE.Mesh(stripe, edgeMat);
   edge.position.set(0, base + height + 0.02, 0);
   group.add(edge);
 
   return group;
+}
+
+/** The quad covering one edge of a footprint, `width` metres deep inward. */
+function edgeStripe(points: THREE.Vector2[], edgeIndex: number, width: number): THREE.Vector2[] {
+  const a = points[edgeIndex % points.length];
+  const b = points[(edgeIndex + 1) % points.length];
+  const centre = centroidOf(points);
+  const along = new THREE.Vector2().subVectors(b, a).normalize();
+  // inward normal: whichever perpendicular points at the footprint's centre
+  let inward = new THREE.Vector2(-along.y, along.x);
+  if (inward.dot(new THREE.Vector2().subVectors(centre, a)) < 0) inward.negate();
+  const offset = inward.multiplyScalar(width);
+  return [
+    a.clone(),
+    b.clone(),
+    b.clone().add(offset),
+    a.clone().add(offset),
+  ];
 }
 
 /** Pile pitch of standard 鋼矢板 (Type II and up), in metres. */
@@ -547,7 +589,11 @@ export class BuildingGenerator {
       const buildingHeight = (feature.properties.height_m as number | undefined) ?? DEFAULT_HEIGHT_M;
       const geometry = extrudeFootprint(points, buildingHeight);
       const centroid = centroidOf(points);
-      const base = heightAt(centroid.x, -centroid.y);
+      // The forecourt and the rail container beside it are on the station
+      // terrace, level with the platform deck and the station floor; the
+      // 構内踏切 stays down at the rails, which is the point of it.
+      const onTerrace = structureType === 'plaza_pavement' || structureType === 'container';
+      const base = heightAt(centroid.x, -centroid.y) + (onTerrace ? STATION_TERRACE_HEIGHT_M : 0);
 
       const material = structureType && STRUCTURE_COLORS[structureType] !== undefined
         ? new THREE.MeshStandardMaterial({ color: STRUCTURE_COLORS[structureType], roughness: 0.9 })

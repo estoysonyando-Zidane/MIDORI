@@ -3,6 +3,53 @@ import { createCamera } from './Camera';
 import { createLighting } from './Lighting';
 
 /**
+ * A sky-and-ground probe for the World's metal surfaces.
+ *
+ * A metal in a physically-based renderer is almost entirely reflection: with
+ * nothing to reflect it renders near-black, which is why the railcar's
+ * stainless body came out as flat grey no matter what colour it was given.
+ * This is a two-stop gradient — sky above, ground below — prefiltered into an
+ * environment map, so metal picks up bright sky on its upper faces and dark
+ * ground underneath, the way it does outdoors.
+ */
+function buildSkyEnvironment(renderer: THREE.WebGLRenderer): THREE.Texture {
+  const probe = new THREE.Scene();
+  const geometry = new THREE.SphereGeometry(1, 24, 16);
+  const material = new THREE.ShaderMaterial({
+    side: THREE.BackSide,
+    uniforms: {
+      sky: { value: new THREE.Color(0xc4dcee) },
+      horizon: { value: new THREE.Color(0xdfe7ea) },
+      ground: { value: new THREE.Color(0x4d5340) },
+    },
+    vertexShader: `
+      varying vec3 vDirection;
+      void main() {
+        vDirection = normalize(position);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 sky; uniform vec3 horizon; uniform vec3 ground;
+      varying vec3 vDirection;
+      void main() {
+        float h = vDirection.y;
+        vec3 c = h > 0.0 ? mix(horizon, sky, pow(h, 0.6)) : mix(horizon, ground, pow(-h, 0.5));
+        gl_FragColor = vec4(c, 1.0);
+      }
+    `,
+  });
+  probe.add(new THREE.Mesh(geometry, material));
+
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const target = pmrem.fromScene(probe);
+  pmrem.dispose();
+  geometry.dispose();
+  material.dispose();
+  return target.texture;
+}
+
+/**
  * Owns Scene / Camera / Renderer and the render loop only.
  * It does not know how a World's meshes are produced — callers add
  * whatever THREE.Object3D they like via `scene`.
@@ -38,6 +85,11 @@ export class SceneManager {
     container.appendChild(this.renderer.domElement);
 
     this.scene.add(createLighting());
+    this.scene.environment = buildSkyEnvironment(this.renderer);
+    // The hemisphere light already fills unlit faces with sky and ground
+    // colour; the probe now does the same job with direction, so it is
+    // dialled back rather than added on top of it.
+    this.scene.environmentIntensity = 0.55;
 
     window.addEventListener('resize', this.onResize);
   }

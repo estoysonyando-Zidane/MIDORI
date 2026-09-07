@@ -14,6 +14,7 @@ import { CollisionWorld } from './player/Collision';
 import { TrainController } from './generators/TrainController';
 import { loadStationTextures } from './generators/stationTextures';
 import { VegetationGenerator } from './generators/VegetationGenerator';
+import { StationTerrace } from './generators/StationTerrace';
 import type { Blocker } from './player/Collision';
 import type { ResolvedPosition } from './generators/BuildingGenerator';
 
@@ -98,6 +99,17 @@ async function bootstrap(): Promise<void> {
   world.group.add(RailwayGenerator.generate(world.find('railway'), world.tangentPlane, heightAt));
   world.group.add(RoadGenerator.generate(world.find('road'), world.tangentPlane, heightAt));
   world.group.add(BuildingGenerator.generate(world.find('building'), world.tangentPlane, heightAt));
+
+  // The station's platforms and forecourt stand about 0.8 m above the rails,
+  // and the station floor with them. `heightAt` is the bare DEM and knows
+  // nothing about that, so the player used to walk at trackbed level with the
+  // platform deck over their head and the waiting room out of reach.
+  // `groundAt` is the same terrain with the station's terrace raised over the
+  // footprints Reality Data already carries, ramped at the edges so it can be
+  // walked up. Everything laid ON the terrain — the trackbed, the roads, the
+  // platform boxes themselves — keeps using the bare `heightAt`.
+  const terrace = new StationTerrace(world.find('building'), world.tangentPlane);
+  const groundAt = terrace.wrap(heightAt);
 
   // Structures the player cannot walk through — currently the station
   // building's walls, so its waiting room is a room you enter through the
@@ -196,11 +208,11 @@ async function bootstrap(): Promise<void> {
     startX = local.x + 15;
     startZ = local.z + 10;
   }
-  const startY = heightAt(startX, startZ);
+  const startY = groundAt(startX, startZ);
   const player = new PlayerController({
     camera: sceneManager.camera,
     domElement: sceneManager.renderer.domElement,
-    heightAt,
+    heightAt: groundAt,
     start: new THREE.Vector3(startX, startY, startZ),
     joystickElement: joystick,
     settings,
@@ -279,13 +291,13 @@ async function bootstrap(): Promise<void> {
 
     // Directive 09.1 §6: overlay/credit/unlocated-list visibility follows
     // actual height above ground, not the overview-toggle flag directly.
-    const agl = player.position.y - heightAt(player.position.x, player.position.z);
+    const agl = player.position.y - groundAt(player.position.x, player.position.z);
     const showOverlay = agl > OVERVIEW_AGL_THRESHOLD_M;
     osmCredit.style.display = showOverlay ? 'block' : 'none';
     document.body.classList.toggle('overview-mode', showOverlay);
     if (indexOverlay) {
       indexOverlay.setVisible(showOverlay);
-      indexOverlay.update(heightAt);
+      indexOverlay.update(groundAt);
     }
     // The ground-level fog (near=200, far=1800) is an atmospheric effect
     // for walking around at eye level — from a high overview vantage it

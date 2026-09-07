@@ -86,8 +86,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          144.505791595,
-          43.718039680000004
+          144.50583613970392,
+          43.71806130333155
         ]
       },
       "properties": {
@@ -95,13 +95,13 @@
         "name": "緑駅 駅舎",
         "structure_type": "station_building",
         "width_m": 7.4,
-        "depth_m": 6.0,
+        "depth_m": 6,
         "eave_height_m": 3.5,
-        "porch_apex_height_m": 5.0,
+        "porch_apex_height_m": 5,
         "canopy_depth_m": 2.75,
         "foundation_rise_m": 0.3,
-        "porch_width_m": 3.0,
-        "porch_depth_m": 1.0,
+        "porch_width_m": 3,
+        "porch_depth_m": 1,
         "door_height_m": 2.16,
         "door_width_m": 1.6,
         "confidence": "B",
@@ -148,24 +148,24 @@
         "coordinates": [
           [
             [
-              144.50582847,
-              43.71794976
+              144.50612431399045,
+              43.71763627914459
             ],
             [
-              144.50569233,
-              43.71810008
+              144.50571396811645,
+              43.718089369380465
             ],
             [
-              144.50565593,
-              43.71808286
+              144.50575029208798,
+              43.71810678644798
             ],
             [
-              144.50579207,
-              43.71793254
+              144.50616063796198,
+              43.71765369621212
             ],
             [
-              144.50582847,
-              43.71794976
+              144.50612431399045,
+              43.71763627914459
             ]
           ]
         ]
@@ -177,7 +177,7 @@
         "height_m": 0.8,
         "edge_width_m": 0.225,
         "edge_color": "teal",
-        "length_m": 20,
+        "length_m": 60,
         "confidence": "C",
         "evidence_type": "inference",
         "historical_status": "plausible",
@@ -192,7 +192,9 @@
           "surface_gravel": "B (contemporary_photo)",
           "length_20m": "U — drawing-convenience value only, not sourced; spec explicitly leaves platform length Unknown"
         },
-        "note": "MIDORI_STATION_REALITY_SPEC v1.1 §5. length_m=20 is a rendering convenience with no evidentiary basis (spec: platform length is U) — see evidence/reconstruction.json:STR_MIDORI_PLATFORM_LAYOUT. Lateral position/track-spacing is also this session's placement, since MLIT KSJ N02 records only a single route centerline, not each physical rail."
+        "note": "scripts/rebuild-station-yard.mjs による再構成 — 駅点を基準に線路方向へ展開した矩形。旧ポリゴンは駅舎と線路の双方に重なっていた。",
+        "width_m": 3.5,
+        "track_edge_index": 0
       }
     },
     {
@@ -202,24 +204,24 @@
         "coordinates": [
           [
             [
-              144.50575047,
-              43.71791286
+              144.50600807728156,
+              43.71758054452852
             ],
             [
-              144.50561433,
-              43.71806318
+              144.50559773140756,
+              43.718033634764396
             ],
             [
-              144.50557794,
-              43.71804596
+              144.5056340553791,
+              43.718051051831914
             ],
             [
-              144.50571408,
-              43.71789564
+              144.5060444012531,
+              43.71759796159605
             ],
             [
-              144.50575047,
-              43.71791286
+              144.50600807728156,
+              43.71758054452852
             ]
           ]
         ]
@@ -231,7 +233,7 @@
         "height_m": 0.8,
         "edge_width_m": 0.225,
         "edge_color": "teal",
-        "length_m": 20,
+        "length_m": 60,
         "confidence": "C",
         "evidence_type": "inference",
         "historical_status": "plausible",
@@ -246,7 +248,9 @@
           "surface_gravel": "B (contemporary_photo)",
           "length_20m": "U — drawing-convenience value only, not sourced"
         },
-        "note": "MIDORI_STATION_REALITY_SPEC v1.1 §5. Same placement caveats as STR_MIDORI_PLATFORM_1; double-track spacing (the gap between the two platforms) is also this session's assumed value, not sourced for this specific location."
+        "note": "scripts/rebuild-station-yard.mjs による再構成 — 相対式2面2線の対向ホーム。旧ポリゴンは線路と重なっていた。",
+        "width_m": 3.5,
+        "track_edge_index": 2
       }
     },
     {
@@ -256,24 +260,24 @@
         "coordinates": [
           [
             [
-              144.50569205,
-              43.71804627
+              144.50562037718328,
+              43.718066154839775
             ],
             [
-              144.50567503,
-              43.71806506
+              144.50559985988957,
+              43.71808880935157
             ],
             [
-              144.50562927,
-              43.71804341
+              144.50567977262696,
+              43.71812712690012
             ],
             [
-              144.50564629,
-              43.71802462
+              144.50570028992064,
+              43.718104472388326
             ],
             [
-              144.50569205,
-              43.71804627
+              144.50562037718328,
+              43.718066154839775
             ]
           ]
         ]
@@ -290,7 +294,7 @@
           "SRC_PHOTO_20090520",
           "SRC_WIKI_JA_MIDORI"
         ],
-        "note": "MIDORI_STATION_REALITY_SPEC v1.1 §5/§6. Existence and board-crossing material are contemporary_photo/encyclopedia (A/B per spec §5); this feature's exact position/extent (spanning between the two platform footprints) is this session's placement, not surveyed."
+        "note": "scripts/rebuild-station-yard.mjs による再構成 — ホーム端から副本線を越えるまでの板張り。写真013/014。"
       }
     },
     {
@@ -300,24 +304,24 @@
         "coordinates": [
           [
             [
-              144.50582841,
-              43.71797443
+              144.50596632182547,
+              43.71795043187867
             ],
             [
-              144.50580323,
-              43.71800223
+              144.50592528723809,
+              43.71799574090225
             ],
             [
-              144.50582611,
-              43.71801306
+              144.50595123293203,
+              43.71800818166477
             ],
             [
-              144.50585129,
-              43.71798525
+              144.50599226751942,
+              43.71796287264119
             ],
             [
-              144.50582841,
-              43.71797443
+              144.50596632182547,
+              43.71795043187867
             ]
           ]
         ]
@@ -333,7 +337,7 @@
         "source_ids": [
           "SRC_PHOTO_20090520"
         ],
-        "note": "MIDORI_STATION_REALITY_SPEC v1.1 §8: form/dimensions of the container are Unknown. Rendered as a 12ft-class approximate box per the spec's own explicit instruction (§4.3 of Directive 08): \"形式不明、外観から12ft級と推定（C）\". Color/rust and presence in the gravel area north of the building are the photo-sourced facts; the box's precise dimensions are not."
+        "note": "scripts/rebuild-station-yard.mjs による再構成 — 写真032が広場の脇に置いているのに合わせた位置。形式・寸法は依然として不明(12ft級と推定)。"
       }
     },
     {
@@ -343,24 +347,24 @@
         "coordinates": [
           [
             [
-              144.50587725,
-              43.71799431
+              144.50595618280937,
+              43.71797806269547
             ],
             [
-              144.50576834,
-              43.71811457
+              144.50577836626397,
+              43.718174401797675
             ],
             [
-              144.50584113,
-              43.71814901
+              144.50595479698282,
+              43.71825899898278
             ],
             [
-              144.50595005,
-              43.71802875
+              144.50613261352822,
+              43.71806265988057
             ],
             [
-              144.50587725,
-              43.71799431
+              144.50595618280937,
+              43.71797806269547
             ]
           ]
         ]
@@ -376,7 +380,7 @@
         "source_ids": [
           "SRC_PHOTO_20090520"
         ],
-        "note": "MIDORI_STATION_REALITY_SPEC v1.1 §8: that the plaza pavement is painted green is confidence A (contemporary_photo). This polygon's extent/shape, however, is this session's own placement convenience — the spec gives no dimensions or surveyed boundary for the plaza, so the feature is held at confidence C overall (the weaker of the two claims bundled into one polygon)."
+        "note": "scripts/rebuild-station-yard.mjs による再構成 — 駅舎正面に接する矩形。緑色塗装であることは写真によりA、この形状と範囲はC。"
       }
     }
   ]
