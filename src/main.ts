@@ -25,6 +25,10 @@ const OVERVIEW_AGL_THRESHOLD_M = 50;
 // served from the domain root.
 const WORLD_URL = `${import.meta.env.BASE_URL}data/worlds/JP_HOKKAIDO_KIYOSATO_MIDORI_20100530`;
 
+// Directive 11 §3.3: the station building's solid form, authored in Blender
+// from spec v1.2 and exported as engine-neutral glTF.
+const STATION_MODEL_URL = `${import.meta.env.BASE_URL}assets/models/midori_station.glb`;
+
 const IS_TOUCH_DEVICE = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
 async function bootstrap(): Promise<void> {
@@ -92,7 +96,22 @@ async function bootstrap(): Promise<void> {
   if (stationBuildingEntity?.geometry?.type === 'Point' && stationBuildingEntity.orientation && stationBuildingFeature) {
     const [lon, lat] = stationBuildingEntity.geometry.coordinates;
     const position: ResolvedPosition = { lat, lon, facadeBearingDeg: stationBuildingEntity.orientation.facade_bearing_deg };
-    world.group.add(BuildingGenerator.generateStationBuilding(stationBuildingFeature, position, world.tangentPlane, heightAt));
+    try {
+      world.group.add(
+        await BuildingGenerator.generateStationBuilding(
+          stationBuildingFeature,
+          position,
+          world.tangentPlane,
+          heightAt,
+          STATION_MODEL_URL,
+        ),
+      );
+    } catch (err) {
+      // Directive 11 §4: the station's solid form is an external glTF asset
+      // now, so it can fail to load where generated geometry could not. The
+      // rest of the World must still come up.
+      console.warn('Station building not generated: model failed to load', err);
+    }
   } else {
     console.warn('Station building not generated: Spatial Index entity or Reality Data feature missing.');
   }
