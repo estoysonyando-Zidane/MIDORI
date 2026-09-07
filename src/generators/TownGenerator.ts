@@ -330,8 +330,9 @@ export class TownGenerator {
         continue;
       }
       if (type !== 'town_building'
-        && type !== 'bathhouse' && type !== 'school' && type !== 'post_office'
-        && type !== 'community_centre' && type !== 'police_box' && type !== 'fire_station') continue;
+        && type !== 'bathhouse' && type !== 'school' && type !== 'school_annex'
+        && type !== 'post_office' && type !== 'community_centre'
+        && type !== 'police_box' && type !== 'fire_station') continue;
       if (feature.geometry.type !== 'Polygon') continue;
 
       const ring = (feature.geometry.coordinates[0] as [number, number][]).slice(0, -1);

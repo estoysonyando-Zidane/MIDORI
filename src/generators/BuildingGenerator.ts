@@ -39,13 +39,13 @@ export const STATION_TERRACE_HEIGHT_M = RAIL_HEAD_M + PLATFORM_ABOVE_RAIL_M;
 /** Handled by TownGenerator, not by the generic box path below. */
 const TOWN_STRUCTURE_TYPES = new Set([
   'town_building', 'bathhouse', 'school', 'post_office',
-  'community_centre', 'police_box', 'fire_station', 'stage',
+  'community_centre', 'police_box', 'fire_station', 'stage', 'school_annex',
 ]);
 
 /** Flat ground surfaces: school grounds, the sports field, the park golf
  *  course on the station forecourt. Drawn as a thin slab on the terrain. */
 const SURFACE_STRUCTURE_TYPES = new Set([
-  'school_grounds', 'sports_ground', 'park_golf', 'station_square',
+  'school_grounds', 'sports_ground', 'park_golf', 'station_square', 'school_yard',
 ]);
 
 const STRUCTURE_COLORS: Record<string, number> = {
@@ -627,7 +627,15 @@ export class BuildingGenerator {
         const slab = new THREE.Mesh(
           extrudeFootprint(points, 0.06),
           new THREE.MeshStandardMaterial({
-            color: colour, roughness: 1, transparent: true, opacity: 0.35, depthWrite: false,
+            color: colour,
+            roughness: 1,
+            transparent: true,
+            // Grass and open ground stay a hint over the photograph, which
+            // already shows them. A made surface — asphalt, a rolled cinder
+            // track — is something the photograph blurs at 2.4 m per pixel,
+            // so those carry most of the way.
+            opacity: structureType === 'school_yard' || structureType === 'sports_ground' ? 0.8 : 0.35,
+            depthWrite: false,
           }),
         );
         slab.position.set(0, heightAt(surfaceCentroid.x, -surfaceCentroid.y), 0);
