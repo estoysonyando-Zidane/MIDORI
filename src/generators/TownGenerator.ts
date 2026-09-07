@@ -203,18 +203,53 @@ function flatRoofGeometry(points: THREE.Vector2[], thickness: number): THREE.Buf
  * outdoor community stage is, not a measurement of this one.
  */
 /**
- * 長胴太鼓 on an X-stand.
+ * The banner that hangs on the front of each drum stand: white cloth with
+ * 「クマゲラ太鼓」 down it in vermilion. It is the one thing in the
+ * photograph that names the group, so it is what makes the row read as
+ * クマゲラ太鼓 rather than as generic drums.
+ */
+function makeTaikoBannerTexture(): THREE.CanvasTexture {
+  const width = 128;
+  const height = 512;
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d')!;
+  ctx.fillStyle = '#f6f3ec';
+  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = '#c0332a';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = '700 62px "Hiragino Sans", "Noto Sans JP", sans-serif';
+  const glyphs = ['ク', 'マ', 'ゲ', 'ラ', '太', '鼓'];
+  glyphs.forEach((g, i) => {
+    ctx.fillText(g, width / 2, height * 0.13 + (i * height * 0.145));
+  });
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+/**
+ * クマゲラ太鼓 の太鼓。
  *
- * A 二尺 drum: a single hollowed trunk with a belly wider than its heads,
- * hide tacked round each rim, sitting tilted on two crossed timbers so it
- * can be struck standing. The shape is the standard one — no photograph of
- * クマゲラ太鼓's own drums could be found — and the feature that places it
- * says so.
+ * A first pass built a 長胴太鼓 — a barrel with hide tacked over both ends —
+ * because that is what a taiko is if you have never seen this group's. A
+ * photograph of them playing (SRC_KUMAGERA_PHOTO) shows something else: a
+ * hollowed log lying on its side, open to the audience so you look straight
+ * into the bore, with the head on the far end where the player stands. The
+ * stands are vermilion X-frames and each carries a white banner down its
+ * front with the group's name on it. 清里町 is a forestry town and these
+ * read as locally made.
+ *
+ * The photograph shows children playing them. No person is modelled here or
+ * anywhere in this World.
  */
 function buildTaiko(
   feature: RealityData,
   tangentPlane: LocalTangentPlane,
   heightAt: (x: number, z: number) => number,
+  bannerTexture: THREE.Texture,
 ): THREE.Group {
   const group = new THREE.Group();
   group.name = feature.id;
@@ -225,62 +260,71 @@ function buildTaiko(
   const base = heightAt(local.x, local.z);
   const facing = ((feature.properties.facing_bearing_deg as number | undefined) ?? 0) * (Math.PI / 180);
 
-  const head = ((feature.properties.head_diameter_m as number | undefined) ?? 0.6) / 2;
-  const belly = head * 1.20;
-  const length = head * 2.35;          // 胴長, a little over one head diameter
-  const standHeight = 0.62;
+  const bore = ((feature.properties.bore_diameter_m as number | undefined) ?? 0.50) / 2;
+  const wall = 0.07;
+  const outer = bore + wall;
+  const length = (feature.properties.shell_length_m as number | undefined) ?? 0.92;
+  const axisHeight = 0.82;
 
-  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x6b3f24, roughness: 0.7 });
-  const headMat = new THREE.MeshStandardMaterial({ color: 0xe4d3ac, roughness: 0.85 });
-  const tackMat = new THREE.MeshStandardMaterial({ color: 0xb8a271, roughness: 0.45, metalness: 0.6 });
-  const standMat = new THREE.MeshStandardMaterial({ color: 0x3a2b1e, roughness: 0.8 });
-
-  // The barrel: a lathe so the belly bulges, rather than a plain cylinder.
-  const half = length / 2;
-  const points: THREE.Vector2[] = [];
-  const steps = 10;
-  for (let i = 0; i <= steps; i++) {
-    const t = i / steps;
-    const y = -half + t * length;
-    const bulge = Math.sin(t * Math.PI);
-    points.push(new THREE.Vector2(head + (belly - head) * bulge, y));
-  }
-  const barrel = new THREE.Mesh(new THREE.LatheGeometry(points, 20), bodyMat);
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0xc9ab7f, roughness: 0.85 });
+  const innerMat = new THREE.MeshStandardMaterial({ color: 0x6d5334, roughness: 1, side: THREE.BackSide });
+  const headMat = new THREE.MeshStandardMaterial({ color: 0xe6d6b0, roughness: 0.85 });
+  const standMat = new THREE.MeshStandardMaterial({ color: 0xb03a2a, roughness: 0.65 });
 
   const drum = new THREE.Group();
-  drum.add(barrel);
-  for (const end of [-1, 1]) {
-    const skin = new THREE.Mesh(new THREE.CylinderGeometry(head * 1.04, head * 1.04, 0.03, 20), headMat);
-    skin.position.y = end * half;
-    drum.add(skin);
-    // 鋲: the row of tacks holding the hide to the shell
-    const tacks = new THREE.InstancedMesh(
-      new THREE.SphereGeometry(0.014, 6, 5), tackMat, 20,
-    );
-    for (let i = 0; i < 20; i++) {
-      const a = (i / 20) * Math.PI * 2;
-      tacks.setMatrixAt(i, new THREE.Matrix4().makeTranslation(
-        Math.cos(a) * head * 1.01, end * (half - 0.045), Math.sin(a) * head * 1.01,
-      ));
-    }
-    tacks.instanceMatrix.needsUpdate = true;
-    drum.add(tacks);
-  }
-  // Lay it on its side and tilt it back, the way a 斜め台 holds it.
-  drum.rotation.z = Math.PI / 2;
-  drum.rotation.x = -0.42;
-  drum.position.y = standHeight + belly * 0.55;
-  drum.castShadow = true;
+  // shell, open at the audience end
+  const shell = new THREE.Mesh(new THREE.CylinderGeometry(outer, outer * 0.97, length, 22, 1, true), woodMat);
+  drum.add(shell);
+  const boreWall = new THREE.Mesh(new THREE.CylinderGeometry(bore, bore * 0.97, length, 22, 1, true), innerMat);
+  drum.add(boreWall);
+  // the thick rim you see end-on
+  const rim = new THREE.Mesh(new THREE.RingGeometry(bore, outer, 22), woodMat);
+  rim.rotation.x = -Math.PI / 2;
+  rim.position.y = length / 2;
+  rim.material.side = THREE.DoubleSide;
+  drum.add(rim);
+  // the head, at the far end where the player stands
+  const head = new THREE.Mesh(new THREE.CircleGeometry(outer * 1.02, 22), headMat);
+  head.rotation.x = Math.PI / 2;
+  head.position.y = -length / 2;
+  head.material.side = THREE.DoubleSide;
+  drum.add(head);
 
+  // Lay it down so the bore faces the way the row faces.
+  drum.rotation.x = Math.PI / 2;
+  drum.position.y = axisHeight;
+
+  // The X-stand: two crossed legs each side, plus a foot rail.
   const stand = new THREE.Group();
   for (const side of [-1, 1]) {
     for (const lean of [-1, 1]) {
-      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.055, standHeight + belly * 0.5, 0.055), standMat);
-      leg.position.set(side * head * 0.75, (standHeight + belly * 0.5) / 2, lean * head * 0.5);
-      leg.rotation.x = lean * 0.28;
+      // The X tops out just under the drum's belly — run the legs past it
+      // and they show through the open bore, which the drum's whole point is
+      // that you can see down.
+      const legLength = axisHeight - outer * 0.55;
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.06, legLength * 1.12, 0.06), standMat);
+      leg.position.set(side * outer * 0.62, legLength * 0.5, 0);
+      leg.rotation.x = lean * 0.42;
       stand.add(leg);
     }
+    const foot = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, length * 1.15), standMat);
+    foot.position.set(side * outer * 0.62, 0.03, 0);
+    stand.add(foot);
   }
+  const brace = new THREE.Mesh(new THREE.BoxGeometry(outer * 1.24, 0.055, 0.055), standMat);
+  brace.position.set(0, (axisHeight - outer * 0.55) * 0.55, 0);
+  stand.add(brace);
+
+  // The banner, hanging on the audience side of the stand.
+  // It hangs below the drum, clear of the bore — put it level with the axis
+  // and it sits across the mouth, which is the one part of the drum the
+  // photograph is emphatic about.
+  const banner = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.26, 0.54),
+    new THREE.MeshStandardMaterial({ map: bannerTexture, roughness: 0.95, side: THREE.DoubleSide }),
+  );
+  banner.position.set(0, 0.28, length * 0.56);
+  stand.add(banner);
 
   const whole = new THREE.Group();
   whole.add(stand, drum);
@@ -412,6 +456,7 @@ export class TownGenerator {
     // greys, with the colour carried by the roof rather than the walls.
     const WALL_COLOURS = [0xdcdad2, 0xd6d8d0, 0xcfd2cc, 0xe2ded4];
 
+    let taikoBanner: THREE.Texture | undefined;
     for (const feature of features) {
       const type = feature.properties.structure_type as string | undefined;
       if (type === 'stage') {
@@ -419,7 +464,8 @@ export class TownGenerator {
         continue;
       }
       if (type === 'taiko') {
-        group.add(buildTaiko(feature, tangentPlane, heightAt));
+        taikoBanner ??= makeTaikoBannerTexture();
+        group.add(buildTaiko(feature, tangentPlane, heightAt, taikoBanner));
         continue;
       }
       if (type !== 'town_building'
