@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type { RealityData } from '../reality/RealityData';
 import type { LocalTangentPlane } from '../core/Coordinates';
+import { RAIL_HEAD_M } from './TrackGeometry';
 
 /**
  * A train working the 釧網本線 through 緑駅.
@@ -31,7 +32,10 @@ const RUN_OUT_M = 320;                // how far past the platform it runs befor
 const CAR_LENGTH_M = 21.3;
 const CAR_GAP_M = 0.5;
 const CAR_COUNT = 2;
-const RAIL_LIFT_M = 0.15;             // matches RailwayGenerator's trackbed lift
+// The railcar's own origin is the wheel contact point, so it rides at the
+// rail head's height above the formation — the same figure the platform is
+// measured from. See TrackGeometry.ts.
+const RAIL_LIFT_M = RAIL_HEAD_M;
 
 type Phase = 'approach' | 'dwell' | 'depart';
 

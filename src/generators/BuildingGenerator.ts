@@ -6,21 +6,32 @@ import { makeLabelTexture, makeMuralTexture, makeStationNameboardTexture } from 
 import { blockerFromLocalBox } from '../player/Collision';
 import { applyStationTextures } from './stationTextures';
 import type { StationTextureSet } from './stationTextures';
+import { RAIL_HEAD_M } from './TrackGeometry';
 
 const DEFAULT_HEIGHT_M = 5;
 
 /**
- * How high the station terrace stands above the rails.
+ * Platform deck above the rail head. 旧国鉄以来の地方交通線の低いホームで、
+ * 緑駅の写真でも車両の床より明らかに低く、乗降にステップを使っている。
+ */
+export const PLATFORM_ABOVE_RAIL_M = 0.76;
+
+/**
+ * How high the station terrace stands above the formation the track is laid
+ * on.
  *
  * In every photograph of 緑駅 the plaza, the station floor and the platform
  * deck are all one level, and the track is below, retained by the sheet
  * piling along the platform's face. The DEM is a 10 m grid and has no such
- * step in it, so the terrace is applied here: the platform, the station
- * building and the forecourt all sit this far above the terrain the rails
- * are laid on. It is the platform's own height, so the two agree by
- * construction rather than by coincidence.
+ * step in it, so the terrace is applied here.
+ *
+ * It is no longer a round number chosen to look right: it is the rail head's
+ * own height above the formation — ballast, sleeper and rail, all national
+ * standards, see TrackGeometry.ts — plus the platform's height above the
+ * rail. The platform, the station floor and the railcar's wheels now all
+ * follow from the same figure instead of three independent guesses.
  */
-export const STATION_TERRACE_HEIGHT_M = 0.8;
+export const STATION_TERRACE_HEIGHT_M = RAIL_HEAD_M + PLATFORM_ABOVE_RAIL_M;
 
 /** Directive 08 §4.3: colors for the small fixed-shape structures that
  * aren't plain building boxes. Anything not listed keeps the original
@@ -414,7 +425,10 @@ function buildPlatform(
   if (geometry.type !== 'Polygon') throw new Error('platform requires a Polygon footprint');
   const ring = geometry.coordinates[0];
   const points = projectRing(ring.slice(0, 4) as [number, number][], tangentPlane);
-  const height = (feature.properties.height_m as number | undefined) ?? STATION_TERRACE_HEIGHT_M;
+  // The stored height_m was itself an inference ("0.75-0.85 m, C"); the
+  // derived one is the rail head plus the standard low-platform height, so
+  // the deck and the rails cannot drift apart.
+  const height = STATION_TERRACE_HEIGHT_M;
   const edgeWidth = (feature.properties.edge_width_m as number | undefined) ?? 0.225;
 
   const centroid = centroidOf(points);

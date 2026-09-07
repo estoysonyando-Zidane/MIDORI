@@ -424,6 +424,19 @@
       "description": "みどりのフェスティバルの開催規則「毎年5月 最終日曜日」および内容（木とのふれあいコーナー、賞金総額10万円の丸太ころがし選手権、小学生のクマゲラ太鼓）を掲載。2010-05-30 が5月最終日曜日であることと整合する。会場の記載はない。",
       "temporal_coverage": "current",
       "status": "active"
+    },
+    {
+      "id": "SRC_JP_TRACK_STANDARDS",
+      "provider": "日本の在来線 軌道構造の標準値",
+      "dataset_name": "軌間・レール・まくらぎ・道床の規格値",
+      "url": null,
+      "access_date": "2026-09-07",
+      "data_date": "standard",
+      "publication_date": "n/a",
+      "license": "n/a (公知の規格値)",
+      "description": "在来線の軌間1,067 mm、50kgNレール(高さ153 mm・頭部幅65 mm・底部幅127 mm)、木まくらぎ並型2,100×240×140 mm、乙線のまくらぎ配置39本/25 m、道床厚200 mm・肩幅400 mm・のり面1:1.5、地方交通線の低いホーム高さ レール面上760 mm。いずれも緑駅の実測ではなく全国共通の規格値であり、src/generators/TrackGeometry.ts に定数として一箇所にまとめてある。ホーム高さと車両の輪重位置はこのレール頭面高さから導出しており、独立に推定していない。",
+      "temporal_coverage": "current",
+      "status": "active"
     }
   ]
 }
