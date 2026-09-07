@@ -9,6 +9,13 @@ import { PlayerController } from './player/PlayerController';
 import { DebugMode } from './debug/DebugMode';
 import { Settings } from './state/Settings';
 import { SpatialIndexLoader } from './spatial/SpatialIndexLoader';
+import { IndexOverlay } from './spatial/IndexOverlay';
+
+// Directive 09.1 §6: how high above the actual ground (not sea level) the
+// camera must be before the Index overlay appears. Tied to real
+// height-above-ground rather than the overview-toggle flag, so a future
+// free-fly camera would trigger it too, without any change here.
+const OVERVIEW_AGL_THRESHOLD_M = 50;
 
 // Directive 06 §1: resolves under whatever `base` vite.config.ts is built
 // with (e.g. '/MIDORI/' on GitHub Pages), instead of assuming the app is
@@ -22,6 +29,10 @@ async function bootstrap(): Promise<void> {
   const blocker = document.getElementById('blocker') as HTMLElement;
   const joystick = document.getElementById('joystick');
   const debugToggleTouch = document.getElementById('debugToggleTouch');
+  const overviewToggleTouch = document.getElementById('overviewToggleTouch');
+  const indexOverlaySvg = document.getElementById('indexOverlay') as unknown as SVGSVGElement;
+  const unlocatedListEl = document.getElementById('unlocatedList') as HTMLElement;
+  const osmCredit = document.getElementById('osmCredit') as HTMLElement;
   const settingsToggle = document.getElementById('settingsToggle');
   const settingsPanel = document.getElementById('settingsPanel');
   const invertXToggle = document.getElementById('invertXToggle') as HTMLInputElement | null;
@@ -87,10 +98,14 @@ async function bootstrap(): Promise<void> {
   });
 
   debugToggleTouch?.addEventListener('click', () => debugMode.toggle());
+  overviewToggleTouch?.addEventListener('click', () => player.toggleOverview());
 
-  // Directive 09 §8: proves the Index is fetchable from the running app;
-  // does not feed any generator yet (that's Directive 10). Failure here
-  // must never block the World from loading — it's purely informational.
+  // Directive 09.1 §6: the Spatial Index is now overlaid directly inside
+  // the 3D World (no separate /map page) once the camera is far enough
+  // above the ground — see the AGL check in the render loop below. Failure
+  // to load must never block the World itself; the overlay just stays off.
+  let indexOverlay: IndexOverlay | null = null;
+  let groundFog: THREE.Fog | THREE.FogExp2 | null = null;
   SpatialIndexLoader.load('JP.01.546.MIDORI', import.meta.env.BASE_URL)
     .then((index) => {
       const byStatus = index.entities.reduce<Record<string, number>>((acc, e) => {
@@ -99,6 +114,14 @@ async function bootstrap(): Promise<void> {
       }, {});
       debugMode.setSpatialIndexSummary(
         `${index.place_path} — ${index.entities.length} entities (${JSON.stringify(byStatus)})`,
+      );
+      indexOverlay = new IndexOverlay(
+        indexOverlaySvg,
+        unlocatedListEl,
+        sceneManager.camera,
+        sceneManager.renderer,
+        world.tangentPlane,
+        index,
       );
     })
     .catch((err) => console.warn('SpatialIndexLoader: not loaded', err));
@@ -109,8 +132,8 @@ async function bootstrap(): Promise<void> {
   const showHint = () => {
     if (!hint) return;
     hint.textContent = IS_TOUCH_DEVICE
-      ? 'ドラッグで視点 ／ 左下のスティックで移動'
-      : 'ドラッグで視点 ／ WASD で移動';
+      ? 'ドラッグで視点 ／ 左下のスティックで移動 ／ 右上「俯瞰」で全体表示'
+      : 'ドラッグで視点 ／ WASD で移動 ／ M で俯瞰';
     hint.classList.add('visible');
     const dismiss = () => hint.classList.remove('visible');
     hint.addEventListener('click', dismiss, { once: true });
@@ -144,6 +167,27 @@ async function bootstrap(): Promise<void> {
   sceneManager.start((dt) => {
     player.update(dt);
     debugMode.update(player.position);
+
+    // Directive 09.1 §6: overlay/credit/unlocated-list visibility follows
+    // actual height above ground, not the overview-toggle flag directly.
+    const agl = player.position.y - heightAt(player.position.x, player.position.z);
+    const showOverlay = agl > OVERVIEW_AGL_THRESHOLD_M;
+    osmCredit.style.display = showOverlay ? 'block' : 'none';
+    document.body.classList.toggle('overview-mode', showOverlay);
+    if (indexOverlay) {
+      indexOverlay.setVisible(showOverlay);
+      indexOverlay.update(heightAt);
+    }
+    // The ground-level fog (near=200, far=1800) is an atmospheric effect
+    // for walking around at eye level — from a high overview vantage it
+    // just washes the whole World out toward flat sky-blue, so it is
+    // switched off entirely while overlooking, and restored at ground level.
+    if (showOverlay && sceneManager.scene.fog) {
+      groundFog = sceneManager.scene.fog;
+      sceneManager.scene.fog = null;
+    } else if (!showOverlay && !sceneManager.scene.fog && groundFog) {
+      sceneManager.scene.fog = groundFog;
+    }
   });
 }
 

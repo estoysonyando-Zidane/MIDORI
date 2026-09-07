@@ -177,14 +177,14 @@
       "id": "SRC_OSM_OVERPASS",
       "provider": "OpenStreetMap contributors / Overpass API",
       "dataset_name": "current-condition rail/road/building geometry",
-      "url": "https://overpass-api.de/api/interpreter",
+      "url": "https://overpass.private.coffee/api/interpreter (mirror; overpass-api.de and two other mirrors were unreachable through this session's egress proxy)",
       "access_date": "2026-09-04",
-      "data_date": null,
+      "data_date": "osm3s timestamp_osm_base: 2026-05-31T22:37:44Z",
       "publication_date": null,
-      "license": "ODbL",
-      "description": "NOT acquired (blocked). Also explicitly a Priority 5 (current-condition-only) source per Directive 02 §4 — even if reachable, it could not by itself confirm 2010 building/road existence.",
+      "license": "ODbL (OpenStreetMap contributors)",
+      "description": "Directive 09.1 section 5.1: acquired via Overpass QL query way(around:600,43.71802,144.50575)[highway]; out geom; -- 42 ways returned. Two are load-bearing for this pass: way 131758648/131758654/131758660 tagged highway=secondary, ref=1115, name=mashuuko shari line (directly identifies the road's actual alignment), and way 131759316/131759747 tagged highway=tertiary, name=ekimae-doori, whose endpoint sits ~44m from LOC_MIDORI_STATION. Used only for route identification/geometry; existence confidence for either road was NOT upgraded on this basis alone, per Directive 09.1's explicit instruction not to raise confidence. (c) OpenStreetMap contributors, ODbL -- attribution is shown in the 3D World's overview overlay.",
       "temporal_coverage": "current",
-      "status": "not_acquired",
+      "status": "acquired",
       "evidence_type": "public_gis"
     },
     {
@@ -328,6 +328,20 @@
       "publication_date": null,
       "license": "unverified",
       "description": "MIDORI_STATION_REALITY_SPEC v1.1 §2: NOT usable as 2010 evidence — capture dates are unknown. Used only for the waiting-room interior (bench count/color, wall/floor/ceiling finishes), held at confidence B ceiling and never promoted to A, per spec §7.",
+      "temporal_coverage": "current",
+      "status": "acquired"
+    },
+    {
+      "id": "SRC_USER_GEOCODE_MIDORINOYU",
+      "provider": "Directive operator (this repository's user)",
+      "dataset_name": "Midorinoyu -- coordinate read from Google Maps",
+      "url": null,
+      "evidence_type": "user_survey",
+      "access_date": "2026-09-07",
+      "data_date": "2026-09-07",
+      "publication_date": null,
+      "license": "n/a",
+      "description": "Directive 09.1 section 4: the operator located the facility on Google Maps and supplied its WGS84 coordinate (144.505676, 43.719922) directly. Not this session's own retrieval -- recorded as evidence_type 'user_survey' (new this pass) rather than 'inference', since it is a real position reading, not a guess, but also not a session-fetched official_record. Cross-checked: 211m north / 6m east of LOC_MIDORI_STATION, consistent with the town site's own walking-distance description.",
       "temporal_coverage": "current",
       "status": "acquired"
     }

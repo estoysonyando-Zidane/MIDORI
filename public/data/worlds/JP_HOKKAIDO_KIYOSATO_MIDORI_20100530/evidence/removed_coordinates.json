@@ -1,0 +1,42 @@
+{
+  "directive": "Directive 09.1",
+  "reason": "Directive 09's schema made `geometry` mandatory even for position-unknown (stub) entities, forcing invented anchor coordinates into the Spatial Index. Directive 09.1 §1.1: 'do not invent a coordinate — if there is no basis for a position, do not draw it.' This file preserves what was removed, not to restore it, but as a record of the mistake so it is not repeated.",
+  "removed": [
+    {
+      "id": "JP.01.546.MIDORI/PREF_ROAD_1115",
+      "removed_geometry": { "type": "Point", "coordinates": [144.50823583, 43.71802] },
+      "removed_note": "この座標は『World範囲内のどこかに存在する』ことを示すためだけの任意アンカー(原点から東へ200mの点)であり、実際の道路線形や、既存のKSJ N13区間のいずれかをこの路線として特定したものではない。",
+      "disposition": "Directive 09.1 §5.1で OpenStreetMap (ref=1115) により実際の線形を特定できたため、実座標に置き換え。この任意アンカーは完全に破棄。"
+    },
+    {
+      "id": "JP.01.546.MIDORI/ROAD_STATION_ACCESS",
+      "removed_geometry": { "type": "Point", "coordinates": [144.50571271, 43.71821763] },
+      "removed_note": "存在(駅前から集落側へ伸びるアクセス道路)はconfidence B(satellite_imagery相当の間接的推定)。座標は駅前広場付近の近似アンカーであり、既存のKSJ N13区間のいずれかをこの道路として特定したものではない。",
+      "disposition": "Directive 09.1 §5.1で OpenStreetMap (name=駅前通り) により実際の線形を特定できたため、実座標に置き換え。この任意アンカーは完全に破棄。"
+    },
+    {
+      "id": "JP.01.546.MIDORI/FOREST_WEST",
+      "removed_geometry": {
+        "type": "Polygon",
+        "coordinates": [[[144.49456378, 43.71442674], [144.50202126, 43.71442674], [144.50202126, 43.72251158], [144.49456378, 43.72251158], [144.49456378, 43.71442674]]]
+      },
+      "removed_note": "衛星画像で樹林の存在は確認できるが、範囲ポリゴンは概略の矩形であり、実際の樹林境界を測量したものではない。",
+      "disposition": "Directive 09.1 §5.2で一次GIS(国土数値情報 土地利用細分メッシュ、基盤地図情報)の取得を試行したが取得できず(§5.2/報告参照)。geometry: null / position_status: unlocated に置き換え。この矩形は完全に破棄。"
+    },
+    {
+      "id": "JP.01.546.MIDORI/BUILDINGS_SOUTH",
+      "removed_geometry": {
+        "type": "Polygon",
+        "coordinates": [[[144.50376134, 43.71712168], [144.50525283, 43.71712168], [144.50525283, 43.71784034], [144.50376134, 43.71784034], [144.50376134, 43.71712168]]]
+      },
+      "removed_note": "3棟以上の建物群の存在は3時点の衛星画像で確認済みだが、範囲ポリゴンは概略の矩形であり、実際の建物外周を測量したものではない。",
+      "disposition": "Directive 09.1 §5.2で一次GIS取得を試行したが取得できず(§5.2/報告参照)。geometry: null / position_status: unlocated に置き換え。この矩形は完全に破棄。"
+    },
+    {
+      "id": "JP.01.546.MIDORI/MIDORINOYU",
+      "removed_geometry": { "type": "Point", "coordinates": [144.505267, 43.718557] },
+      "removed_note": "位置は清里町公式サイトの『駅から徒歩3分』記述からの距離のみの推定(方向は未確定)。Directive 04で「距離のみの推定、方向は未確定」と明記されていたにも関わらず、Directive 09でIndexエンティティとして具体的な点座標に格上げされてしまっていた。",
+      "disposition": "Directive 09.1 §4でユーザー提供のGoogleマップ実測座標(144.505676, 43.719922)に置き換え。この推定座標は完全に破棄。"
+    }
+  ]
+}
