@@ -79,7 +79,13 @@ async function bootstrap(): Promise<void> {
   let heightAt = (_x: number, _z: number) => 0;
 
   if (heightField) {
-    const terrain = TerrainGenerator.generate(heightField, world.tangentPlane);
+    // 国土地理院's own aerial photography, resampled onto the DEM's grid, so
+    // the ground carries the real fields, forest edges, tracks and yards
+    // instead of one flat green. 出典: 国土地理院「シームレス空中写真」.
+    const terrain = TerrainGenerator.generate(heightField, world.tangentPlane, {
+      orthophotoUrl: `${import.meta.env.BASE_URL}assets/textures/midori_orthophoto.jpg`,
+      renderer: sceneManager.renderer,
+    });
     heightAt = terrain.heightAt;
     world.group.add(terrain.mesh);
   }

@@ -603,11 +603,18 @@ export class BuildingGenerator {
       const points = projectRing(ring, tangentPlane);
 
       if (SURFACE_STRUCTURE_TYPES.has(structureType ?? '')) {
+        // The terrain now carries 国土地理院's aerial photograph, which already
+        // shows this ground as it is. These stay only as a light tint that
+        // says "this area is one thing" — laid on opaque they replaced a
+        // photograph of the real surface with a flat colour, which is a step
+        // backwards.
         const colour = new THREE.Color((feature.properties.surface_colour as string | undefined) ?? '#6f7a52');
         const surfaceCentroid = centroidOf(points);
         const slab = new THREE.Mesh(
           extrudeFootprint(points, 0.06),
-          new THREE.MeshStandardMaterial({ color: colour, roughness: 1 }),
+          new THREE.MeshStandardMaterial({
+            color: colour, roughness: 1, transparent: true, opacity: 0.35, depthWrite: false,
+          }),
         );
         slab.position.set(0, heightAt(surfaceCentroid.x, -surfaceCentroid.y), 0);
         slab.receiveShadow = true;
@@ -626,9 +633,13 @@ export class BuildingGenerator {
       const onTerrace = structureType === 'plaza_pavement' || structureType === 'container';
       const base = heightAt(centroid.x, -centroid.y) + (onTerrace ? STATION_TERRACE_HEIGHT_M : 0);
 
-      const material = structureType && STRUCTURE_COLORS[structureType] !== undefined
-        ? new THREE.MeshStandardMaterial({ color: STRUCTURE_COLORS[structureType], roughness: 0.9 })
-        : defaultMaterial;
+      const material = structureType === 'plaza_pavement'
+        ? new THREE.MeshStandardMaterial({
+          color: STRUCTURE_COLORS.plaza_pavement, roughness: 0.95, transparent: true, opacity: 0.5, depthWrite: false,
+        })
+        : structureType && STRUCTURE_COLORS[structureType] !== undefined
+          ? new THREE.MeshStandardMaterial({ color: STRUCTURE_COLORS[structureType], roughness: 0.9 })
+          : defaultMaterial;
 
       const mesh = new THREE.Mesh(geometry, material);
       mesh.position.set(0, base, 0);
