@@ -74,8 +74,10 @@ const PLATFORM_FACE_OFFSET_M = 1.475;
 const PLATFORM_WIDTH_M = 3.5;
 /** Platform length. Photograph 013 shows it running far past the building
  *  in one direction and ending in painted steps just beyond it in the
- *  other. Which direction is which is not readable from the photographs;
- *  this puts the long leg toward 札弦. 緑 was a 一般駅 working freight until
+ *  other. Which direction is which is not readable from the photographs.
+ *  As built here the long leg runs toward 川湯温泉 (negative "along") and
+ *  the short one toward 札弦 — the comment used to claim the opposite,
+ *  which was simply wrong about the code beneath it. 緑 was a 一般駅 working freight until
  *  1982 with locomotive-hauled trains, so its platform is a long one — 60 m
  *  was short enough that the operator noticed it from inside the World. */
 const PLATFORM_LONG_LEG_M = 90;

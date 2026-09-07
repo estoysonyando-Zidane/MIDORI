@@ -343,15 +343,37 @@ async function buildStationBuilding(
   }
 
   // 駅名標 — the standing nameboard on the platform.
-  const nameboardTexture = makeStationNameboardTexture(NAMEBOARD_WITH_NUMBER);
+  //
   // A 駅名標 is read from both sides — from the platform and from the train.
-  // One double-sided plane gave the correct face to the plaza, which nobody
-  // stands on, and a mirror-image 「みどり」 to the platform, which is the only
-  // side anyone actually reads it from. Two back-to-back single-sided faces
-  // put the lettering the right way round in both directions.
-  const nameboardMat = new THREE.MeshStandardMaterial({ map: nameboardTexture, roughness: 0.8 });
-  for (const facing of [0, Math.PI]) {
-    const nameboard = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 0.85), nameboardMat);
+  // Two back-to-back single-sided faces put the lettering the right way round
+  // in both directions; one double-sided plane gave a mirror-image 「みどり」
+  // to the side people actually read.
+  //
+  // The two faces do NOT carry the same board. 緑 sits between 川湯温泉 to
+  // the south-east and 札弦 to the north-west, and which of them is on your
+  // left depends on which way you are facing. The building's local +X runs
+  // toward 札弦 (bearing 326.6°, i.e. the facade bearing turned 90°), so:
+  //
+  //   facing 0   normal +Z, away from the track. Read from the building
+  //              side looking at the rails, so the reader's right is +X,
+  //              and 札弦 belongs on the right of the image.
+  //   facing π   normal −Z, toward the track. Read from the platform edge
+  //              and from a train, looking at the building, so the reader's
+  //              right is −X — and the board is mirrored: 札弦 on the left.
+  //
+  // Both faces used to share one texture with 川湯温泉 fixed on the left,
+  // which made the face you actually stand in front of the wrong way round.
+  const KAWAYU = { kana: 'かわゆおんせん', roman: 'Kawayuonsen' };
+  const SATTSURU = { kana: 'さっつる', roman: 'Sattsuru' };
+  const nameboardFaces = [
+    { facing: 0, texture: makeStationNameboardTexture(NAMEBOARD_WITH_NUMBER, KAWAYU, SATTSURU) },
+    { facing: Math.PI, texture: makeStationNameboardTexture(NAMEBOARD_WITH_NUMBER, SATTSURU, KAWAYU) },
+  ];
+  for (const { facing, texture } of nameboardFaces) {
+    const nameboard = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.7, 0.85),
+      new THREE.MeshStandardMaterial({ map: texture, roughness: 0.8 }),
+    );
     nameboard.rotation.y = facing;
     nameboard.position.set(-2.2, 1.85, -halfD - 2.2 + (facing === 0 ? 0.012 : -0.012));
     group.add(nameboard);
