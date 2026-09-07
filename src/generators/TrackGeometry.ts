@@ -47,8 +47,17 @@ export const BALLAST_UNDER_SLEEPER_M = 0.2;
 export const BALLAST_SHOULDER_M = 0.4;
 export const BALLAST_SLOPE = 1.5;
 
-/** Formation to the top of the ballast — the sleepers sit on this. */
+/** Formation to the underside of the rail: the sleepers' top face. */
 export const BALLAST_TOP_M = BALLAST_UNDER_SLEEPER_M + SLEEPER_DEPTH_M;
+/**
+ * Formation to the ballast surface between the sleepers.
+ *
+ * The crib is packed to somewhat below the sleeper top, so about the upper
+ * half of each sleeper stands proud — which is the whole reason track reads
+ * as track and not as a strip of gravel. Filling the crib flush to the
+ * sleeper top, as this first did, buries them completely.
+ */
+export const BALLAST_SURFACE_M = BALLAST_UNDER_SLEEPER_M + SLEEPER_DEPTH_M * 0.45;
 /** Formation to the top of the rail. Everything trackside is measured from
  *  here: the platform, and the railcar's wheels. */
 export const RAIL_HEAD_M = BALLAST_TOP_M + RAIL_HEIGHT_M;
@@ -144,12 +153,12 @@ export function sweepProfile(path: TrackPoint[], profile: [number, number][]): T
  *  battered sides down to the formation. */
 export function ballastProfile(): [number, number][] {
   const top = SLEEPER_LENGTH_M / 2 + BALLAST_SHOULDER_M;
-  const bottom = top + BALLAST_TOP_M * BALLAST_SLOPE;
+  const bottom = top + BALLAST_SURFACE_M * BALLAST_SLOPE;
   return [
     [-bottom, 0],
     [bottom, 0],
-    [top, BALLAST_TOP_M],
-    [-top, BALLAST_TOP_M],
+    [top, BALLAST_SURFACE_M],
+    [-top, BALLAST_SURFACE_M],
   ];
 }
 
