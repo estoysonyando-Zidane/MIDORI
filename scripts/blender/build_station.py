@@ -113,6 +113,13 @@ DOOR_HEIGHT_M = 2.16          # photo: 290 px
 # centre; earlier passes assumed they were centred.
 DOOR_CENTRE_X_M = 1.155       # photo: door centre 785 px vs wall centre 630 px
 PORCH_CENTRE_X_M = 1.080      # photo: porch centre 775 px vs wall centre 630 px
+# The platform-side doorway. The waiting room is a through room: you come in
+# off the forecourt and go out onto the platform. Without this opening the
+# room was a dead end and the only way to the train was round the building.
+REAR_DOOR_WIDTH_M = 1.70
+REAR_DOOR_HEIGHT_M = 2.05
+REAR_DOOR_CENTRE_X_M = -0.10
+
 DADO_HEIGHT_M = 1.10          # photo 007/009: wood panelling to about waist/chest
 FLOOR_SLAB_M = 0.12
 
@@ -435,15 +442,31 @@ def build_end_wall(name, sign):
     )
 
 
-def build_rear_wall():
-    """Platform-side wall."""
-    return make_box(
-        "MidoriStation_WallRear",
-        -INNER_X, INNER_X, INNER_REAR_Y, REAR_Y,
-        FOUNDATION_RISE_M, WALL_TOP_Z,
-        ["siding", "mural", "plaster", "dado"], wall_classifier(Vector((0.0, -1.0, 0.0))),
-        bisect_z=[FLOOR_TOP_Z + DADO_HEIGHT_M, MURAL_TOP_Z],
-    )
+def build_rear_walls():
+    """Platform-side wall, built around its doorway.
+
+    The waiting room is a through room — in off the forecourt, out onto the
+    platform. This wall used to be a single unbroken box, so the room was a
+    dead end and the only way to the train was round the outside of the
+    building.
+    """
+    door_left = REAR_DOOR_CENTRE_X_M - REAR_DOOR_WIDTH_M / 2.0
+    door_right = REAR_DOOR_CENTRE_X_M + REAR_DOOR_WIDTH_M / 2.0
+    door_head = FOUNDATION_RISE_M + REAR_DOOR_HEIGHT_M
+    classify = wall_classifier(Vector((0.0, -1.0, 0.0)))
+    keys = ["siding", "mural", "plaster", "dado"]
+    cuts = [FLOOR_TOP_Z + DADO_HEIGHT_M, MURAL_TOP_Z]
+    return [
+        make_box("MidoriStation_WallRearLeft",
+                 -INNER_X, door_left, INNER_REAR_Y, REAR_Y,
+                 FOUNDATION_RISE_M, WALL_TOP_Z, keys, classify, bisect_z=cuts),
+        make_box("MidoriStation_WallRearRight",
+                 door_right, INNER_X, INNER_REAR_Y, REAR_Y,
+                 FOUNDATION_RISE_M, WALL_TOP_Z, keys, classify, bisect_z=cuts),
+        make_box("MidoriStation_WallRearLintel",
+                 door_left, door_right, INNER_REAR_Y, REAR_Y,
+                 door_head, WALL_TOP_Z, keys, classify),
+    ]
 
 
 def build_front_walls():
@@ -631,9 +654,10 @@ def build_rear_openings():
     pieces = []
     face_y = REAR_Y - CONSTRUCTION_EMBED_M
     # (centre x, half width, sill z, head z)
+    # The doorway itself is now a real opening in the wall, so only the two
+    # windows are glazed panels here.
     openings = [
         (-2.30, 0.80, 1.25, 2.35),   # window, west of the door
-        (-0.10, 0.85, FOUNDATION_RISE_M, 2.35),   # doorway to the platform
         (2.30, 0.85, 1.25, 2.35),    # window, east of the door
     ]
     for i, (cx, hw, z0, z1) in enumerate(openings):
@@ -652,43 +676,53 @@ def build_rear_openings():
 
 
 def build_chairs():
-    """The row of FRP bucket seats along the platform-side wall.
+    """The FRP bucket seats.
 
-    Photograph 008 shows eight seats on a common steel rail, their colours
-    cycling blue / red / olive / cream.
+    They run along the room's TWO SIDE walls, facing each other across it —
+    not in one row against the platform-side wall, which is where an earlier
+    pass put them and where the through doorway now is. Photograph 008 shows
+    the seats on a common steel rail, their colours cycling blue / red /
+    olive / cream.
     """
     objects = []
-    row_y = INNER_REAR_Y - CHAIR_DEPTH_M / 2.0 - 0.05
-    span = (CHAIR_COUNT - 1) * CHAIR_PITCH_M
-    x0 = -span / 2.0
+    per_side = CHAIR_COUNT // 2
+    span = (per_side - 1) * CHAIR_PITCH_M
+    # centred on the room's depth, clear of both doorways
+    y0 = -span / 2.0
+    seat_z = FLOOR_TOP_Z + CHAIR_SEAT_HEIGHT_M
+    index = 0
 
-    rail = make_box(
-        "MidoriStation_ChairRail",
-        x0 - CHAIR_WIDTH_M / 2.0, x0 + span + CHAIR_WIDTH_M / 2.0,
-        row_y - 0.05, row_y + 0.05,
-        FLOOR_TOP_Z + 0.14, FLOOR_TOP_Z + 0.22,
-        ["steel"], lambda c, n: "steel",
-    )
-    objects.append(rail)
-
-    for i in range(CHAIR_COUNT):
-        key = CHAIR_SEQUENCE[i % len(CHAIR_SEQUENCE)]
-        cx = x0 + i * CHAIR_PITCH_M
-        seat_z = FLOOR_TOP_Z + CHAIR_SEAT_HEIGHT_M
+    for side in (-1, 1):
+        wall_x = side * INNER_X
+        row_x = wall_x - side * (CHAIR_DEPTH_M / 2.0 + 0.05)
         objects.append(make_box(
-            f"MidoriStation_ChairSeat_{i:02d}",
-            cx - CHAIR_WIDTH_M / 2.0, cx + CHAIR_WIDTH_M / 2.0,
-            row_y - CHAIR_DEPTH_M / 2.0, row_y + CHAIR_DEPTH_M / 2.0,
-            seat_z, seat_z + 0.06,
-            [key], lambda c, n, k=key: k,
+            f"MidoriStation_ChairRail_{'L' if side < 0 else 'R'}",
+            row_x - 0.05, row_x + 0.05,
+            y0 - CHAIR_WIDTH_M / 2.0, y0 + span + CHAIR_WIDTH_M / 2.0,
+            FLOOR_TOP_Z + 0.14, FLOOR_TOP_Z + 0.22,
+            ["steel"], lambda c, n: "steel",
         ))
-        objects.append(make_box(
-            f"MidoriStation_ChairBack_{i:02d}",
-            cx - CHAIR_WIDTH_M / 2.0, cx + CHAIR_WIDTH_M / 2.0,
-            row_y + CHAIR_DEPTH_M / 2.0 - 0.07, row_y + CHAIR_DEPTH_M / 2.0,
-            seat_z + 0.06, seat_z + 0.50,
-            [key], lambda c, n, k=key: k,
-        ))
+        for i in range(per_side):
+            key = CHAIR_SEQUENCE[index % len(CHAIR_SEQUENCE)]
+            cy = y0 + i * CHAIR_PITCH_M
+            objects.append(make_box(
+                f"MidoriStation_ChairSeat_{index:02d}",
+                row_x - CHAIR_DEPTH_M / 2.0, row_x + CHAIR_DEPTH_M / 2.0,
+                cy - CHAIR_WIDTH_M / 2.0, cy + CHAIR_WIDTH_M / 2.0,
+                seat_z, seat_z + 0.06,
+                [key], lambda c, n, k=key: k,
+            ))
+            # the back is against the wall, so it sits on the wall side of the seat
+            back_near = row_x + side * (CHAIR_DEPTH_M / 2.0 - 0.07)
+            back_far = row_x + side * (CHAIR_DEPTH_M / 2.0)
+            objects.append(make_box(
+                f"MidoriStation_ChairBack_{index:02d}",
+                min(back_near, back_far), max(back_near, back_far),
+                cy - CHAIR_WIDTH_M / 2.0, cy + CHAIR_WIDTH_M / 2.0,
+                seat_z + 0.06, seat_z + 0.50,
+                [key], lambda c, n, k=key: k,
+            ))
+            index += 1
     return objects
 
 
@@ -700,11 +734,13 @@ def build_station():
         "ceiling": build_ceiling(),
         "wall_left": build_end_wall("MidoriStation_WallLeft", -1),
         "wall_right": build_end_wall("MidoriStation_WallRight", +1),
-        "wall_rear": build_rear_wall(),
+
         "roof": build_roof(),
         "canopy": build_canopy(),
         "end_leanto": build_end_leanto(),
     }
+    for i, piece in enumerate(build_rear_walls()):
+        objects[f"wall_rear_{i}"] = piece
     for i, piece in enumerate(build_canopy_posts()):
         objects[f"canopy_post_{i}"] = piece
     for i, piece in enumerate(build_rear_openings()):

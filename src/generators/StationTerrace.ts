@@ -21,8 +21,10 @@ import { STATION_TERRACE_HEIGHT_M } from './BuildingGenerator';
  * in Reality Data, and the height is the platform's own.
  */
 
-/** How far out from a footprint the ground ramps up to terrace level. */
-const RAMP_M = 1.4;
+/** How far out from a footprint the ground ramps up to terrace level.
+ *  Matches the batter on the bank BuildingGenerator draws, so what the
+ *  player walks on and what they can see are the same slope. */
+const RAMP_M = 2.0 * 1.253;
 
 interface Terrace {
   /** Footprint in World XZ, as a closed ring. */
@@ -65,7 +67,10 @@ export class StationTerrace {
   constructor(features: RealityData[], tangentPlane: LocalTangentPlane) {
     for (const feature of features) {
       const type = feature.properties.structure_type;
-      if (type !== 'platform' && type !== 'plaza_pavement') continue;
+      // station_terrace is the strip the building itself stands on, which
+      // belonged to neither the platform nor the forecourt and so was never
+      // raised — the building stood over un-raised ground and floated.
+      if (type !== 'platform' && type !== 'plaza_pavement' && type !== 'station_terrace') continue;
       if (feature.geometry.type !== 'Polygon') continue;
       const ring = (feature.geometry.coordinates[0] as [number, number][])
         .slice(0, -1)

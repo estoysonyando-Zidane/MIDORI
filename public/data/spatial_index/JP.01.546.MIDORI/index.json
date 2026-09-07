@@ -10163,8 +10163,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          144.50593730303922,
-          43.71787153279629
+          144.50599201582241,
+          43.71781112076484
         ]
       },
       "confidence": "C",
@@ -10175,7 +10175,7 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/buildings.geojson#STR_MIDORI_PLATFORM_1",
-      "note": "scripts/rebuild-station-yard.mjs による再構成。長さ 60 m、幅 3.5 m、線路中心からホーム面 1.8 m。長さと幅は写真013/014の見えから、線路中心からの離れはJRの低ホームの一般値による。",
+      "note": "scripts/rebuild-station-yard.mjs による再構成。長さ 120 m、幅 3.5 m、線路中心からホーム面 1.8 m。長さと幅は写真013/014の見えから、線路中心からの離れはJRの低ホームの一般値による。",
       "position_status": "approximate",
       "position_accuracy_m": 8
     },
@@ -10187,8 +10187,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          144.50582106633033,
-          43.71781579818022
+          144.50587577911352,
+          43.717755386148774
         ]
       },
       "confidence": "C",
