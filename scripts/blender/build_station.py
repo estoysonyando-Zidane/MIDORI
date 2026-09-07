@@ -73,7 +73,7 @@ ROOF_PITCH_RAD = math.atan2(ROOF_RISE_M, ROOF_RUN_M)  # 18.43 deg
 # =====================================================================
 # Entrance porch — the steep gable projecting from the centre of the facade
 # =====================================================================
-PORCH_OUTER_WIDTH_M = 3.00    # photo: 400 px
+PORCH_OUTER_WIDTH_M = 3.02    # photo: 400 px
 PORCH_APEX_HEIGHT_M = 5.00    # photo: 680 px — clearly above the main ridge
 PORCH_BASE_HEIGHT_M = 2.50    # photo: 335 px
 PORCH_PROJECTION_M = 1.00     # spec v1.2; consistent with the 3/4 photographs
@@ -99,8 +99,13 @@ END_LEANTO_DROP_M = 0.18
 WALL_THICKNESS_M = 0.15
 CEILING_HEIGHT_M = 2.60       # photo 007/009: ceiling well below the eave
 CEILING_SLAB_M = 0.12
-DOOR_WIDTH_M = 1.60           # photo: 210 px
+DOOR_WIDTH_M = 1.59           # photo: 210 px
 DOOR_HEIGHT_M = 2.16          # photo: 290 px
+# The entrance is NOT on the building's centreline. Measured from the front
+# elevation, the door and the porch above it sit about 1.1 m to one side of
+# centre; earlier passes assumed they were centred.
+DOOR_CENTRE_X_M = 1.155       # photo: door centre 785 px vs wall centre 630 px
+PORCH_CENTRE_X_M = 1.080      # photo: porch centre 775 px vs wall centre 630 px
 DADO_HEIGHT_M = 1.10          # photo 007/009: wood panelling to about waist/chest
 FLOOR_SLAB_M = 0.12
 
@@ -129,7 +134,11 @@ ROOF_COLOUR = {"dark_green": "#2e4a3c", "red_brown": "#7d4a3a"}[ROOF_ERA]
 
 MATERIALS = {
     #  key                 name                     sRGB hex   roughness  emission
-    "siding": ("Siding_PaleMint", "#e9ebdf", 0.90, 0.10),
+    "siding": ("Siding_PaleMint", "#dfe4d4", 0.90, 0.00),
+    # The whole front elevation is carried by a photograph of the building
+    # rather than rebuilt element by element, so the window arrangement,
+    # the mural, the signage and the weathering are the real ones.
+    "facade": ("Facade_Photo", "#dfe4d4", 0.90, 0.00),
     "roof": ("Roof_Metal", ROOF_COLOUR, 0.60, 0.00),
     "fascia": ("Fascia_DarkGreen", "#1e3a2c", 0.65, 0.00),
     "porch_face": ("PorchFace_OffWhite", "#f0f0ea", 0.85, 0.10),
@@ -172,7 +181,12 @@ ROOF_UNDERSIDE_AT_WALL_Z = RIDGE_HEIGHT_M - ROOF_SLAB_M - HALF_DEPTH * math.tan(
 WALL_TOP_Z = ROOF_UNDERSIDE_AT_WALL_Z + CONSTRUCTION_EMBED_M   # nested up into the roof
 WALL_APEX_Z = RIDGE_HEIGHT_M - ROOF_SLAB_M + CONSTRUCTION_EMBED_M
 
-PORCH_HALF_WIDTH = PORCH_OUTER_WIDTH_M / 2.0        # 1.50
+# The facade photograph covers the wall from the fascia's underside down to
+# the top of the foundation, across the wall's full width.
+FACADE_UV_BOTTOM_Z = FOUNDATION_RISE_M
+FACADE_UV_TOP_Z = WALL_TOP_Z
+
+PORCH_HALF_WIDTH = PORCH_OUTER_WIDTH_M / 2.0        # 1.51
 PORCH_TIP_Y = FRONT_Y - PORCH_PROJECTION_M          # -4.00
 PORCH_ROOT_Y = PORCH_TIP_Y + PORCH_PROJECTION_M + PORCH_ROOT_DEPTH_M  # -2.20
 
@@ -231,7 +245,7 @@ def make_material(key: str) -> bpy.types.Material:
 
 
 def make_solid(name, profile_points, profile_faces, axis, start, end, material_keys, classify,
-               bisect_z=None):
+               bisect_z=None, facade_uv=False):
     """Build one closed solid by extruding a flat profile.
 
     axis 'X' reads the profile as (y, z); 'Y' as (x, z); 'Z' as (x, y).
@@ -274,6 +288,27 @@ def make_solid(name, profile_points, profile_faces, axis, start, end, material_k
     mesh.faces.ensure_lookup_table()
     bmesh.ops.recalc_face_normals(mesh, faces=mesh.faces[:])
 
+    # UVs. Faces looking out of the facade are projected onto the facade
+    # photograph's frame (0..1 across the wall); everything else gets a box
+    # projection measured in metres, so tiling textures keep their real
+    # world size on every surface.
+    uv_layer = mesh.loops.layers.uv.new("UVMap")
+    for face in mesh.faces:
+        n = face.normal
+        facade_face = facade_uv and n.y < -0.9
+        for loop in face.loops:
+            co = loop.vert.co
+            if facade_face:
+                u = (co.x + HALF_WIDTH) / FACADE_WIDTH_M
+                v = (co.z - FACADE_UV_BOTTOM_Z) / (FACADE_UV_TOP_Z - FACADE_UV_BOTTOM_Z)
+            elif abs(n.z) > max(abs(n.x), abs(n.y)):
+                u, v = co.x, co.y
+            elif abs(n.x) > abs(n.y):
+                u, v = co.y, co.z
+            else:
+                u, v = co.x, co.z
+            loop[uv_layer].uv = (u, v)
+
     data = bpy.data.meshes.new(name)
     mesh.to_mesh(data)
     mesh.free()
@@ -293,10 +328,10 @@ def make_solid(name, profile_points, profile_faces, axis, start, end, material_k
     return obj
 
 
-def make_box(name, x0, x1, y0, y1, z0, z1, material_keys, classify, bisect_z=None):
+def make_box(name, x0, x1, y0, y1, z0, z1, material_keys, classify, bisect_z=None, facade_uv=False):
     points = [(y0, z0), (y1, z0), (y1, z1), (y0, z1)]
     return make_solid(name, points, [(0, 1, 2, 3)], "X", x0, x1, material_keys, classify,
-                      bisect_z=bisect_z)
+                      bisect_z=bisect_z, facade_uv=facade_uv)
 
 
 def roof_underside_z(y: float) -> float:
@@ -384,26 +419,37 @@ def build_rear_wall():
 
 def build_front_walls():
     """Facade, built as three pieces around the entrance so the doorway is a
-    real opening the player can walk through."""
-    half_door = DOOR_WIDTH_M / 2.0
+    real opening the player can walk through.
+
+    The opening sits where the photograph puts it, off the building's
+    centreline, and the outward faces carry the facade photograph itself.
+    """
+    door_left = DOOR_CENTRE_X_M - DOOR_WIDTH_M / 2.0
+    door_right = DOOR_CENTRE_X_M + DOOR_WIDTH_M / 2.0
     door_head = FOUNDATION_RISE_M + DOOR_HEIGHT_M
     inward = Vector((0.0, 1.0, 0.0))
-    classify = wall_classifier(inward)
+    base = wall_classifier(inward)
+
+    def classify(centre, normal):
+        if normal.y < -0.9:
+            return "facade"
+        return base(centre, normal)
     pieces = []
+    keys = ["facade", "siding", "plaster", "dado"]
     pieces.append(make_box(
         "MidoriStation_WallFrontLeft",
-        -INNER_X, -half_door, FRONT_Y, INNER_FRONT_Y,
-        FOUNDATION_RISE_M, WALL_TOP_Z, ["siding", "plaster", "dado"], classify,
-        bisect_z=FLOOR_TOP_Z + DADO_HEIGHT_M))
+        -INNER_X, door_left, FRONT_Y, INNER_FRONT_Y,
+        FOUNDATION_RISE_M, WALL_TOP_Z, keys, classify,
+        bisect_z=FLOOR_TOP_Z + DADO_HEIGHT_M, facade_uv=True))
     pieces.append(make_box(
         "MidoriStation_WallFrontRight",
-        half_door, INNER_X, FRONT_Y, INNER_FRONT_Y,
-        FOUNDATION_RISE_M, WALL_TOP_Z, ["siding", "plaster", "dado"], classify,
-        bisect_z=FLOOR_TOP_Z + DADO_HEIGHT_M))
+        door_right, INNER_X, FRONT_Y, INNER_FRONT_Y,
+        FOUNDATION_RISE_M, WALL_TOP_Z, keys, classify,
+        bisect_z=FLOOR_TOP_Z + DADO_HEIGHT_M, facade_uv=True))
     pieces.append(make_box(
         "MidoriStation_WallFrontLintel",
-        -half_door, half_door, FRONT_Y, INNER_FRONT_Y,
-        door_head, WALL_TOP_Z, ["siding", "plaster", "dado"], classify))
+        door_left, door_right, FRONT_Y, INNER_FRONT_Y,
+        door_head, WALL_TOP_Z, keys, classify, facade_uv=True))
     return pieces
 
 
@@ -441,10 +487,11 @@ def build_porch():
     facade shows. The white face is the pediment carrying 「緑　駅」; the two
     rake faces read as the dark green barge boards that frame it.
     """
+    cx = PORCH_CENTRE_X_M
     points = [
-        (-PORCH_HALF_WIDTH, PORCH_BASE_HEIGHT_M),
-        (PORCH_HALF_WIDTH, PORCH_BASE_HEIGHT_M),
-        (0.0, PORCH_APEX_HEIGHT_M),
+        (cx - PORCH_HALF_WIDTH, PORCH_BASE_HEIGHT_M),
+        (cx + PORCH_HALF_WIDTH, PORCH_BASE_HEIGHT_M),
+        (cx, PORCH_APEX_HEIGHT_M),
     ]
     body = make_solid(
         "MidoriStation_Porch", points, [(0, 1, 2)], "Y",
@@ -462,15 +509,17 @@ def build_porch():
     # inset by a uniform border is 1 - border / inradius
     inradius = (half * height) / (half + slope_len)
     scale = max(0.05, 1.0 - PORCH_BORDER_M / inradius)
-    cx = 0.0
     cz = PORCH_BASE_HEIGHT_M + inradius
     inset = [
         (cx + (x - cx) * scale, cz + (z - cz) * scale)
         for x, z in points
     ]
+    # The gable face itself is supplied by a photograph of it on the
+    # Three.js side, so the inset panel that used to stand in for it is set
+    # back behind the photograph rather than competing with it.
     face = make_solid(
         "MidoriStation_PorchFace", inset, [(0, 1, 2)], "Y",
-        PORCH_TIP_Y - 0.03, PORCH_TIP_Y + 0.10,
+        PORCH_TIP_Y + 0.04, PORCH_TIP_Y + 0.16,
         ["porch_face"], lambda c, n: "porch_face",
     )
     return [body, face]
@@ -632,13 +681,18 @@ def verify(objects):
     # --- porch ------------------------------------------------------------
     porch_apex = max(v.co.z for v in porch.verts)
     porch_base = min(v.co.z for v in porch.verts)
-    half_base = max(abs(v.co.x) for v in porch.verts)
+    # measured about the porch's own centreline, which is offset from the
+    # building's — the entrance is not on the building's centre
+    porch_xs = [v.co.x for v in porch.verts]
+    porch_centre_x = (min(porch_xs) + max(porch_xs)) / 2.0
+    half_base = max(abs(x - porch_centre_x) for x in porch_xs)
     base_angle = math.degrees(math.atan2(porch_apex - porch_base, half_base))
     line(f"porch apex / base      {porch_apex:.3f} m / {porch_base:.3f} m   above the ridge by {porch_apex - ridge_z:+.3f} m")
+    line(f"porch centreline       x = {porch_centre_x:+.3f} m (building centre is 0)")
     line(f"porch triangle         base {2*half_base:.3f} m, base angles {base_angle:.2f} deg, apex {180-2*base_angle:.2f} deg")
 
     # --- doorway ----------------------------------------------------------
-    line(f"doorway opening        {DOOR_WIDTH_M:.2f} m wide x {DOOR_HEIGHT_M:.2f} m high, centred on the facade")
+    line(f"doorway opening        {DOOR_WIDTH_M:.2f} m wide x {DOOR_HEIGHT_M:.2f} m high, centreline x = {DOOR_CENTRE_X_M:+.3f} m")
     line(f"interior clear height  {CEILING_HEIGHT_M:.2f} m   floor at {FLOOR_TOP_Z:.2f} m")
 
     # --- manifold / normals ----------------------------------------------

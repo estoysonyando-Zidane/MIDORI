@@ -28,6 +28,7 @@ export class RoadGenerator {
       const width = (feature.properties.width_m as number | undefined) ?? DEFAULT_ROAD_WIDTH_M;
       const geometry = buildRibbon(feature.geometry.coordinates, tangentPlane, heightAt, width, LIFT_M);
       const mesh = new THREE.Mesh(geometry, material);
+    mesh.receiveShadow = true;
       mesh.name = feature.id;
       mesh.userData.realityData = feature;
       group.add(mesh);

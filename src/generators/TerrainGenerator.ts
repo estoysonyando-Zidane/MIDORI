@@ -80,6 +80,7 @@ export class TerrainGenerator {
     });
 
     const mesh = new THREE.Mesh(geometry, material);
+    mesh.receiveShadow = true;
     mesh.name = 'Terrain';
     mesh.receiveShadow = true;
 

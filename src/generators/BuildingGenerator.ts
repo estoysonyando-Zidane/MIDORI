@@ -4,6 +4,8 @@ import type { LocalTangentPlane } from '../core/Coordinates';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { makeLabelTexture, makeMuralTexture, makeStationNameboardTexture } from './stationGeometry';
 import { blockerFromLocalBox } from '../player/Collision';
+import { applyStationTextures } from './stationTextures';
+import type { StationTextureSet } from './stationTextures';
 
 const DEFAULT_HEIGHT_M = 5;
 
@@ -105,6 +107,7 @@ async function buildStationBuilding(
   tangentPlane: LocalTangentPlane,
   heightAt: (x: number, z: number) => number,
   modelUrl: string,
+  textures: StationTextureSet | null,
 ): Promise<THREE.Group> {
   const local = tangentPlane.project(position.lat, position.lon);
   const bearingRad = (position.facadeBearingDeg * Math.PI) / 180;
@@ -131,6 +134,8 @@ async function buildStationBuilding(
   const doorHeight = props.door_height_m ?? 2.16;
   const doorWidth = props.door_width_m ?? 1.6;
   const wallThickness = props.wall_thickness_m ?? 0.15;
+  // The entrance is off the building's centreline — see the Blender script.
+  const doorCentreX = props.door_centre_x_m ?? 1.155;
 
   const group = new THREE.Group();
   group.name = feature.id;
@@ -160,50 +165,59 @@ async function buildStationBuilding(
   const gltf = await new GLTFLoader().loadAsync(modelUrl);
   const shell = gltf.scene;
   shell.name = `${feature.id}__SHELL`;
+  if (textures) applyStationTextures(shell, textures);
   group.add(shell);
 
   // ---------------------------------------------------------------
-  // Planar elements. Positions are measured off the near-orthographic
-  // front elevation photograph, scaled on the 3.5 m eave height.
+  // The facade photograph carries the windows, the mural, the entrance
+  // surround and the signage, so none of those are rebuilt here any more.
+  // What is left are the things the photograph cannot supply: the glazing
+  // the player sees through into the waiting room, and the standing
+  // nameboard out on the platform.
   // ---------------------------------------------------------------
-  const FRONT = halfD + 0.02;   // just clear of the facade
-  const REAR = -halfD - 0.02;   // just clear of the platform-side wall
+  const glassMat = new THREE.MeshStandardMaterial({
+    color: 0x9fb3bd, metalness: 0.25, roughness: 0.12,
+    transparent: true, opacity: 0.35, side: THREE.DoubleSide,
+  });
+  const doorGlass = new THREE.Mesh(new THREE.PlaneGeometry(doorWidth - 0.1, doorHeight - 0.1), glassMat);
+  doorGlass.position.set(doorCentreX, foundationRise + doorHeight / 2, halfD - 0.05);
+  group.add(doorGlass);
 
-  // 「緑　駅」 raised lettering on the porch pediment. The porch tip is at
-  // z = halfD + porchDepth, and the pediment face sits a little inside it.
-  const signTexture = makeLabelTexture('緑　駅', { bg: 'rgba(0,0,0,0)', fg: '#2f9e6e', fontPx: 46 });
-  const signMat = new THREE.MeshBasicMaterial({ map: signTexture, transparent: true, side: THREE.DoubleSide });
-  const sign = new THREE.Mesh(new THREE.PlaneGeometry(1.55, 0.78), signMat);
-  sign.position.set(0, porchBaseH + (porchApex - porchBaseH) * 0.42, halfD + porchDepth + 0.08);
-  group.add(sign);
+  // 「緑　駅」 pediment. The porch's gable face carries the lettering; this
+  // is the photograph of that face, set just in front of it.
+  if (textures) {
+    // Cut to the gable's own outline rather than pasted on as a rectangle,
+    // and UV-mapped from the region of the photograph the crop came from, so
+    // the lettering lands where it does on the building.
+    const cx = 1.08;
+    const half = 1.51;
+    const zFace = halfD + porchDepth + 0.02;
+    const CROP_X0 = -0.387;
+    const CROP_X1 = 2.593;
+    const CROP_Z0 = 2.496;
+    const CROP_Z1 = 5.103;
+    const corners: [number, number][] = [
+      [cx - half, porchBaseH],
+      [cx + half, porchBaseH],
+      [cx, porchApex],
+    ];
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(
+      corners.flatMap(([x, y]) => [x, y, zFace]), 3));
+    geometry.setAttribute('uv', new THREE.Float32BufferAttribute(
+      corners.flatMap(([x, y]) => [
+        (x - CROP_X0) / (CROP_X1 - CROP_X0),
+        (y - CROP_Z0) / (CROP_Z1 - CROP_Z0),
+      ]), 2));
+    geometry.computeVertexNormals();
+    const pedimentPlane = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({
+      map: textures.pediment, roughness: 0.85, side: THREE.DoubleSide,
+    }));
+    pedimentPlane.castShadow = false;
+    group.add(pedimentPlane);
+  }
 
-  // Entrance: an aluminium-framed glazed double door standing in the
-  // opening the GLB leaves in the facade. It is deliberately see-through so
-  // the waiting room reads from outside.
-  const door = new THREE.Mesh(new THREE.PlaneGeometry(doorWidth, doorHeight), doorMat);
-  door.position.set(0, foundationRise + doorHeight / 2, halfD - 0.04);
-  group.add(door);
-
-  // Windows. The photograph shows, left to right: two small square windows
-  // set high, one large window, the door, then one more large window. They
-  // share a common head height; only the sills differ.
-  const HEAD_Y = 2.10;
-  const addWindow = (w: number, h: number, x: number, z: number, ry = 0) => {
-    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), windowMat);
-    mesh.position.set(x, HEAD_Y - h / 2, z);
-    mesh.rotation.y = ry;
-    group.add(mesh);
-  };
-  addWindow(0.75, 0.52, -2.55, FRONT);   // small, sill 1.58 m
-  addWindow(0.75, 0.52, -1.72, FRONT);   // small, sill 1.58 m
-  addWindow(1.60, 1.08, -0.95, FRONT);   // large, sill 1.02 m
-  addWindow(1.60, 1.08, 1.75, FRONT);    // large, sill 1.02 m
-  // platform side: a long band of glazing beside the exit
-  addWindow(1.70, 1.08, -1.30, REAR, Math.PI);
-  addWindow(1.20, 1.08, 1.60, REAR, Math.PI);
-
-  // 駅名標 — the standing nameboard on the platform, not a sign on the wall.
-  // Directive 11 keeps flat, sign-like elements on this side of the boundary.
+  // 駅名標 — the standing nameboard on the platform.
   const nameboardTexture = makeStationNameboardTexture(NAMEBOARD_WITH_NUMBER);
   const nameboardMat = new THREE.MeshStandardMaterial({ map: nameboardTexture, roughness: 0.8, side: THREE.DoubleSide });
   const nameboard = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 0.85), nameboardMat);
@@ -219,21 +233,6 @@ async function buildStationBuilding(
   namebeam.rotation.z = Math.PI / 2;
   namebeam.position.set(-2.2, 1.9, -halfD - 2.2);
   group.add(namebeam);
-
-  // 腰壁の壁画 — the painted band low on the wall. The photograph puts it
-  // between roughly 0.40 m and 0.85 m above the ground, on the facade and
-  // continuing around onto the platform side.
-  const MURAL_BOTTOM = 0.40;
-  const MURAL_TOP = 0.88;
-  const muralHeight = MURAL_TOP - MURAL_BOTTOM;
-  const muralMat = new THREE.MeshStandardMaterial({ map: makeMuralTexture(4), roughness: 0.9 });
-  const muralFront = new THREE.Mesh(new THREE.PlaneGeometry(width, muralHeight), muralMat);
-  muralFront.position.set(0, MURAL_BOTTOM + muralHeight / 2, halfD + 0.015);
-  group.add(muralFront);
-  const muralRear = new THREE.Mesh(new THREE.PlaneGeometry(width, muralHeight), muralMat);
-  muralRear.position.set(0, MURAL_BOTTOM + muralHeight / 2, -halfD - 0.015);
-  muralRear.rotation.y = Math.PI;
-  group.add(muralRear);
 
   // Two fluorescent battens on the waiting room's ceiling. Every photograph
   // of the interior has them lit, and without them the room the player just
@@ -257,7 +256,8 @@ async function buildStationBuilding(
   // door is deliberately not a blocker: that gap is the entrance.
   // ---------------------------------------------------------------
   const yaw = new THREE.Euler().setFromQuaternion(group.quaternion, 'YXZ').y;
-  const halfDoor = doorWidth / 2;
+  const doorLeft = doorCentreX - doorWidth / 2;
+  const doorRight = doorCentreX + doorWidth / 2;
   const innerX = halfW - wallThickness;
   const wallTop = 3.4;
   const box = (x0: number, x1: number, z0: number, z1: number) =>
@@ -268,8 +268,8 @@ async function buildStationBuilding(
       new THREE.Vector3(x1, wallTop, z1),
     );
   group.userData.blockers = [
-    box(-innerX, -halfDoor, halfD - wallThickness, halfD),  // facade, left of the door
-    box(halfDoor, innerX, halfD - wallThickness, halfD),    // facade, right of the door
+    box(-innerX, doorLeft, halfD - wallThickness, halfD),   // facade, left of the door
+    box(doorRight, innerX, halfD - wallThickness, halfD),   // facade, right of the door
     box(-innerX, innerX, -halfD, -halfD + wallThickness),   // platform-side wall
     box(-halfW, -innerX, -halfD, halfD),                    // left end wall
     box(innerX, halfW, -halfD, halfD),                      // right end wall
@@ -386,7 +386,8 @@ export class BuildingGenerator {
     tangentPlane: LocalTangentPlane,
     heightAt: (x: number, z: number) => number,
     modelUrl: string,
+    textures: StationTextureSet | null,
   ): Promise<THREE.Group> {
-    return buildStationBuilding(feature, position, tangentPlane, heightAt, modelUrl);
+    return buildStationBuilding(feature, position, tangentPlane, heightAt, modelUrl, textures);
   }
 }

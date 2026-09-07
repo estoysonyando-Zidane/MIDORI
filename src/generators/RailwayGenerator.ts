@@ -32,6 +32,7 @@ export class RailwayGenerator {
         LIFT_M,
       );
       const mesh = new THREE.Mesh(geometry, material);
+    mesh.receiveShadow = true;
       mesh.name = feature.id;
       mesh.userData.realityData = feature;
       group.add(mesh);

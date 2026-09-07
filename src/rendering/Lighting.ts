@@ -42,8 +42,25 @@ export function createLighting(): THREE.Group {
 
   const sun = new THREE.DirectionalLight(0xfff3e2, 2.0);
   sun.position.copy(sunPosition());
-  sun.castShadow = false;
+
+  // Shadows. Without them nothing in the World sits on the ground — every
+  // object floats on its own flat shading, which reads as a diagram rather
+  // than a place. The map is focused on the station and its surroundings
+  // rather than the whole 2 km World, because a shadow map stretched over
+  // the whole terrain resolves nothing at the scale a person walking around
+  // actually looks at.
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.camera.near = 1;
+  sun.shadow.camera.far = 900;
+  sun.shadow.camera.left = -90;
+  sun.shadow.camera.right = 90;
+  sun.shadow.camera.top = 90;
+  sun.shadow.camera.bottom = -90;
+  sun.shadow.bias = -0.0006;
+  sun.shadow.normalBias = 0.03;
   group.add(sun);
+  group.add(sun.target);
 
   // Sky-and-ground bounce. A single flat ambient term made every surface
   // facing away from the sun collapse to the same grey; a hemisphere light
