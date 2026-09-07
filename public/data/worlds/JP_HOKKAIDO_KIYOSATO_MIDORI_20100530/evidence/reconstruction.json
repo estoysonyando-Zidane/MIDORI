@@ -149,6 +149,29 @@
         "confidence": "U",
         "reason": "MIDORI_STATION_REALITY_SPEC v1.1 §9/§12 change 2 warns against conflating the station's own access road with 北海道道1115号 摩周湖斜里線 as though they were the same object. This repository's reality/roads.geojson (102 MLIT KSJ N13 segments, Directive 04) never actually made that conflation — none of the 102 segments carries a route name or any identifying attribute distinguishing '駅前アクセス道路' from '道道1115号' in the first place, since the N13 dataset does not include a route-name field for this mesh. This session could not determine, from any acquired source, which specific segment(s) correspond to which named road, so no segment was retroactively labeled either way. This is recorded as an open question rather than a guess — see the session report's '仕様書への疑問・矛盾の指摘' section."
       }
+    },
+    {
+      "id": "ROAD_KSJ_N13_BATCH_road_category_code",
+      "historical_reconstruction": {
+        "target_date": "2010-05-30",
+        "evidence": [
+          "SRC_MLIT_KSJ_N13_2024"
+        ],
+        "confidence": "B",
+        "reason": "Directive 09.1: while identifying PREF_ROAD_1115's real alignment, discovered that Directive 04's original N13 acquisition stored N13_002 (種別 -- segment type: normal/garden path/footpath/etc, all '1'=通常部 for this area, hence uniformly uninformative) under the property name 'road_type_code', and never extracted N13_003 (道路分類 -- 1=国道, 2=都道府県道, 3=市区町村道等, 4=高速自動車国道等, 5=その他, 6=不明), which the source data has always included. Re-extracted N13_003 for all 102 features from the already-downloaded raw GeoJSON (no new acquisition needed) and added it as a new property, road_category_code, alongside (not replacing) the existing road_type_code -- both are now present and correctly distinguished. Result: 19 of the 102 segments are road_category_code=2 (都道府県道); this set geometrically coincides with the real 国道以外/市町村道以外 corridor independently identified via OpenStreetMap as 国道で1115号 摩周湖斜里線 (see evidence/sources.json:SRC_OSM_OVERPASS), corroborating that identification from a second, independent source. This does not by itself upgrade PREF_ROAD_1115's confidence (held at B per Directive 09.1's explicit instruction not to raise confidence in this pass)."
+      }
+    },
+    {
+      "id": "FACILITY_MIDORINOYU_position_update",
+      "historical_reconstruction": {
+        "target_date": "2010-05-30",
+        "evidence": [
+          "SRC_KIYOSATO_TOWN_MIDORINOYU",
+          "SRC_USER_GEOCODE_MIDORINOYU"
+        ],
+        "confidence": "B",
+        "reason": "Directive 09.1 section 4: the facility's position in reality/poi.geojson was updated from Directive 04's direction-unsourced ~65m NW distance-only estimate to a real coordinate (144.505676, 43.719922) the operator read directly off Google Maps. Kept in sync with the Spatial Index entity JP.01.546.MIDORI/MIDORINOYU, which uses the same coordinate. Existence confidence (B, the facility opened in 1999 per the town's own site) is unchanged -- only the geometry improved, from geometry_confidence C to B. The retired coordinate is preserved in evidence/removed_coordinates.json."
+      }
     }
   ],
   "unresolved": [

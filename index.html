@@ -103,12 +103,47 @@
         max-width: 80vw;
       }
       #hint.visible { opacity: 1; pointer-events: auto; }
+
+      /* Directive 09.1 §6: Spatial Index overlay, inside the same 3D World
+         (no separate page). Shown only above a height-above-ground
+         threshold (main.ts toggles visibility every frame). */
+      #indexOverlay {
+        position: fixed; inset: 0; z-index: 4; pointer-events: none; display: none;
+      }
+      .index-overlay-label {
+        font: 11px ui-monospace, monospace; fill: #d7dee8;
+        paint-order: stroke; stroke: #0a0e14; stroke-width: 3px; stroke-linejoin: round;
+      }
+      #unlocatedList {
+        position: fixed; right: 12px; bottom: 12px; z-index: 6;
+        max-width: 260px; background: rgba(20,27,25,0.82); border: 1px solid #26332f;
+        border-radius: 6px; padding: 10px 12px; font: 12px/1.6 -apple-system, "Segoe UI", sans-serif;
+        color: #d7dee8; display: none;
+      }
+      .unlocated-header { color: #d9a441; font-weight: 600; margin-bottom: 4px; }
+      .unlocated-row { color: #93a29c; padding-left: 2px; }
+      #osmCredit {
+        position: fixed; left: 12px; bottom: 12px; z-index: 6;
+        font: 10px/1.4 -apple-system, "Segoe UI", sans-serif; color: rgba(215,222,232,0.55);
+        display: none;
+      }
+      body.overview-mode #crosshair { display: none; }
+      #overviewToggleTouch {
+        position: fixed; right: max(12px, env(safe-area-inset-right)); top: 52px;
+        display: none; z-index: 5; background: rgba(10,14,20,0.6); color: #d7dee8;
+        border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 8px 12px;
+        font: 600 11px/1 ui-monospace, monospace;
+      }
+      body.touch-controls #overviewToggleTouch { display: block; }
     </style>
   </head>
   <body>
     <div id="app"></div>
+    <svg id="indexOverlay"></svg>
+    <div id="unlocatedList"></div>
+    <div id="osmCredit">地図データ: © OpenStreetMap contributors (ODbL)</div>
     <div id="crosshair"></div>
-    <div id="hud">W A S D 移動 &nbsp;/&nbsp; マウス 視点 &nbsp;/&nbsp; F1 デバッグ表示</div>
+    <div id="hud">W A S D 移動 &nbsp;/&nbsp; マウス 視点 &nbsp;/&nbsp; F1 デバッグ表示 &nbsp;/&nbsp; M 俯瞰</div>
     <div id="debug"></div>
     <div id="joystick">
       <div class="tick left"></div><div class="tick right"></div><div class="tick bottom"></div>
@@ -116,6 +151,7 @@
       <div class="knob"></div>
     </div>
     <button id="debugToggleTouch" type="button">DEBUG</button>
+    <button id="overviewToggleTouch" type="button">俯瞰</button>
     <button id="settingsToggle" type="button">⚙ 設定</button>
     <div id="settingsPanel">
       <label><input type="checkbox" id="invertXToggle" /> 横方向：つかんで引く操作（既定）</label>

@@ -14,4 +14,10 @@ export type EvidenceType =
   | 'encyclopedia'
   | 'satellite_imagery'
   | 'secondary_photo'
-  | 'inference';
+  | 'inference'
+  /** Directive 09.1 §4: a person's own on-the-ground/on-map check (e.g.
+   * reading real coordinates off a live map service) — distinct from
+   * `inference` (no direct check at all) and from `official_record`
+   * (a publisher's own document, not this session's/user's own act of
+   * looking). */
+  | 'user_survey';

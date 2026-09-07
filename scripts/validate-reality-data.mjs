@@ -285,6 +285,10 @@ let spatialStubCount = 0;
 function spatialErr(msg) { spatialErrors.push(msg); }
 function spatialWarn(msg) { spatialWarnings.push(msg); }
 
+// Directive 09.1 §7
+const POSITION_STATUSES = new Set(['located', 'approximate', 'unlocated']);
+const positionStatusCounts = { located: 0, approximate: 0, unlocated: 0 };
+
 // Directive 09 §2.1: the Index must never carry appearance/look information —
 // that's Reality Data's job. Any of these keys on an entity is a violation.
 const APPEARANCE_KEYS = new Set([
@@ -354,6 +358,36 @@ if (existsSync(spatialIndexRoot)) {
 
       // 9.6: tally stubs
       if (e.frontier_status === 'stub') spatialStubCount++;
+
+      // ---- Directive 09.1 §7 ----
+      // 7.4: geometry present but no position_status
+      if (e.geometry != null && !e.position_status) {
+        spatialErr(`${e.id}: geometry is set but position_status is missing`);
+      }
+      if (e.position_status && !POSITION_STATUSES.has(e.position_status)) {
+        spatialErr(`${e.id}: invalid position_status "${e.position_status}"`);
+      }
+      if (e.position_status) positionStatusCounts[e.position_status] = (positionStatusCounts[e.position_status] ?? 0) + 1;
+
+      // 7.1: unlocated must have geometry null
+      if (e.position_status === 'unlocated' && e.geometry != null) {
+        spatialErr(`${e.id}: position_status=unlocated but geometry is not null`);
+      }
+
+      // 7.2: road / railway_line entities may not be registered as points
+      if ((e.category === 'road' || e.category === 'railway_line') && e.geometry_type === 'point') {
+        spatialErr(`${e.id}: category="${e.category}" but geometry_type="point" — roads/rail must never be registered as points`);
+      }
+
+      // 7.3: approximate requires position_accuracy_m
+      if (e.position_status === 'approximate' && typeof e.position_accuracy_m !== 'number') {
+        spatialErr(`${e.id}: position_status=approximate but position_accuracy_m is missing`);
+      }
+
+      // 7.5: inference-evidence position can never be "located" (only measured/GIS positions can)
+      if (e.position_status === 'located' && e.evidence_type === 'inference') {
+        spatialErr(`${e.id}: position_status=located but evidence_type=inference — an inferred position cannot be presented as measured`);
+      }
     }
   }
 } else {
@@ -399,6 +433,15 @@ console.log(
   `9.4 appearance leak — ${spatialErrors.filter((e) => e.includes('appearance field')).length} violation(s); ` +
   `9.5 position mismatch — ${spatialWarnings.filter((w) => w.includes('Index position is')).length} flagged (warning); ` +
   `9.6 stub entity count — ${spatialStubCount} (info)`
+);
+
+console.log(
+  `\nDirective 09.1 §7 checks: 7.1 unlocated-with-geometry — ${spatialErrors.filter((e) => e.includes('geometry is not null')).length} violation(s); ` +
+  `7.2 road/rail-as-point — ${spatialErrors.filter((e) => e.includes('must never be registered as points')).length} violation(s); ` +
+  `7.3 approximate-missing-accuracy — ${spatialErrors.filter((e) => e.includes('position_accuracy_m is missing')).length} violation(s); ` +
+  `7.4 geometry-missing-position_status — ${spatialErrors.filter((e) => e.includes('position_status is missing')).length} violation(s); ` +
+  `7.5 inference-as-located — ${spatialErrors.filter((e) => e.includes('cannot be presented as measured')).length} violation(s); ` +
+  `7.6 position_status counts — located=${positionStatusCounts.located} approximate=${positionStatusCounts.approximate} unlocated=${positionStatusCounts.unlocated} (info)`
 );
 
 const totalErrors = errors.length + spatialErrors.length;

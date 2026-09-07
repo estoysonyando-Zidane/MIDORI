@@ -53,7 +53,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/poi.geojson#LOC_MIDORI_STATION",
-      "note": "Position/confidence carried over unchanged from LOC_MIDORI_STATION (Directive 04). Not recomputed."
+      "note": "Position/confidence carried over unchanged from LOC_MIDORI_STATION (Directive 04). Not recomputed.",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/RAIL_SENMO",
@@ -343,7 +344,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/railway.geojson",
-      "note": "Combines RAIL_SENMO_KSJ_000/001/002 (byte-identical between the 2008/2011 KSJ editions, per Directive 04) into a single Index-level entity. Confidence unchanged from the underlying Reality Data."
+      "note": "Combines RAIL_SENMO_KSJ_000/001/002 (byte-identical between the 2008/2011 KSJ editions, per Directive 04) into a single Index-level entity. Confidence unchanged from the underlying Reality Data.",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0001",
@@ -406,7 +408,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0001",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0002",
@@ -441,7 +444,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0002",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0003",
@@ -780,7 +784,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0003",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0004",
@@ -1419,7 +1424,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0004",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0005",
@@ -1470,7 +1476,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0005",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0006",
@@ -1781,7 +1788,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0006",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0007",
@@ -1992,7 +2000,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0007",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0008",
@@ -2359,7 +2368,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0008",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0009",
@@ -2446,7 +2456,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0009",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0010",
@@ -2597,7 +2608,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0010",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0011",
@@ -2760,7 +2772,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0011",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0012",
@@ -3643,7 +3656,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0012",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0013",
@@ -3670,7 +3684,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0013",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0014",
@@ -3705,7 +3720,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0014",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0015",
@@ -3732,7 +3748,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0015",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0016",
@@ -3771,7 +3788,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0016",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0017",
@@ -3798,7 +3816,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0017",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0018",
@@ -3825,7 +3844,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0018",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0019",
@@ -3856,7 +3876,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0019",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0020",
@@ -3887,7 +3908,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0020",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0021",
@@ -3926,7 +3948,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0021",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0022",
@@ -3953,7 +3976,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0022",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0023",
@@ -3980,7 +4004,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0023",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0024",
@@ -4007,7 +4032,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0024",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0025",
@@ -4034,7 +4060,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0025",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0026",
@@ -4061,7 +4088,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0026",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0027",
@@ -4104,7 +4132,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0027",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0028",
@@ -4131,7 +4160,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0028",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0029",
@@ -4158,7 +4188,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0029",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0030",
@@ -4185,7 +4216,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0030",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0031",
@@ -4244,7 +4276,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0031",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0032",
@@ -4271,7 +4304,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0032",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0033",
@@ -4314,7 +4348,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0033",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0034",
@@ -4341,7 +4376,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0034",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0035",
@@ -4368,7 +4404,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0035",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0036",
@@ -4395,7 +4432,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0036",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0037",
@@ -4430,7 +4468,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0037",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0038",
@@ -4509,7 +4548,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0038",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0039",
@@ -4572,7 +4612,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0039",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0040",
@@ -4627,7 +4668,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0040",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0041",
@@ -4670,7 +4712,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0041",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0042",
@@ -4701,7 +4744,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0042",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0043",
@@ -4740,7 +4784,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0043",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0044",
@@ -4775,7 +4820,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0044",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0045",
@@ -4802,7 +4848,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0045",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0046",
@@ -4829,7 +4876,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0046",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0047",
@@ -4856,7 +4904,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0047",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0048",
@@ -4883,7 +4932,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0048",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0049",
@@ -4966,7 +5016,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0049",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0050",
@@ -4993,7 +5044,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0050",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0051",
@@ -5020,7 +5072,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0051",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0052",
@@ -5055,7 +5108,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0052",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0053",
@@ -5082,7 +5136,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0053",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0054",
@@ -5205,7 +5260,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0054",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0055",
@@ -5232,7 +5288,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0055",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0056",
@@ -5263,7 +5320,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0056",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0057",
@@ -5354,7 +5412,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0057",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0058",
@@ -5417,7 +5476,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0058",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0059",
@@ -5444,7 +5504,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0059",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0060",
@@ -5511,7 +5572,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0060",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0061",
@@ -5538,7 +5600,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0061",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0062",
@@ -5593,7 +5656,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0062",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0063",
@@ -5716,7 +5780,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0063",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0064",
@@ -5755,7 +5820,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0064",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0065",
@@ -5822,7 +5888,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0065",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0066",
@@ -5853,7 +5920,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0066",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0067",
@@ -5964,7 +6032,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0067",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0068",
@@ -6003,7 +6072,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0068",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0069",
@@ -6078,7 +6148,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0069",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0070",
@@ -6113,7 +6184,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0070",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0071",
@@ -6172,7 +6244,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0071",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0072",
@@ -6203,7 +6276,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0072",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0073",
@@ -6246,7 +6320,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0073",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0074",
@@ -6285,7 +6360,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0074",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0075",
@@ -6316,7 +6392,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0075",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0076",
@@ -6347,7 +6424,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0076",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0077",
@@ -6402,7 +6480,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0077",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0078",
@@ -6433,7 +6512,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0078",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0079",
@@ -6556,7 +6636,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0079",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0080",
@@ -6791,7 +6872,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0080",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0081",
@@ -6902,7 +6984,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0081",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0082",
@@ -7045,7 +7128,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0082",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0083",
@@ -7088,7 +7172,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0083",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0084",
@@ -7119,7 +7204,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0084",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0085",
@@ -7166,7 +7252,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0085",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0086",
@@ -7213,7 +7300,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0086",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0087",
@@ -7364,7 +7452,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0087",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0088",
@@ -7403,7 +7492,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0088",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0089",
@@ -7518,7 +7608,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0089",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0090",
@@ -7633,7 +7724,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0090",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0091",
@@ -7744,7 +7836,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0091",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0092",
@@ -7927,7 +8020,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0092",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0093",
@@ -8018,7 +8112,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0093",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0094",
@@ -8117,7 +8212,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0094",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0095",
@@ -8216,7 +8312,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0095",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0096",
@@ -8315,7 +8412,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0096",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0097",
@@ -8418,7 +8516,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0097",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0098",
@@ -8901,7 +9000,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0098",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0099",
@@ -8952,7 +9052,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0099",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0100",
@@ -8987,7 +9088,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0100",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0101",
@@ -9418,7 +9520,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0101",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_KSJ_N13_0102",
@@ -10001,7 +10104,8 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/roads.geojson#ROAD_KSJ_N13_0102",
-      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号)."
+      "note": "MLIT KSJ N13 (2024 edition, current-condition only) carries no route-name field for this mesh — name intentionally left null rather than guessed (Directive 08/09: do not conflate with 駅前アクセス道路 or 道道1115号).",
+      "position_status": "located"
     },
     {
       "id": "JP.01.546.MIDORI/STATION_BUILDING",
@@ -10024,7 +10128,9 @@
       "source_ids": [],
       "frontier_status": "defined",
       "detail_ref": "reality/buildings.geojson#STR_MIDORI_STATION_BUILDING",
-      "note": "Directive 08でClaude Codeが実装上の必要から決めた配置(駅点への隣接、線路接線方向への整列)をそのまま採用し、Index側の情報として昇格。座標そのものの根拠は実測ではない。再計算・再配置は行っていない(Directive 09 §5.3の指示通り)。"
+      "note": "Directive 08でClaude Codeが実装上の必要から決めた配置(駅点への隣接、線路接線方向への整列)をそのまま採用し、Index側の情報として昇格。座標そのものの根拠は実測ではない。再計算・再配置は行っていない(Directive 09 §5.3の指示通り)。",
+      "position_status": "approximate",
+      "position_accuracy_m": 15
     },
     {
       "id": "JP.01.546.MIDORI/STATION_PLAZA",
@@ -10045,7 +10151,9 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/buildings.geojson#STR_MIDORI_PLAZA_PAVEMENT",
-      "note": "Directive 09 §5.2の指示値をそのまま登録。広場の存在自体はcontemporary_photoでconfidence A(仕様書§8: 駅前広場舗装が緑色に塗装されている事実)。ただし下位のReality Data (STR_MIDORI_PLAZA_PAVEMENT) 側では、舗装の具体的な形状/範囲が未測量であることを理由にconfidence Cとしている — Index層の『存在の確からしさ』と、詳細層の『この形状で正しいかの確からしさ』は別の問いであり、一致しない場合があることの一例。差異は本セッションの報告で明示する。"
+      "note": "Directive 09 §5.2の指示値をそのまま登録。広場の存在自体はcontemporary_photoでconfidence A(仕様書§8: 駅前広場舗装が緑色に塗装されている事実)。ただし下位のReality Data (STR_MIDORI_PLAZA_PAVEMENT) 側では、舗装の具体的な形状/範囲が未測量であることを理由にconfidence Cとしている — Index層の『存在の確からしさ』と、詳細層の『この形状で正しいかの確からしさ』は別の問いであり、一致しない場合があることの一例。差異は本セッションの報告で明示する。",
+      "position_status": "approximate",
+      "position_accuracy_m": 30
     },
     {
       "id": "JP.01.546.MIDORI/PLATFORM_1",
@@ -10067,7 +10175,9 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/buildings.geojson#STR_MIDORI_PLATFORM_1",
-      "note": null
+      "note": null,
+      "position_status": "approximate",
+      "position_accuracy_m": 15
     },
     {
       "id": "JP.01.546.MIDORI/PLATFORM_2",
@@ -10089,7 +10199,9 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/buildings.geojson#STR_MIDORI_PLATFORM_2",
-      "note": null
+      "note": null,
+      "position_status": "approximate",
+      "position_accuracy_m": 15
     },
     {
       "id": "JP.01.546.MIDORI/MIDORINOYU",
@@ -10099,91 +10211,610 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          144.505267,
-          43.718557
+          144.505676,
+          43.719922
         ]
       },
       "confidence": "B",
       "evidence_type": "official_record",
       "source_ids": [
-        "SRC_KIYOSATO_TOWN_MIDORINOYU"
+        "SRC_KIYOSATO_TOWN_MIDORINOYU",
+        "SRC_USER_GEOCODE_MIDORINOYU"
       ],
       "frontier_status": "stub",
       "detail_ref": "reality/poi.geojson#FACILITY_MIDORINOYU",
-      "note": "位置は清里町公式サイトの『駅から徒歩3分』記述からの距離のみの推定(方向は未確定)。建物形状・3Dモデルは未作成のためstub。"
+      "note": "施設の存在は清里町公式サイトで確認(平成11年開業、confidence B / official_record)。座標はユーザーがGoogleマップから取得したWGS84実測値(Directive 09.1 §4)。駅点(43.718020, 144.505750)との差は北約211m・東約6m — 公式サイトの『JR緑駅から徒歩3分』という記述と整合する。",
+      "position_status": "approximate",
+      "position_accuracy_m": 20
     },
     {
       "id": "JP.01.546.MIDORI/ROAD_STATION_ACCESS",
-      "name": null,
+      "name": "駅前通り",
       "category": "road",
-      "geometry_type": "point",
+      "geometry_type": "line",
       "geometry": {
-        "type": "Point",
+        "type": "MultiLineString",
         "coordinates": [
-          144.50571271,
-          43.71821763
+          [
+            [
+              144.5077216,
+              43.7186478
+            ],
+            [
+              144.5069598,
+              43.7185801
+            ],
+            [
+              144.5060933,
+              43.718505
+            ],
+            [
+              144.5056738,
+              43.7184116
+            ]
+          ],
+          [
+            [
+              144.5077216,
+              43.7186478
+            ],
+            [
+              144.5084825,
+              43.7187117
+            ],
+            [
+              144.5097056,
+              43.7188144
+            ]
+          ]
         ]
       },
       "confidence": "B",
-      "evidence_type": "inference",
-      "source_ids": [],
+      "evidence_type": "public_gis",
+      "source_ids": [
+        "SRC_OSM_OVERPASS"
+      ],
       "frontier_status": "stub",
       "detail_ref": null,
-      "note": "存在(駅前から集落側へ伸びるアクセス道路)はconfidence B(satellite_imagery相当の間接的推定)。名称・道路種別はU(未確定)につきnameはnull。ここでの座標は駅前広場付近の近似アンカーであり、既存のKSJ N13区間(ROAD_KSJ_N13_*)のいずれかをこの道路として特定したものではない(Directive 08/09: 推測でのラベル付けを禁止)。"
+      "note": "Directive 09.1 §5.1: OpenStreetMapで name=駅前通り のway(131759316/131759747)を発見。端点が駅点(LOC_MIDORI_STATION)から約44mの位置にあり、駅前広場方向へ伸びる — Directive 08で「駅前アクセス道路」と呼んでいた対象と考えられる。ただしOSM上でも『道道1115号との関係』『行政上の路線名』は別途確認していないため、existence自体のconfidenceはBのまま据え置く。位置精度はOSMの一般的な精度目安として10m(このセッションの推定値)。",
+      "position_status": "approximate",
+      "position_accuracy_m": 10
     },
     {
       "id": "JP.01.546.MIDORI/PREF_ROAD_1115",
       "name": "北海道道1115号 摩周湖斜里線",
       "category": "road",
-      "geometry_type": "point",
+      "geometry_type": "line",
       "geometry": {
-        "type": "Point",
+        "type": "MultiLineString",
         "coordinates": [
-          144.50823583,
-          43.71802
+          [
+            [
+              144.5096376,
+              43.7157805
+            ],
+            [
+              144.5100242,
+              43.7156472
+            ],
+            [
+              144.5105838,
+              43.7155096
+            ],
+            [
+              144.5165239,
+              43.7142927
+            ],
+            [
+              144.5171184,
+              43.714171
+            ],
+            [
+              144.5179475,
+              43.714003
+            ],
+            [
+              144.5182598,
+              43.7139244
+            ],
+            [
+              144.5185428,
+              43.7138428
+            ],
+            [
+              144.5188078,
+              43.7137321
+            ],
+            [
+              144.5191276,
+              43.7135825
+            ],
+            [
+              144.5194137,
+              43.7134172
+            ],
+            [
+              144.5200833,
+              43.7129638
+            ],
+            [
+              144.520384,
+              43.7127902
+            ],
+            [
+              144.5208251,
+              43.7125903
+            ],
+            [
+              144.5212703,
+              43.7124308
+            ],
+            [
+              144.521613,
+              43.7123166
+            ],
+            [
+              144.5227515,
+              43.7119207
+            ],
+            [
+              144.5230186,
+              43.7118233
+            ],
+            [
+              144.5231997,
+              43.7117577
+            ],
+            [
+              144.5233958,
+              43.7116787
+            ],
+            [
+              144.5236345,
+              43.7115699
+            ],
+            [
+              144.5238128,
+              43.7114724
+            ],
+            [
+              144.5240173,
+              43.7113568
+            ],
+            [
+              144.5242299,
+              43.7112111
+            ],
+            [
+              144.5244598,
+              43.7110272
+            ],
+            [
+              144.5252897,
+              43.7102798
+            ],
+            [
+              144.5254737,
+              43.710147
+            ],
+            [
+              144.5256635,
+              43.7100163
+            ],
+            [
+              144.5258748,
+              43.7099026
+            ],
+            [
+              144.5260518,
+              43.709813
+            ],
+            [
+              144.526204,
+              43.7097443
+            ],
+            [
+              144.5263828,
+              43.7096709
+            ],
+            [
+              144.5266104,
+              43.7095932
+            ],
+            [
+              144.5268407,
+              43.7095168
+            ],
+            [
+              144.527668,
+              43.7092697
+            ],
+            [
+              144.5278638,
+              43.7092018
+            ],
+            [
+              144.5280428,
+              43.7091329
+            ],
+            [
+              144.5281883,
+              43.7090585
+            ],
+            [
+              144.5283474,
+              43.7089744
+            ],
+            [
+              144.5285363,
+              43.7088691
+            ],
+            [
+              144.5286956,
+              43.708756
+            ],
+            [
+              144.5288519,
+              43.7086362
+            ],
+            [
+              144.5289486,
+              43.7085452
+            ],
+            [
+              144.5290792,
+              43.7084197
+            ],
+            [
+              144.5291938,
+              43.7082802
+            ],
+            [
+              144.5293017,
+              43.7081364
+            ],
+            [
+              144.5293837,
+              43.7080119
+            ],
+            [
+              144.5294454,
+              43.7078938
+            ],
+            [
+              144.529508,
+              43.7077639
+            ],
+            [
+              144.5295539,
+              43.707653
+            ],
+            [
+              144.5296039,
+              43.7075211
+            ],
+            [
+              144.5296379,
+              43.707379
+            ],
+            [
+              144.5296612,
+              43.707215
+            ],
+            [
+              144.529685,
+              43.7070458
+            ],
+            [
+              144.5297007,
+              43.706833
+            ],
+            [
+              144.529714,
+              43.7067052
+            ],
+            [
+              144.5297411,
+              43.706503
+            ],
+            [
+              144.5297717,
+              43.7063288
+            ],
+            [
+              144.5298292,
+              43.7061236
+            ],
+            [
+              144.5298942,
+              43.7059566
+            ],
+            [
+              144.5299913,
+              43.7057394
+            ],
+            [
+              144.5301706,
+              43.7054248
+            ]
+          ],
+          [
+            [
+              144.5102138,
+              43.7385431
+            ],
+            [
+              144.5102468,
+              43.7383499
+            ],
+            [
+              144.5102682,
+              43.7381479
+            ],
+            [
+              144.5102699,
+              43.7379371
+            ],
+            [
+              144.5102309,
+              43.7376159
+            ],
+            [
+              144.5101512,
+              43.7373351
+            ],
+            [
+              144.5100793,
+              43.7371603
+            ],
+            [
+              144.509293,
+              43.7355085
+            ],
+            [
+              144.5092482,
+              43.7354034
+            ],
+            [
+              144.509195,
+              43.7352805
+            ],
+            [
+              144.5091679,
+              43.7351926
+            ],
+            [
+              144.5091291,
+              43.7350587
+            ],
+            [
+              144.5091027,
+              43.7349449
+            ],
+            [
+              144.5090872,
+              43.7348192
+            ],
+            [
+              144.5090889,
+              43.7346699
+            ],
+            [
+              144.5090948,
+              43.7344992
+            ],
+            [
+              144.509211,
+              43.7339141
+            ],
+            [
+              144.5092772,
+              43.7335878
+            ],
+            [
+              144.5093107,
+              43.7333502
+            ],
+            [
+              144.5093329,
+              43.7331086
+            ],
+            [
+              144.5093468,
+              43.732793
+            ],
+            [
+              144.5093589,
+              43.7325218
+            ],
+            [
+              144.5093686,
+              43.732286
+            ],
+            [
+              144.5094392,
+              43.7299537
+            ],
+            [
+              144.509409,
+              43.729674
+            ],
+            [
+              144.5093696,
+              43.7295346
+            ],
+            [
+              144.5092966,
+              43.7293641
+            ],
+            [
+              144.508353,
+              43.7276168
+            ],
+            [
+              144.5082572,
+              43.7274472
+            ],
+            [
+              144.508187,
+              43.7272941
+            ],
+            [
+              144.5081228,
+              43.7271261
+            ],
+            [
+              144.5080805,
+              43.7269682
+            ],
+            [
+              144.5080609,
+              43.7267741
+            ],
+            [
+              144.5080876,
+              43.7264347
+            ],
+            [
+              144.5084258,
+              43.7235003
+            ],
+            [
+              144.5084308,
+              43.7233402
+            ],
+            [
+              144.5084149,
+              43.7232074
+            ],
+            [
+              144.5083884,
+              43.7230934
+            ],
+            [
+              144.5081971,
+              43.7223668
+            ],
+            [
+              144.5078162,
+              43.7210191
+            ],
+            [
+              144.5075548,
+              43.720095
+            ],
+            [
+              144.5075398,
+              43.7200173
+            ],
+            [
+              144.5075338,
+              43.719919
+            ],
+            [
+              144.5075369,
+              43.7198532
+            ],
+            [
+              144.5075449,
+              43.7197861
+            ],
+            [
+              144.5077097,
+              43.7187248
+            ],
+            [
+              144.5077216,
+              43.7186478
+            ],
+            [
+              144.5078373,
+              43.7179425
+            ],
+            [
+              144.5078811,
+              43.717673
+            ],
+            [
+              144.5079518,
+              43.7174075
+            ],
+            [
+              144.5080244,
+              43.7172147
+            ],
+            [
+              144.5081153,
+              43.7170401
+            ],
+            [
+              144.5082384,
+              43.7168372
+            ],
+            [
+              144.5083197,
+              43.7167258
+            ],
+            [
+              144.5084661,
+              43.7165592
+            ],
+            [
+              144.5086107,
+              43.7164149
+            ],
+            [
+              144.5087719,
+              43.7162818
+            ],
+            [
+              144.5089397,
+              43.7161545
+            ],
+            [
+              144.5090879,
+              43.7160684
+            ]
+          ],
+          [
+            [
+              144.5090879,
+              43.7160684
+            ],
+            [
+              144.5092152,
+              43.7159865
+            ],
+            [
+              144.5094036,
+              43.7158859
+            ],
+            [
+              144.5096376,
+              43.7157805
+            ]
+          ]
         ]
       },
       "confidence": "B",
-      "evidence_type": "encyclopedia",
+      "evidence_type": "public_gis",
       "source_ids": [
-        "SRC_WIKI_JA_MIDORI"
+        "SRC_OSM_OVERPASS",
+        "SRC_WIKI_JA_MIDORI",
+        "SRC_MLIT_KSJ_N13_2024"
       ],
       "frontier_status": "stub",
       "detail_ref": null,
-      "note": "存在はencyclopedia(Wikipedia)でconfidence B。この座標は『World範囲内のどこかに存在する』ことを示すためだけの任意アンカー(原点から東へ200mの点)であり、実際の道路線形や、既存のKSJ N13区間のいずれかをこの路線として特定したものではない。"
+      "note": "Directive 09.1 §5.1: OpenStreetMapで ref=1115 / name=摩周湖斜里線 のwayを直接発見し(way 131758648/131758654/131758660、Overpass API, https://overpass.private.coffee 経由)、実際の線形を特定。World境界(半径2000m+バッファ)内にクリップして登録。国土数値情報KSJ N13の道路分類コード(N13_003)でも、同じ経路に沿う19セグメントが「2(都道府県道)」に分類されていることを確認し(既存ROAD_KSJ_N13_*のうち14区間に一致 — Directive 08時点ではこのN13_003フィールド自体を取得しておらず、今回新たに気づいた欠落)、OSMの名称同定を側面から裏付けている。ただし「この経路が具体的に1115号である」という同定はOSMのref/nameタグに基づくものであり、confidenceは指示通りBのまま据え置く(昇格させない)。位置精度はOSM側の公称値がないため、一般的なOSM道路データの精度目安として10mと記録した(実測に基づく公称精度ではなく、このセッションの推定値)。OpenStreetMapデータはODbLに基づき「© OpenStreetMap contributors」のクレジット表記を3Dオーバーヴューに表示している。",
+      "position_status": "approximate",
+      "position_accuracy_m": 10
     },
     {
       "id": "JP.01.546.MIDORI/FOREST_WEST",
       "name": "線路西側の森林",
       "category": "forest",
       "geometry_type": "polygon",
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              144.49456378,
-              43.71442674
-            ],
-            [
-              144.50202126,
-              43.71442674
-            ],
-            [
-              144.50202126,
-              43.72251158
-            ],
-            [
-              144.49456378,
-              43.72251158
-            ],
-            [
-              144.49456378,
-              43.71442674
-            ]
-          ]
-        ]
-      },
+      "geometry": null,
       "confidence": "B",
       "evidence_type": "satellite_imagery",
       "source_ids": [
@@ -10191,40 +10822,15 @@
       ],
       "frontier_status": "stub",
       "detail_ref": null,
-      "note": "衛星画像で樹林の存在は確認できるが、範囲ポリゴンは概略の矩形であり、実際の樹林境界を測量したものではない。植生の詳細(樹種・密度等)のReality Dataは未作成。"
+      "note": "Directive 09.1 §5.2: 国土数値情報 土地利用細分メッシュ(L03-b)のダウンロードページ自体は到達可能(200)だったが、ダウンロードリンクがJS経由で生成される形式で、静的HTML取得では実ファイルURLを特定できなかった。基盤地図情報(建築物・森林等の外周線、fgd.gsi.go.jp)はDirective 04と同じく502で不通(再試行済み)。衛星画像からの目視測定は本Directiveで禁止されているため行っていない。一次GISを取得できなかったため、存在の確からしさ(confidence B、satellite_imagery)は保持しつつ、位置はunlocatedとした。",
+      "position_status": "unlocated"
     },
     {
       "id": "JP.01.546.MIDORI/BUILDINGS_SOUTH",
       "name": "駅南側の建物群",
       "category": "settlement",
       "geometry_type": "polygon",
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              144.50376134,
-              43.71712168
-            ],
-            [
-              144.50525283,
-              43.71712168
-            ],
-            [
-              144.50525283,
-              43.71784034
-            ],
-            [
-              144.50376134,
-              43.71784034
-            ],
-            [
-              144.50376134,
-              43.71712168
-            ]
-          ]
-        ]
-      },
+      "geometry": null,
       "confidence": "B",
       "evidence_type": "satellite_imagery",
       "source_ids": [
@@ -10234,7 +10840,8 @@
       ],
       "frontier_status": "stub",
       "detail_ref": null,
-      "note": "3棟以上の建物群の存在は3時点の衛星画像で確認済み(Directive 08 §3のブラケット判定と同じ根拠)。個別建物の形状・用途は未作成。既存のBLDG_SYNTH_001/002 (Directive 01由来のプレースホルダ、confidence U)とは別物 — このエンティティは実際の衛星画像に基づく既存集落の大まかな範囲を示す。"
+      "note": "Directive 09.1 §5.2: 国土数値情報 土地利用細分メッシュ(L03-b、建物用地区分)を試行したが、FOREST_WESTと同じ理由(ダウンロードURLがJS経由で特定不能)で取得できず。基盤地図情報(建築物外周線)もfgd.gsi.go.jpの502で不通。衛星画像からの目視測定は行っていない。位置はunlocatedとした。",
+      "position_status": "unlocated"
     }
   ],
   "last_updated": "2026-09-06"

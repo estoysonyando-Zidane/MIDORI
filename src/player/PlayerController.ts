@@ -15,6 +15,17 @@ const MOUSE_SENSITIVITY = 0.0022;
 const TOUCH_LOOK_SENSITIVITY = 0.0026;
 const JOYSTICK_MAX_PX = 40;
 
+// Directive 09.1 §6: there is no free-fly camera in this PoC, so "raise the
+// camera high enough to see the Spatial Index overlay" is a single toggle
+// (key M / a touch button) that flies to a fixed high vantage above the
+// World origin and back, rather than continuous player-controlled altitude.
+// The overlay's own visibility is still driven by actual height-above-ground
+// (see main.ts), not by this flag, so a future free-fly control would just
+// work without any change there.
+const OVERVIEW_HEIGHT_M = 1300; // above the terrain height at the World origin
+const OVERVIEW_PITCH = -1.35; // rad, close to straight down (a plan-ish view, not a grazing horizon shot)
+const OVERVIEW_TRANSITION_S = 1.1;
+
 export interface PlayerControllerOptions {
   camera: THREE.PerspectiveCamera;
   domElement: HTMLElement;
@@ -58,6 +69,17 @@ export class PlayerController {
   private readonly settings: Settings;
   private locked = false;
 
+  // Directive 09.1 §6: overview mode fly-to state
+  private overviewActive = false;
+  private transitioning = false;
+  private transitionT = 0;
+  private readonly transitionFrom = { pos: new THREE.Vector3(), yaw: 0, pitch: 0 };
+  private readonly transitionTo = { pos: new THREE.Vector3(), yaw: 0, pitch: 0 };
+  private readonly savedGroundState = { pos: new THREE.Vector3(), yaw: 0, pitch: 0 };
+  private readonly onOverviewKeyDown = (e: KeyboardEvent) => {
+    if (e.code === 'KeyM') this.toggleOverview();
+  };
+
   // Touch joystick state
   private stickTouchId: number | null = null;
   private stickCenter = { x: 0, y: 0 };
@@ -95,6 +117,7 @@ export class PlayerController {
     this.settings = options.settings;
 
     document.addEventListener('keydown', this.onKeyDown);
+    document.addEventListener('keydown', this.onOverviewKeyDown);
     document.addEventListener('keyup', this.onKeyUp);
     document.addEventListener('mousemove', this.onMouseMove);
     document.addEventListener('pointerlockchange', this.onPointerLockChange);
@@ -217,7 +240,56 @@ export class PlayerController {
     }
   }
 
+  /** Directive 09.1 §6: flies to (or back from) a fixed high vantage above
+   * the World origin. Also callable from a touch button (no 'M' key). */
+  toggleOverview(): void {
+    if (this.transitioning) return;
+    this.transitionFrom.pos.copy(this.position);
+    this.transitionFrom.yaw = this.yaw;
+    this.transitionFrom.pitch = this.pitch;
+    if (!this.overviewActive) {
+      this.savedGroundState.pos.copy(this.position);
+      this.savedGroundState.yaw = this.yaw;
+      this.savedGroundState.pitch = this.pitch;
+      const groundY = this.heightAt(0, 0);
+      this.transitionTo.pos.set(0, groundY + OVERVIEW_HEIGHT_M, 0);
+      this.transitionTo.yaw = this.yaw;
+      this.transitionTo.pitch = OVERVIEW_PITCH;
+      this.overviewActive = true;
+    } else {
+      this.transitionTo.pos.copy(this.savedGroundState.pos);
+      this.transitionTo.yaw = this.savedGroundState.yaw;
+      this.transitionTo.pitch = this.savedGroundState.pitch;
+      this.overviewActive = false;
+    }
+    this.transitioning = true;
+    this.transitionT = 0;
+  }
+
+  isOverview(): boolean {
+    return this.overviewActive;
+  }
+
   update(dt: number): void {
+    if (this.transitioning) {
+      this.transitionT = Math.min(1, this.transitionT + dt / OVERVIEW_TRANSITION_S);
+      const t = this.transitionT * this.transitionT * (3 - 2 * this.transitionT); // smoothstep
+      this.position.lerpVectors(this.transitionFrom.pos, this.transitionTo.pos, t);
+      this.yaw = this.transitionFrom.yaw + (this.transitionTo.yaw - this.transitionFrom.yaw) * t;
+      this.pitch = this.transitionFrom.pitch + (this.transitionTo.pitch - this.transitionFrom.pitch) * t;
+      this.camera.position.copy(this.position);
+      this.camera.quaternion.setFromEuler(new THREE.Euler(this.pitch, this.yaw, 0, 'YXZ'));
+      if (this.transitionT >= 1) this.transitioning = false;
+      return;
+    }
+    if (this.overviewActive) {
+      // Parked at the overview vantage — no WASD/gravity, but still free to
+      // look around from here via the same mouse/touch handlers.
+      this.camera.position.copy(this.position);
+      this.camera.quaternion.setFromEuler(new THREE.Euler(this.pitch, this.yaw, 0, 'YXZ'));
+      return;
+    }
+
     // Directive 07 §2: derived via the same Euler math used below for
     // `camera.quaternion.setFromEuler`, rather than a hand-written sin/cos
     // pair. The previous hand-written formula silently diverged from the
@@ -258,6 +330,7 @@ export class PlayerController {
 
   dispose(): void {
     document.removeEventListener('keydown', this.onKeyDown);
+    document.removeEventListener('keydown', this.onOverviewKeyDown);
     document.removeEventListener('keyup', this.onKeyUp);
     document.removeEventListener('mousemove', this.onMouseMove);
     document.removeEventListener('pointerlockchange', this.onPointerLockChange);
