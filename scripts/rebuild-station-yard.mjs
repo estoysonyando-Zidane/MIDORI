@@ -272,8 +272,31 @@ function main() {
   const report = [];
   const note = (id, text) => report.push(`${id}: ${text}`);
 
+  // ---- Where the station stands along the line -----------------------
+  //
+  // The anchor is a point ON THE TRACK: 国土数値情報's representative point
+  // for the station. It says where the station is, not where its building
+  // is, and this script used to put the building at along 0 because that was
+  // the only number it had. It gave a yard where you walked out of the front
+  // door onto thirty metres of grass, with 駅前通り arriving off to one side.
+  //
+  // 駅前通り's terminus is surveyed: 国土地理院's 道路中心線 ends at the
+  // forecourt, and its 道路縁 closes into a wedge there. That terminus is
+  // the one thing here that fixes the building along the line — the operator,
+  // who lived in 緑町, put it plainly: step out of the station on the road
+  // side and the road is in front of you. So the building goes where the
+  // road arrives, and the platform, the forecourt and the 構内踏切 go with it.
+  //
+  // As a check rather than an input: shifting the yard by this amount also
+  // brings the platform's centre onto the anchor, which is where a station's
+  // representative point would be expected to sit. It was 30 m off before.
+  const gsiData = readJson(GSI);
+  const outAtAlong = roadEdgeProfile(gsiData, anchorLat, anchorLon, scale, along, out);
+  const roadArrival = roadArrivalAlong(gsiData, anchorLat, anchorLon, scale, along, out, facadeOut);
+  const STATION_ALONG_M = roadArrival === null ? 0 : roadArrival;
+
   // ---- Spatial Index -------------------------------------------------
-  const buildingCoords = at(0, buildingCentreOut);
+  const buildingCoords = at(STATION_ALONG_M, buildingCentreOut);
   buildingEntity.geometry.coordinates = buildingCoords;
   buildingEntity.orientation.facade_bearing_deg = Number(facadeBearing.toFixed(1));
   buildingEntity.orientation.note =
@@ -285,10 +308,15 @@ function main() {
     + `駅舎奥行 ${BUILDING_DEPTH_M} m の順に積み上げて中心を決めている。`
     + '旧座標は Directive 08 が実装上の都合で置いたもので、線路中心から 4.0 m — 6.0 m 奥行の建物の'
     + 'ホーム側壁が線路から 1.0 m の位置に来る、建築限界上ありえない配置だった。'
-    + '実測ではないので confidence C / inference のまま据え置く。';
-  note('STATION_BUILDING', `moved to ${buildingCentreOut.toFixed(2)} m from the track centreline, facade bearing ${facadeBearing.toFixed(1)}°`);
+    + `線路方向の位置は、国土地理院の道路中心線が駅前で終わる点（駅点から ${STATION_ALONG_M.toFixed(1)} m、`
+    + '札弦方)に合わせている。駅点(国土数値情報)は線路上の代表点であって駅舎の位置ではなく、'
+    + '以前はそれを駅舎の位置として使っていたため、正面の扉を出ると芝生が三十数メートル続き、'
+    + '駅前通りは横から来ていた。当時の緑町の住民である依頼者の証言「駅舎を道路側に出ると正面が道路」'
+    + 'に一致させたもの。副次的な確認として、この移動によりホーム中心が駅点にほぼ一致する'
+    + '（以前は30 mずれていた）。実測ではないので confidence C / inference のまま据え置く。';
+  note('STATION_BUILDING', `along ${STATION_ALONG_M.toFixed(1)} m (at the road's arrival), ${buildingCentreOut.toFixed(2)} m from the track centreline, facade bearing ${facadeBearing.toFixed(1)}°`);
 
-  const platformCentreAlong = (PLATFORM_SHORT_LEG_M - PLATFORM_LONG_LEG_M) / 2;
+  const platformCentreAlong = STATION_ALONG_M + (PLATFORM_SHORT_LEG_M - PLATFORM_LONG_LEG_M) / 2;
   const platformEntity = index.entities.find((e) => e.id === 'JP.01.546.MIDORI/PLATFORM_1');
   platformEntity.geometry.coordinates = at(platformCentreAlong, PLATFORM_FACE_OFFSET_M + PLATFORM_WIDTH_M / 2);
   platformEntity.confidence = 'C';
@@ -324,22 +352,18 @@ function main() {
 
   // How far the forecourt reaches, measured against the surveyed road edge
   // rather than guessed. `outAtAlong` returns the road edge's distance from
-  // the track at a given point along it.
-  const gsiData = readJson(GSI);
-  const outAtAlong = roadEdgeProfile(gsiData, anchorLat, anchorLon, scale, along, out);
-  // Where the road actually reaches the station. 駅前通り comes in from the
-  // north-east and stops at the forecourt; a forecourt that ends short of
-  // that leaves the road finishing in a field, which is what it did.
-  const roadArrival = roadArrivalAlong(gsiData, anchorLat, anchorLon, scale, along, out, facadeOut);
-  const plazaFarAlong = (roadArrival === null ? PLAZA_FALLBACK_ALONG_M : roadArrival) + PLAZA_PAST_ROAD_M;
+  // the track at a given point along it; both it and the arrival point were
+  // read above, because the building's own position now depends on them.
+  const plazaFarAlong = (roadArrival === null ? PLAZA_FALLBACK_ALONG_M : STATION_ALONG_M) + PLAZA_PAST_ROAD_M;
   const plazaFar = (a) => {
     const edge = outAtAlong(a);
     return edge === null ? facadeOut + PLAZA_FALLBACK_DEPTH_M : Math.max(facadeOut + 2.5, edge);
   };
-  const plazaDepthMid = plazaFar(0) - facadeOut;
+  const plazaDepthMid = plazaFar(STATION_ALONG_M) - facadeOut;
 
   const plazaEntity = index.entities.find((e) => e.id === 'JP.01.546.MIDORI/STATION_PLAZA');
-  plazaEntity.geometry.coordinates = at((plazaFarAlong - PLAZA_BEHIND_M) / 2, facadeOut + plazaDepthMid / 2);
+  plazaEntity.geometry.coordinates = at(
+    (plazaFarAlong + STATION_ALONG_M - PLAZA_BEHIND_M) / 2, facadeOut + plazaDepthMid / 2);
   plazaEntity.position_accuracy_m = 12;
   plazaEntity.note =
     'scripts/rebuild-station-yard.mjs による再構成。広場が緑色に塗装されている事実は写真によりconfidence A。'
@@ -354,7 +378,7 @@ function main() {
 
   const platformFeature = byId.get('STR_MIDORI_PLATFORM_1');
   platformFeature.geometry.coordinates = rect(
-    -PLATFORM_LONG_LEG_M, PLATFORM_SHORT_LEG_M,
+    STATION_ALONG_M - PLATFORM_LONG_LEG_M, STATION_ALONG_M + PLATFORM_SHORT_LEG_M,
     PLATFORM_FACE_OFFSET_M, platformBack,
   );
   platformFeature.properties.length_m = PLATFORM_LONG_LEG_M + PLATFORM_SHORT_LEG_M;
@@ -369,7 +393,7 @@ function main() {
 
   const platform2Feature = byId.get('STR_MIDORI_PLATFORM_2');
   platform2Feature.geometry.coordinates = rect(
-    -PLATFORM_LONG_LEG_M, PLATFORM_SHORT_LEG_M,
+    STATION_ALONG_M - PLATFORM_LONG_LEG_M, STATION_ALONG_M + PLATFORM_SHORT_LEG_M,
     platform2Out - PLATFORM_WIDTH_M, platform2Out,
   );
   platform2Feature.properties.length_m = PLATFORM_LONG_LEG_M + PLATFORM_SHORT_LEG_M;
@@ -382,7 +406,8 @@ function main() {
 
   const crossing = byId.get('STR_MIDORI_LEVEL_CROSSING');
   crossing.geometry.coordinates = rect(
-    CROSSING_ALONG_M - CROSSING_LENGTH_M / 2, CROSSING_ALONG_M + CROSSING_LENGTH_M / 2,
+    STATION_ALONG_M + CROSSING_ALONG_M - CROSSING_LENGTH_M / 2,
+    STATION_ALONG_M + CROSSING_ALONG_M + CROSSING_LENGTH_M / 2,
     platform2Out, PLATFORM_FACE_OFFSET_M,
   );
   crossing.properties.note =
@@ -392,11 +417,11 @@ function main() {
   // A trapezium following the road edge rather than a rectangle: the road
   // runs away from the station at an angle, so the apron is wider at one end.
   plazaFeature.geometry.coordinates = [[
-    at(-PLAZA_BEHIND_M, facadeOut),
+    at(STATION_ALONG_M - PLAZA_BEHIND_M, facadeOut),
     at(plazaFarAlong, facadeOut),
     at(plazaFarAlong, plazaFar(plazaFarAlong)),
-    at(-PLAZA_BEHIND_M, plazaFar(-PLAZA_BEHIND_M)),
-    at(-PLAZA_BEHIND_M, facadeOut),
+    at(STATION_ALONG_M - PLAZA_BEHIND_M, plazaFar(STATION_ALONG_M - PLAZA_BEHIND_M)),
+    at(STATION_ALONG_M - PLAZA_BEHIND_M, facadeOut),
   ]];
   plazaFeature.properties.note =
     'scripts/rebuild-station-yard.mjs による再構成 — 駅舎正面から国土地理院の道路縁(2201)までの台形で、'
@@ -414,7 +439,7 @@ function main() {
   buildings.features.push({
     type: 'Feature',
     geometry: { type: 'Polygon', coordinates: rect(
-      -PLAZA_BEHIND_M, plazaFarAlong, PLATFORM_FACE_OFFSET_M, plazaFar(0),
+      STATION_ALONG_M - PLAZA_BEHIND_M, plazaFarAlong, PLATFORM_FACE_OFFSET_M, plazaFar(STATION_ALONG_M),
     ) },
     properties: {
       id: 'STR_MIDORI_STATION_TERRACE',
@@ -431,7 +456,8 @@ function main() {
   });
 
   const container = byId.get('STR_MIDORI_RAIL_CONTAINER');
-  container.geometry.coordinates = rect(-22, -16, facadeOut - 1.0, facadeOut + 1.5);
+  container.geometry.coordinates = rect(
+    STATION_ALONG_M - 22, STATION_ALONG_M - 16, facadeOut - 1.0, facadeOut + 1.5);
   container.properties.note =
     'scripts/rebuild-station-yard.mjs による再構成 — 写真032が広場の脇に置いているのに合わせた位置。'
     + '形式・寸法は依然として不明(12ft級と推定)。';
@@ -443,7 +469,7 @@ function main() {
     (f) => f.properties.id !== 'RAIL_SENMO_MIDORI_LOOP' && f.properties.id !== 'RAIL_SENMO_MIDORI_TRACK2');
   // The loop, centred on the platform: turnout, divergence at 1-in-N, the
   // straight past the platform, then back the same way.
-  const platformCentre = (PLATFORM_SHORT_LEG_M - PLATFORM_LONG_LEG_M) / 2;
+  const platformCentre = STATION_ALONG_M + (PLATFORM_SHORT_LEG_M - PLATFORM_LONG_LEG_M) / 2;
   const lead = Math.abs(TRACK_2_OFFSET_M) * TURNOUT_NUMBER;
   const loopStart = platformCentre - LOOP_STRAIGHT_HALF_M;
   const loopEnd = platformCentre + LOOP_STRAIGHT_HALF_M;
@@ -490,6 +516,7 @@ function main() {
   console.log(`anchor            ${anchorLat.toFixed(6)}, ${anchorLon.toFixed(6)}  (STATION, confidence A)`);
   console.log(`track bearing     ${trackBearing.toFixed(1)}°`);
   console.log(`facade bearing    ${facadeBearing.toFixed(1)}°  (perpendicular, away from the track)`);
+  console.log(`station along     ${STATION_ALONG_M.toFixed(1)} m  (building set where 駅前通り arrives)`);
   console.log(`platform face     ${PLATFORM_FACE_OFFSET_M.toFixed(2)} m from track centre`);
   console.log(`platform back     ${platformBack.toFixed(2)} m`);
   console.log(`building centre   ${buildingCentreOut.toFixed(2)} m   (was 4.00 m)`);
