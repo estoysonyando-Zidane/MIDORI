@@ -374,6 +374,21 @@
       "status": "acquired",
       "evidence_type": "encyclopedia",
       "note": "百科事典であり一次資料ではない。confidence は B が上限。"
+    },
+    {
+      "id": "SRC_PHOTO_SET_USER_2026",
+      "provider": "User-supplied",
+      "dataset_name": "緑駅 写真41点・動画2本",
+      "url": "",
+      "access_date": "2026-09-07",
+      "data_date": "unknown",
+      "publication_date": "unknown",
+      "license": "unknown",
+      "description": "ユーザーが収集・提供した緑駅の静止画41点および動画2本（89秒・28秒）。うち1点はほぼ正射投影の正面立面写真で、本Worldの駅舎寸法・屋根形状の実測に用いた。他に待合室内部、ホーム、駅名標、時刻表、街路、航空写真（2004/2011/2012年）、ストリートビュー（2014年・2023年）を含む。",
+      "temporal_coverage": "unknown（2004年頃〜2025年の混在）",
+      "status": "acquired",
+      "evidence_type": "secondary_photo",
+      "note": "撮影年次不明のものが大半であり、2010-05-30 の直接証拠にはならない。形状の読み取りに用い、confidence は B が上限。一部にストックフォトのウォーターマークを含むものがあり、形状・色の参照にのみ用いて再配布はしない。個人が写り込んでいる画像は再現の対象としない。"
     }
   ]
 }
