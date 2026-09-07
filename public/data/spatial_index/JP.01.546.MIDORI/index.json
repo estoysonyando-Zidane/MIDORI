@@ -10140,8 +10140,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          144.50595548989608,
-          43.71811853083913
+          144.50595581554447,
+          43.71811868698505
         ]
       },
       "confidence": "A",
@@ -10151,7 +10151,7 @@
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/buildings.geojson#STR_MIDORI_PLAZA_PAVEMENT",
-      "note": "scripts/rebuild-station-yard.mjs による再構成。広場が緑色に塗装されている事実は写真によりconfidence Aだが、ここで与えている位置と範囲は駅舎正面に接する矩形として構成したもので、実測ではない。",
+      "note": "scripts/rebuild-station-yard.mjs による再構成。広場が緑色に塗装されている事実は写真によりconfidence A。奥行きは国土地理院 電子国土基本図の道路縁(ftCode 2201)までの距離として決めており、駅舎正面から約 17.1 m。以前の版はここを17 mの矩形と推定していたが、実際には道路が駅舎のすぐ前を通る。",
       "position_status": "approximate",
       "position_accuracy_m": 12
     },
@@ -10844,72 +10844,6 @@
       "position_status": "unlocated"
     },
     {
-      "id": "JP.01.546.MIDORI/TOWN_CENTRE",
-      "name": "緑センター",
-      "category": "building",
-      "geometry_type": "point",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          144.50830545,
-          43.7184936
-        ]
-      },
-      "confidence": "B",
-      "evidence_type": "public_gis",
-      "source_ids": [
-        "SRC_OSM_OVERPASS"
-      ],
-      "frontier_status": "defined",
-      "detail_ref": "reality/buildings.geojson#STR_MIDORI_CENTRE",
-      "note": "OpenStreetMap way 629137333 (community_centre)。scripts/import-osm-town.mjs による取り込み。外形は実測相当だが、建物の高さ・外観は推定。",
-      "position_status": "located"
-    },
-    {
-      "id": "JP.01.546.MIDORI/TOWN_POLICE_BOX",
-      "name": "斜里警察署緑駐在所",
-      "category": "building",
-      "geometry_type": "point",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          144.5077602,
-          43.7197375
-        ]
-      },
-      "confidence": "B",
-      "evidence_type": "public_gis",
-      "source_ids": [
-        "SRC_OSM_OVERPASS"
-      ],
-      "frontier_status": "defined",
-      "detail_ref": "reality/buildings.geojson#STR_MIDORI_POLICE_BOX",
-      "note": "OpenStreetMap way 629137336 (police)。scripts/import-osm-town.mjs による取り込み。外形は実測相当だが、建物の高さ・外観は推定。",
-      "position_status": "located"
-    },
-    {
-      "id": "JP.01.546.MIDORI/TOWN_POST_OFFICE",
-      "name": "緑郵便局",
-      "category": "building",
-      "geometry_type": "point",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          144.50748232,
-          43.7191157
-        ]
-      },
-      "confidence": "B",
-      "evidence_type": "public_gis",
-      "source_ids": [
-        "SRC_OSM_OVERPASS"
-      ],
-      "frontier_status": "defined",
-      "detail_ref": "reality/buildings.geojson#STR_MIDORI_POST_OFFICE",
-      "note": "OpenStreetMap way 629137337 (post_office)。scripts/import-osm-town.mjs による取り込み。外形は実測相当だが、建物の高さ・外観は推定。",
-      "position_status": "located"
-    },
-    {
       "id": "JP.01.546.MIDORI/TOWN_ONSEN",
       "name": "緑の湯",
       "category": "building",
@@ -10917,18 +10851,19 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          144.50570712,
-          43.71987113
+          144.50560552,
+          43.72006556
         ]
       },
       "confidence": "B",
       "evidence_type": "public_gis",
       "source_ids": [
+        "SRC_GSI_BVMAP",
         "SRC_OSM_OVERPASS"
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/buildings.geojson#STR_MIDORI_ONSEN",
-      "note": "OpenStreetMap way 629137341 (public_bath)。scripts/import-osm-town.mjs による取り込み。外形は実測相当だが、建物の高さ・外観は推定。",
+      "note": "外形は国土地理院 電子国土基本図。名称はOSM/Wikipedia由来で、最寄りの外形に対応付けた推定であり、GSI自身がこの建物にこの名称を与えているわけではない。",
       "position_status": "located"
     },
     {
@@ -10939,18 +10874,86 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          144.50931709,
-          43.72367203
+          144.50920284,
+          43.72371389
         ]
       },
       "confidence": "B",
       "evidence_type": "public_gis",
       "source_ids": [
+        "SRC_GSI_BVMAP",
         "SRC_OSM_OVERPASS"
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/buildings.geojson#STR_MIDORI_SCHOOL",
-      "note": "OpenStreetMap way 629137345 (school)。scripts/import-osm-town.mjs による取り込み。外形は実測相当だが、建物の高さ・外観は推定。",
+      "note": "外形は国土地理院 電子国土基本図。名称はOSM/Wikipedia由来で、最寄りの外形に対応付けた推定であり、GSI自身がこの建物にこの名称を与えているわけではない。",
+      "position_status": "located"
+    },
+    {
+      "id": "JP.01.546.MIDORI/TOWN_POST_OFFICE",
+      "name": "緑郵便局",
+      "category": "building",
+      "geometry_type": "point",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.5074439,
+          43.71911362
+        ]
+      },
+      "confidence": "B",
+      "evidence_type": "public_gis",
+      "source_ids": [
+        "SRC_GSI_BVMAP"
+      ],
+      "frontier_status": "defined",
+      "detail_ref": "reality/buildings.geojson#STR_MIDORI_POST_OFFICE",
+      "note": "外形は国土地理院 電子国土基本図。名称は地理院地図の注記由来で、最寄りの外形に対応付けた推定であり、GSI自身がこの建物にこの名称を与えているわけではない。",
+      "position_status": "located"
+    },
+    {
+      "id": "JP.01.546.MIDORI/TOWN_CENTRE",
+      "name": "緑センター",
+      "category": "building",
+      "geometry_type": "point",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.50832152,
+          43.71827336
+        ]
+      },
+      "confidence": "B",
+      "evidence_type": "public_gis",
+      "source_ids": [
+        "SRC_GSI_BVMAP",
+        "SRC_OSM_OVERPASS"
+      ],
+      "frontier_status": "defined",
+      "detail_ref": "reality/buildings.geojson#STR_MIDORI_CENTRE",
+      "note": "外形は国土地理院 電子国土基本図。名称はOSM/Wikipedia由来で、最寄りの外形に対応付けた推定であり、GSI自身がこの建物にこの名称を与えているわけではない。",
+      "position_status": "located"
+    },
+    {
+      "id": "JP.01.546.MIDORI/TOWN_POLICE_BOX",
+      "name": "斜里警察署緑駐在所",
+      "category": "building",
+      "geometry_type": "point",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.50780265,
+          43.71965615
+        ]
+      },
+      "confidence": "B",
+      "evidence_type": "public_gis",
+      "source_ids": [
+        "SRC_GSI_BVMAP"
+      ],
+      "frontier_status": "defined",
+      "detail_ref": "reality/buildings.geojson#STR_MIDORI_POLICE_BOX",
+      "note": "外形は国土地理院 電子国土基本図。名称は地理院地図の注記由来で、最寄りの外形に対応付けた推定であり、GSI自身がこの建物にこの名称を与えているわけではない。",
       "position_status": "located"
     },
     {
@@ -10961,19 +10964,43 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          144.50830738,
-          43.7188653
+          144.50796774,
+          43.71877412
         ]
       },
       "confidence": "B",
       "evidence_type": "public_gis",
       "source_ids": [
+        "SRC_GSI_BVMAP",
         "SRC_OSM_OVERPASS"
       ],
       "frontier_status": "defined",
       "detail_ref": "reality/buildings.geojson#STR_MIDORI_FIRE_STATION",
-      "note": "OpenStreetMap way 648729124 (yes)。scripts/import-osm-town.mjs による取り込み。外形は実測相当だが、建物の高さ・外観は推定。",
+      "note": "外形は国土地理院 電子国土基本図。名称はOSM/Wikipedia由来で、最寄りの外形に対応付けた推定であり、GSI自身がこの建物にこの名称を与えているわけではない。",
       "position_status": "located"
+    },
+    {
+      "id": "JP.01.546.MIDORI/TOWN_SKI_GROUND",
+      "name": "緑スキー場",
+      "category": "facility",
+      "geometry_type": "point",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.5006727,
+          43.7192461
+        ]
+      },
+      "confidence": "B",
+      "evidence_type": "public_gis",
+      "source_ids": [
+        "SRC_GSI_BVMAP"
+      ],
+      "frontier_status": "stub",
+      "detail_ref": null,
+      "note": "国土地理院 電子国土基本図の注記。位置は注記のアンカー点で、施設の範囲ではない。",
+      "position_status": "approximate",
+      "position_accuracy_m": 60
     }
   ],
   "last_updated": "2026-09-06"

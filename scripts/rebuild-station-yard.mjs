@@ -44,6 +44,10 @@ import { fileURLToPath } from 'node:url';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const WORLD = join(ROOT, 'public/data/worlds/JP_HOKKAIDO_KIYOSATO_MIDORI_20100530');
 const INDEX = join(ROOT, 'public/data/spatial_index/JP.01.546.MIDORI/index.json');
+const GSI = join(ROOT, 'scripts/data/gsi_midori.json');
+
+/** 道路縁 — the surveyed edge of the road surface. */
+const FT_ROAD_EDGE = 2201;
 
 // ---------------------------------------------------------------------
 // The offsets. Positive = away from the track, on the station building's
@@ -74,12 +78,16 @@ const TRACK_2_OFFSET_M = -4.1;
 const BUILDING_DEPTH_M = 6.0;
 const BUILDING_WIDTH_M = 7.4;
 
-/** Forecourt. Photographs 011, 016, 028 and 032 show a broad green-painted
- *  apron running the width of the building and well out in front of it;
- *  none of them gives a dimension, so these are read off the apparent
- *  proportions in 032 against the building's known 7.4 m width. */
-const PLAZA_DEPTH_M = 17;
-const PLAZA_HALF_WIDTH_M = 13;
+/** Forecourt. That it is green-painted asphalt is confidence A from the
+ *  photographs; how far it reaches is not in any of them. An earlier pass
+ *  guessed a 26 x 17 m rectangle. The far edge is now taken from 国土地理院's
+ *  surveyed 道路縁 (ftCode 2201) — the kerb of the road that runs past the
+ *  station — so the apron ends where the road really starts. It turns out to
+ *  be a narrow strip, about 5 m at its tightest, not the square the guess
+ *  made of it. */
+const PLAZA_HALF_WIDTH_M = 16;
+/** Used only if the surveyed road edge cannot be found. */
+const PLAZA_FALLBACK_DEPTH_M = 6;
 
 /** 構内踏切 — the timber boards across both tracks at the platform's short
  *  end (photographs 013 and 014). */
@@ -100,6 +108,41 @@ function writeJson(path, value) {
  *  magnitude. */
 function scaleAt(lat) {
   return { east: Math.cos(lat * DEG) * 111320.0, north: 110574.0 };
+}
+
+/**
+ * Builds a lookup from position along the track to the distance out at which
+ * the nearest surveyed road edge sits, so the forecourt can end where the
+ * road does. Returns null where no edge runs near that point.
+ */
+function roadEdgeProfile(gsi, anchorLat, anchorLon, scale, along, out) {
+  const points = [];
+  for (const feature of gsi.features) {
+    if (feature.layer !== 'road' || feature.tags.ftCode !== FT_ROAD_EDGE) continue;
+    for (const ring of feature.rings) {
+      for (const [lon, lat] of ring) {
+        // into metres about the yard's anchor, then onto the yard's own axes
+        const e = (lon - anchorLon) * scale.east;
+        const n = (lat - anchorLat) * scale.north;
+        const a = e * along.east + n * along.north;
+        const o = e * out.east + n * out.north;
+        if (o > 0 && o < 60 && Math.abs(a) < 120) points.push([a, o]);
+      }
+    }
+  }
+  if (points.length < 2) return () => null;
+  points.sort((p, q) => p[0] - q[0]);
+  return (a) => {
+    // The nearest edge to the station within a window along the track — the
+    // apron ends at the first kerb, not at whichever vertex happens to be
+    // closest along the line.
+    let nearest = null;
+    for (const [pa, po] of points) {
+      if (Math.abs(pa - a) > 25) continue;
+      if (nearest === null || po < nearest) nearest = po;
+    }
+    return nearest;
+  };
 }
 
 function main() {
@@ -201,13 +244,24 @@ function main() {
     + `線路中心間隔 ${Math.abs(TRACK_2_OFFSET_M)} m はJRの平面区間の標準値、ホームの寸法は1番線と同じとした。`;
   note('PLATFORM_2', `opposed platform beyond track 2, ${Math.abs(platform2Out).toFixed(1)} m from the main track`);
 
+  // How far the forecourt reaches, measured against the surveyed road edge
+  // rather than guessed. `outAtAlong` returns the road edge's distance from
+  // the track at a given point along it.
+  const outAtAlong = roadEdgeProfile(readJson(GSI), anchorLat, anchorLon, scale, along, out);
+  const plazaFar = (a) => {
+    const edge = outAtAlong(a);
+    return edge === null ? facadeOut + PLAZA_FALLBACK_DEPTH_M : Math.max(facadeOut + 2.5, edge);
+  };
+  const plazaDepthMid = plazaFar(0) - facadeOut;
+
   const plazaEntity = index.entities.find((e) => e.id === 'JP.01.546.MIDORI/STATION_PLAZA');
-  plazaEntity.geometry.coordinates = at(0, facadeOut + PLAZA_DEPTH_M / 2);
+  plazaEntity.geometry.coordinates = at(0, facadeOut + plazaDepthMid / 2);
   plazaEntity.position_accuracy_m = 12;
   plazaEntity.note =
-    'scripts/rebuild-station-yard.mjs による再構成。広場が緑色に塗装されている事実は写真によりconfidence Aだが、'
-    + 'ここで与えている位置と範囲は駅舎正面に接する矩形として構成したもので、実測ではない。';
-  note('STATION_PLAZA', `${PLAZA_HALF_WIDTH_M * 2} m x ${PLAZA_DEPTH_M} m apron against the facade`);
+    'scripts/rebuild-station-yard.mjs による再構成。広場が緑色に塗装されている事実は写真によりconfidence A。'
+    + '奥行きは国土地理院 電子国土基本図の道路縁(ftCode 2201)までの距離として決めており、'
+    + `駅舎正面から約 ${plazaDepthMid.toFixed(1)} m。以前の版はここを17 mの矩形と推定していたが、実際には道路が駅舎のすぐ前を通る。`;
+  note('STATION_PLAZA', `apron from the facade to the surveyed road edge — ${plazaDepthMid.toFixed(1)} m deep at the centre`);
 
   // ---- Reality Data --------------------------------------------------
   const byId = new Map(buildings.features.map((f) => [f.properties.id, f]));
@@ -251,16 +305,22 @@ function main() {
     'scripts/rebuild-station-yard.mjs による再構成 — ホーム端から副本線を越えるまでの板張り。写真013/014。';
 
   const plazaFeature = byId.get('STR_MIDORI_PLAZA_PAVEMENT');
-  plazaFeature.geometry.coordinates = rect(
-    -PLAZA_HALF_WIDTH_M, PLAZA_HALF_WIDTH_M,
-    facadeOut, facadeOut + PLAZA_DEPTH_M,
-  );
+  // A trapezium following the road edge rather than a rectangle: the road
+  // runs away from the station at an angle, so the apron is wider at one end.
+  plazaFeature.geometry.coordinates = [[
+    at(-PLAZA_HALF_WIDTH_M, facadeOut),
+    at(PLAZA_HALF_WIDTH_M, facadeOut),
+    at(PLAZA_HALF_WIDTH_M, plazaFar(PLAZA_HALF_WIDTH_M)),
+    at(-PLAZA_HALF_WIDTH_M, plazaFar(-PLAZA_HALF_WIDTH_M)),
+    at(-PLAZA_HALF_WIDTH_M, facadeOut),
+  ]];
   plazaFeature.properties.note =
-    'scripts/rebuild-station-yard.mjs による再構成 — 駅舎正面に接する矩形。'
-    + '緑色塗装であることは写真によりA、この形状と範囲はC。';
+    'scripts/rebuild-station-yard.mjs による再構成 — 駅舎正面から国土地理院の道路縁(2201)までの台形。'
+    + '緑色塗装であることは写真によりA、奥行きは道路縁までの実測距離、幅は推定でC。';
+  plazaFeature.properties.source_ids = ['SRC_PHOTO_20090520', 'SRC_GSI_BVMAP'];
 
   const container = byId.get('STR_MIDORI_RAIL_CONTAINER');
-  container.geometry.coordinates = rect(-16, -10, facadeOut - 1.0, facadeOut + 1.5);
+  container.geometry.coordinates = rect(-22, -16, facadeOut - 1.0, facadeOut + 1.5);
   container.properties.note =
     'scripts/rebuild-station-yard.mjs による再構成 — 写真032が広場の脇に置いているのに合わせた位置。'
     + '形式・寸法は依然として不明(12ft級と推定)。';
@@ -303,7 +363,7 @@ function main() {
   console.log(`platform back     ${platformBack.toFixed(2)} m`);
   console.log(`building centre   ${buildingCentreOut.toFixed(2)} m   (was 4.00 m)`);
   console.log(`building facade   ${facadeOut.toFixed(2)} m`);
-  console.log(`plaza             ${facadeOut.toFixed(2)} m .. ${(facadeOut + PLAZA_DEPTH_M).toFixed(2)} m`);
+  console.log(`plaza             ${facadeOut.toFixed(2)} m .. ${plazaFar(0).toFixed(2)} m  (far edge from 国土地理院 道路縁)`);
   console.log(`track 2           ${TRACK_2_OFFSET_M.toFixed(2)} m`);
   console.log(`platform 2        ${(TRACK_2_OFFSET_M - PLATFORM_FACE_OFFSET_M).toFixed(2)} m .. ${(TRACK_2_OFFSET_M - PLATFORM_FACE_OFFSET_M - PLATFORM_WIDTH_M).toFixed(2)} m`);
   console.log('');

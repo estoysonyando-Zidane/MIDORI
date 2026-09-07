@@ -389,6 +389,15 @@
       "status": "acquired",
       "evidence_type": "secondary_photo",
       "note": "撮影年次不明のものが大半であり、2010-05-30 の直接証拠にはならない。形状の読み取りに用い、confidence は B が上限。一部にストックフォトのウォーターマークを含むものがあり、形状・色の参照にのみ用いて再配布はしない。個人が写り込んでいる画像は再現の対象としない。"
+    },
+    {
+      "id": "SRC_GSI_BVMAP",
+      "title": "地理院地図Vector（地理院タイル） experimental_bvmap",
+      "publisher": "国土地理院",
+      "url": "https://cyberjapandata.gsi.go.jp/xyz/experimental_bvmap/{z}/{x}/{y}.pbf",
+      "type": "public_gis",
+      "attribution": "出典: 国土地理院「地理院地図Vector（地理院タイル）」",
+      "note": "電子国土基本図（1/25,000相当）をベクトルタイルで配信したもの。建築物(ftCode 3101/3111)、道路構成線(2701, 幅員ランク付き)、鉄道中心線(8201, 単複区分付き)、注記を含む。scripts/fetch-gsi-basemap.mjs で取得し scripts/data/gsi_midori.json に固定。OSMと異なり第一次の測量成果である。"
     }
   ]
 }
