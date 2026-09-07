@@ -87,6 +87,13 @@ CANOPY_PROJECTION_M = 2.75    # spec v1.2 range 2.5-3.0
 CANOPY_OUTER_DROP_M = 0.30    # carried from Directive 10
 CANOPY_SLAB_THICKNESS_M = 0.12
 
+# The painted band along the foot of the walls. Measured on the front
+# elevation at its 3.5 m eave scale (131.4 px/m): the band's crop runs from
+# 0.21 m above the ground to 1.18 m, and one repeat of it is 2.435 m wide.
+MURAL_BOTTOM_Z = FOUNDATION_RISE_M
+MURAL_TOP_Z = 1.18
+MURAL_TILE_WIDTH_M = 2.435
+
 # Small lean-to over the service/WC door on the left end wall (photo 001, 011)
 END_LEANTO_PROJECTION_M = 0.90
 END_LEANTO_WIDTH_M = 2.20
@@ -139,6 +146,12 @@ MATERIALS = {
     # rather than rebuilt element by element, so the window arrangement,
     # the mural, the signage and the weathering are the real ones.
     "facade": ("Facade_Photo", "#dfe4d4", 0.90, 0.00),
+    # The painted band — a tree, a yellow stripe and a pink stripe — runs
+    # along the bottom of the walls all the way round the building, not just
+    # across the front. Photographs 005, 013, 014 and 031 show it continuing
+    # on the platform side and past the WC door. It is carried by a crop of
+    # the front elevation rather than redrawn, so it is the real painting.
+    "mural": ("Mural_Band", "#dfe4d4", 0.90, 0.00),
     "roof": ("Roof_Metal", ROOF_COLOUR, 0.60, 0.00),
     "fascia": ("Fascia_DarkGreen", "#1e3a2c", 0.65, 0.00),
     "porch_face": ("PorchFace_OffWhite", "#f0f0ea", 0.85, 0.10),
@@ -148,6 +161,9 @@ MATERIALS = {
     "floor": ("Interior_Floor", "#8e8e88", 0.95, 0.06),
     "ceiling": ("Interior_Ceiling", "#d8d8d0", 0.95, 0.12),
     "steel": ("Chair_Frame_Steel", "#6e7278", 0.45, 0.00),
+    "post": ("Canopy_Post", "#d8dcd0", 0.75, 0.00),
+    "glazing": ("Window_Glass", "#25302f", 0.20, 0.00),
+    "frame": ("Window_Frame_Alu", "#b8bcbe", 0.45, 0.00),
     "chair_blue": ("Chair_Blue", "#2e6fb7", 0.40, 0.06),
     "chair_red": ("Chair_Red", "#d0402e", 0.40, 0.06),
     "chair_olive": ("Chair_Olive", "#c9c46a", 0.40, 0.06),
@@ -277,30 +293,40 @@ def make_solid(name, profile_points, profile_faces, axis, start, end, material_k
     # different materials — used for the interior's wood dado line, which is
     # otherwise unreachable because a wall is one face from floor to ceiling.
     if bisect_z is not None:
-        bmesh.ops.bisect_plane(
-            mesh,
-            geom=mesh.verts[:] + mesh.edges[:] + mesh.faces[:],
-            plane_co=Vector((0.0, 0.0, bisect_z)),
-            plane_no=Vector((0.0, 0.0, 1.0)),
-            clear_inner=False, clear_outer=False,
-        )
+        # One height or several — the walls need two cuts now, the dado line
+        # inside and the top of the painted band outside.
+        heights = bisect_z if isinstance(bisect_z, (list, tuple)) else [bisect_z]
+        for height in heights:
+            bmesh.ops.bisect_plane(
+                mesh,
+                geom=mesh.verts[:] + mesh.edges[:] + mesh.faces[:],
+                plane_co=Vector((0.0, 0.0, height)),
+                plane_no=Vector((0.0, 0.0, 1.0)),
+                clear_inner=False, clear_outer=False,
+            )
 
     mesh.faces.ensure_lookup_table()
     bmesh.ops.recalc_face_normals(mesh, faces=mesh.faces[:])
 
     # UVs. Faces looking out of the facade are projected onto the facade
-    # photograph's frame (0..1 across the wall); everything else gets a box
-    # projection measured in metres, so tiling textures keep their real
-    # world size on every surface.
+    # photograph's frame (0..1 across the wall); faces carrying the painted
+    # band get the band's own crop stretched to its real height and repeated
+    # along the wall; everything else gets a box projection measured in
+    # metres, so tiling textures keep their real world size on every surface.
     uv_layer = mesh.loops.layers.uv.new("UVMap")
     for face in mesh.faces:
         n = face.normal
         facade_face = facade_uv and n.y < -0.9
+        mural_face = classify(face.calc_center_median(), n) == "mural"
         for loop in face.loops:
             co = loop.vert.co
             if facade_face:
                 u = (co.x + HALF_WIDTH) / FACADE_WIDTH_M
                 v = (co.z - FACADE_UV_BOTTOM_Z) / (FACADE_UV_TOP_Z - FACADE_UV_BOTTOM_Z)
+            elif mural_face:
+                along = co.y if abs(n.x) > abs(n.y) else co.x
+                u = along / MURAL_TILE_WIDTH_M
+                v = (co.z - MURAL_BOTTOM_Z) / (MURAL_TOP_Z - MURAL_BOTTOM_Z)
             elif abs(n.z) > max(abs(n.x), abs(n.y)):
                 u, v = co.x, co.y
             elif abs(n.x) > abs(n.y):
@@ -372,11 +398,14 @@ def build_ceiling():
 
 
 def wall_classifier(inward: Vector):
-    """Exterior faces get siding; interior faces get plaster above the dado
-    line and wood panelling below it."""
+    """Exterior faces get siding above the painted band and the band's own
+    photograph below it; interior faces get plaster above the dado line and
+    wood panelling below it."""
     def classify(centre, normal):
         if normal.dot(inward) > 0.5:
             return "dado" if centre.z < FLOOR_TOP_Z + DADO_HEIGHT_M else "plaster"
+        if MURAL_BOTTOM_Z < centre.z < MURAL_TOP_Z:
+            return "mural"
         return "siding"
     return classify
 
@@ -401,8 +430,8 @@ def build_end_wall(name, sign):
     inward = Vector((-sign, 0.0, 0.0))
     return make_solid(
         name, points, [(0, 1, 2, 3, 4)], "X", outer, inner,
-        ["siding", "plaster", "dado"], wall_classifier(inward),
-        bisect_z=FLOOR_TOP_Z + DADO_HEIGHT_M,
+        ["siding", "mural", "plaster", "dado"], wall_classifier(inward),
+        bisect_z=[FLOOR_TOP_Z + DADO_HEIGHT_M, MURAL_TOP_Z],
     )
 
 
@@ -412,8 +441,8 @@ def build_rear_wall():
         "MidoriStation_WallRear",
         -INNER_X, INNER_X, INNER_REAR_Y, REAR_Y,
         FOUNDATION_RISE_M, WALL_TOP_Z,
-        ["siding", "plaster", "dado"], wall_classifier(Vector((0.0, -1.0, 0.0))),
-        bisect_z=FLOOR_TOP_Z + DADO_HEIGHT_M,
+        ["siding", "mural", "plaster", "dado"], wall_classifier(Vector((0.0, -1.0, 0.0))),
+        bisect_z=[FLOOR_TOP_Z + DADO_HEIGHT_M, MURAL_TOP_Z],
     )
 
 
@@ -435,17 +464,17 @@ def build_front_walls():
             return "facade"
         return base(centre, normal)
     pieces = []
-    keys = ["facade", "siding", "plaster", "dado"]
+    keys = ["facade", "siding", "mural", "plaster", "dado"]
     pieces.append(make_box(
         "MidoriStation_WallFrontLeft",
         -INNER_X, door_left, FRONT_Y, INNER_FRONT_Y,
         FOUNDATION_RISE_M, WALL_TOP_Z, keys, classify,
-        bisect_z=FLOOR_TOP_Z + DADO_HEIGHT_M, facade_uv=True))
+        bisect_z=[FLOOR_TOP_Z + DADO_HEIGHT_M, MURAL_TOP_Z], facade_uv=True))
     pieces.append(make_box(
         "MidoriStation_WallFrontRight",
         door_right, INNER_X, FRONT_Y, INNER_FRONT_Y,
         FOUNDATION_RISE_M, WALL_TOP_Z, keys, classify,
-        bisect_z=FLOOR_TOP_Z + DADO_HEIGHT_M, facade_uv=True))
+        bisect_z=[FLOOR_TOP_Z + DADO_HEIGHT_M, MURAL_TOP_Z], facade_uv=True))
     pieces.append(make_box(
         "MidoriStation_WallFrontLintel",
         door_left, door_right, FRONT_Y, INNER_FRONT_Y,
@@ -569,6 +598,59 @@ def build_end_leanto():
     )
 
 
+def build_canopy_posts():
+    """The posts carrying the platform-side canopy.
+
+    Photographs 005 and 013 show the canopy's outer edge standing on slender
+    painted posts rather than cantilevering, which is what a 2.75 m
+    projection would have to do without them.
+    """
+    posts = []
+    outer_y = REAR_Y + CANOPY_PROJECTION_M
+    top_z = EAVE_HEIGHT_M - CANOPY_OUTER_DROP_M
+    half = 0.06
+    for i, x in enumerate([-HALF_WIDTH + 0.5, -1.2, 1.2, HALF_WIDTH - 0.5]):
+        posts.append(make_box(
+            f"MidoriStation_CanopyPost_{i}",
+            x - half, x + half, outer_y - half, outer_y + half,
+            0.0, top_z,
+            ["post"], lambda c, n: "post",
+        ))
+    return posts
+
+
+def build_rear_openings():
+    """Door and windows on the platform-side wall.
+
+    Photographs 013 and 014 show this elevation with a doorway and glazing,
+    not the blank wall the model had. The source frames are 400-560 px wide,
+    so the sizes and positions here are read off them at low resolution and
+    are the least certain numbers in this file — the openings are present
+    and roughly where the photographs put them, no more than that.
+    """
+    pieces = []
+    face_y = REAR_Y - CONSTRUCTION_EMBED_M
+    # (centre x, half width, sill z, head z)
+    openings = [
+        (-2.30, 0.80, 1.25, 2.35),   # window, west of the door
+        (-0.10, 0.85, FOUNDATION_RISE_M, 2.35),   # doorway to the platform
+        (2.30, 0.85, 1.25, 2.35),    # window, east of the door
+    ]
+    for i, (cx, hw, z0, z1) in enumerate(openings):
+        pieces.append(make_box(
+            f"MidoriStation_RearFrame_{i}",
+            cx - hw, cx + hw, face_y - 0.04, face_y + 0.05, z0, z1,
+            ["frame"], lambda c, n: "frame",
+        ))
+        pieces.append(make_box(
+            f"MidoriStation_RearGlass_{i}",
+            cx - hw + 0.07, cx + hw - 0.07, face_y + 0.02, face_y + 0.06,
+            z0 + 0.07, z1 - 0.07,
+            ["glazing"], lambda c, n: "glazing",
+        ))
+    return pieces
+
+
 def build_chairs():
     """The row of FRP bucket seats along the platform-side wall.
 
@@ -623,6 +705,10 @@ def build_station():
         "canopy": build_canopy(),
         "end_leanto": build_end_leanto(),
     }
+    for i, piece in enumerate(build_canopy_posts()):
+        objects[f"canopy_post_{i}"] = piece
+    for i, piece in enumerate(build_rear_openings()):
+        objects[f"rear_opening_{i}"] = piece
     porch_body, porch_face = build_porch()
     objects["porch"] = porch_body
     objects["porch_face"] = porch_face

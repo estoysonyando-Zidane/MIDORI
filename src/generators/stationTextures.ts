@@ -20,6 +20,7 @@ export interface StationTextureSet {
   pediment: THREE.Texture;
   siding: THREE.Texture;
   roof: THREE.Texture;
+  mural: THREE.Texture;
 }
 
 /** Real-world size of one tile of the siding crop, in metres. Taken from the
@@ -70,7 +71,16 @@ export function loadStationTextures(baseUrl: string, renderer: THREE.WebGLRender
   roof.wrapT = THREE.RepeatWrapping;
   roof.repeat.set(1 / ROOF_TILE_M.width, 1 / ROOF_TILE_M.height);
 
-  return { facade, pediment, siding, roof };
+  // The painted band around the foot of the walls. The model gives these
+  // faces u in repeats along the wall and v running 0..1 up the band's own
+  // height, so only the glTF v inversion has to be undone here.
+  const mural = load(loader, `${dir}midori_mural.jpg`, renderer);
+  mural.wrapS = THREE.RepeatWrapping;
+  mural.wrapT = THREE.ClampToEdgeWrapping;
+  mural.center.set(0.5, 0.5);
+  mural.repeat.set(1, -1);
+
+  return { facade, pediment, siding, roof, mural };
 }
 
 /**
@@ -102,6 +112,11 @@ export function applyStationTextures(root: THREE.Object3D, textures: StationText
           break;
         case 'Siding_PaleMint':
           standard.map = textures.siding;
+          standard.color.setRGB(1, 1, 1);
+          standard.emissiveIntensity = 0;
+          break;
+        case 'Mural_Band':
+          standard.map = textures.mural;
           standard.color.setRGB(1, 1, 1);
           standard.emissiveIntensity = 0;
           break;

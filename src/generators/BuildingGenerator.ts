@@ -15,10 +15,12 @@ const DEFAULT_HEIGHT_M = 5;
 const STRUCTURE_COLORS: Record<string, number> = {
   container: 0x2f5a3a,
   level_crossing: 0x4a3b2a,
-  // The forecourt is unsealed crushed stone in every photograph of it — the
-  // green it used to be made the busiest surface in front of the station read
-  // as a lawn.
-  plaza_pavement: 0x8b8378,
+  // The forecourt really is painted green — photographs 001, 011, 016, 028,
+  // 032 and 033 all show green-painted asphalt, worn through to grey in the
+  // middle where the cars turn. An earlier pass here changed it to gravel on
+  // the strength of the platform-side photographs, which is the wrong side of
+  // the building: the gravel is behind, on the platform.
+  plaza_pavement: 0x5c7d6e,
 };
 
 function projectRing(
@@ -245,6 +247,8 @@ async function buildStationBuilding(
   namebeam.position.set(-2.2, 1.9, -halfD - 2.2);
   group.add(namebeam);
 
+  group.add(buildPlanters(halfD));
+
   // Two fluorescent battens on the waiting room's ceiling. Every photograph
   // of the interior has them lit, and without them the room the player just
   // walked into is a dark box.
@@ -297,6 +301,76 @@ async function buildStationBuilding(
   return group;
 }
 
+/**
+ * The flower planters along the platform frontage.
+ *
+ * Photographs 005, 013 and 014 all show a row of them in front of the
+ * building — timber half-barrels and concrete tubs, planted and clearly
+ * tended. They are the most distinctive thing about this platform and the
+ * World had none.
+ *
+ * THAT there are planters here is evidence; exactly where each one stands is
+ * not. They are laid out along the frontage on a fixed pattern, in the
+ * building's own frame, so they follow it wherever the Index puts it.
+ */
+function buildPlanters(halfD: number): THREE.Group {
+  const group = new THREE.Group();
+  group.name = 'Planters';
+
+  const timber = new THREE.MeshStandardMaterial({ color: 0x6b4a33, roughness: 0.95 });
+  const concrete = new THREE.MeshStandardMaterial({ color: 0x9c968c, roughness: 1 });
+  const soil = new THREE.MeshStandardMaterial({ color: 0x3b2f26, roughness: 1 });
+  const foliage = new THREE.MeshStandardMaterial({ color: 0x4e7a3a, roughness: 0.9 });
+  const blooms = [0xd94f4f, 0xe8c34a, 0xd97fb0, 0xe8e2d0].map(
+    (color) => new THREE.MeshStandardMaterial({ color, roughness: 0.7 }),
+  );
+
+  // (x along the frontage, distance out from the platform-side wall, barrel?)
+  const layout: [number, number, boolean][] = [
+    [-3.3, 3.6, false], [-1.9, 4.3, true], [-0.4, 3.7, false],
+    [1.3, 4.4, true], [2.8, 3.6, false], [4.2, 4.2, true],
+  ];
+
+  layout.forEach(([x, out, barrel], index) => {
+    const z = -halfD - out;
+    const radius = barrel ? 0.34 : 0.28;
+    const height = barrel ? 0.42 : 0.30;
+
+    const tub = new THREE.Mesh(
+      new THREE.CylinderGeometry(radius, radius * 0.88, height, barrel ? 12 : 8),
+      barrel ? timber : concrete,
+    );
+    tub.position.set(x, height / 2, z);
+    tub.castShadow = true;
+    tub.receiveShadow = true;
+    group.add(tub);
+
+    const fill = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.9, radius * 0.9, 0.04, 10), soil);
+    fill.position.set(x, height - 0.02, z);
+    group.add(fill);
+
+    // a low mound of leaves with a few flower heads standing out of it
+    const mound = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.95, 8, 5), foliage);
+    mound.scale.set(1, 0.55, 1);
+    mound.position.set(x, height + 0.10, z);
+    mound.castShadow = true;
+    group.add(mound);
+
+    for (let i = 0; i < 5; i++) {
+      const angle = (i / 5) * Math.PI * 2 + index;
+      const r = radius * 0.55;
+      const bloom = new THREE.Mesh(
+        new THREE.SphereGeometry(0.055, 6, 4),
+        blooms[(index + i) % blooms.length],
+      );
+      bloom.position.set(x + Math.cos(angle) * r, height + 0.22, z + Math.sin(angle) * r);
+      group.add(bloom);
+    }
+  });
+
+  return group;
+}
+
 /** Directive 08 §4.2: platform box with a distinct teal painted edge band. */
 function buildPlatform(
   feature: RealityData,
@@ -317,16 +391,114 @@ function buildPlatform(
   const centroid = centroidOf(points);
   const base = heightAt(centroid.x, -centroid.y);
 
-  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x6b6258, roughness: 1 }); // 暗色の波形鋼板/矢板 + 砂利敷き
+  // Photographs 013 and 014 show the platform retained by dark steel sheet
+  // piling, not a plain earth bank: vertical piles with horizontal walings
+  // bolted across them, and a coping along the top. The source frames are
+  // 400-560 px wide, far too coarse to crop as a texture, so the piling is
+  // modelled instead — at the 400 mm pitch of standard 鋼矢板, which is a
+  // catalogue dimension rather than something read off the photograph.
+  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x3c3a35, roughness: 0.85, metalness: 0.25 });
   const body = new THREE.Mesh(extrudeFootprint(points, height), bodyMat);
   body.position.set(0, base, 0);
+  body.receiveShadow = true;
   group.add(body);
+
+  // The deck itself is gravel, a different surface from the steel face.
+  const deckMat = new THREE.MeshStandardMaterial({ color: 0x8a837a, roughness: 1 });
+  const deck = new THREE.Mesh(extrudeFootprint(points, 0.02), deckMat);
+  deck.position.set(0, base + height, 0);
+  deck.receiveShadow = true;
+  group.add(deck);
+
+  group.add(buildSheetPiling(points, base, height, bodyMat));
 
   const edgeMat = new THREE.MeshStandardMaterial({ color: 0x1f7a72, roughness: 0.6 }); // ティール（青緑）
   const insetPoints = insetQuad(points, edgeWidth);
   const edge = new THREE.Mesh(extrudeFootprint(points, 0.02, insetPoints), edgeMat);
-  edge.position.set(0, base + height, 0);
+  edge.position.set(0, base + height + 0.02, 0);
   group.add(edge);
+
+  return group;
+}
+
+/** Pile pitch of standard 鋼矢板 (Type II and up), in metres. */
+const SHEET_PILE_PITCH_M = 0.4;
+
+/**
+ * The vertical piles and horizontal walings on a platform's retaining face.
+ *
+ * Built as instances around the footprint's perimeter: the shape is what
+ * makes the platform read as a retained embankment rather than a slab of
+ * flat colour, and it is the same detail at every point along it.
+ */
+function buildSheetPiling(
+  points: THREE.Vector2[],
+  base: number,
+  height: number,
+  material: THREE.Material,
+): THREE.Group {
+  const group = new THREE.Group();
+  group.name = 'SheetPiling';
+
+  const RIB_WIDTH = 0.07;
+  const RIB_PROUD = 0.05;
+  const up = new THREE.Vector3(0, 1, 0);
+
+  const ribs: THREE.Matrix4[] = [];
+  const walings: THREE.Matrix4[] = [];
+  const matrix = new THREE.Matrix4();
+  const quaternion = new THREE.Quaternion();
+
+  for (let i = 0; i < points.length; i++) {
+    const a = points[i];
+    const b = points[(i + 1) % points.length];
+    // shape space is (x, -z), so the World edge runs from (a.x,-a.y)
+    const ax = a.x, az = -a.y;
+    const bx = b.x, bz = -b.y;
+    const dx = bx - ax, dz = bz - az;
+    const length = Math.hypot(dx, dz);
+    if (length < 1e-3) continue;
+    const angle = Math.atan2(dx, dz);
+    quaternion.setFromAxisAngle(up, angle);
+
+    const count = Math.max(1, Math.round(length / SHEET_PILE_PITCH_M));
+    for (let j = 0; j <= count; j++) {
+      const t = j / count;
+      ribs.push(matrix.compose(
+        new THREE.Vector3(ax + dx * t, base + height / 2, az + dz * t),
+        quaternion,
+        new THREE.Vector3(1, 1, 1),
+      ).clone());
+    }
+    // two walings across the piles, at a third and two thirds of the height
+    for (const f of [0.34, 0.68]) {
+      walings.push(matrix.compose(
+        new THREE.Vector3(ax + dx / 2, base + height * f, az + dz / 2),
+        quaternion,
+        new THREE.Vector3(1, 1, length / 2),
+      ).clone());
+    }
+  }
+
+  // After the rotation above, the box's local +Z runs along the edge and
+  // its local +X points out of the face — so the pile is thin in Z (its
+  // width along the wall) and shallow in X (how far it stands proud).
+  const ribGeom = new THREE.BoxGeometry(RIB_PROUD * 2, height, RIB_WIDTH);
+  const ribMesh = new THREE.InstancedMesh(ribGeom, material, ribs.length);
+  ribs.forEach((m, i) => ribMesh.setMatrixAt(i, m));
+  ribMesh.instanceMatrix.needsUpdate = true;
+  ribMesh.castShadow = true;
+  ribMesh.frustumCulled = false;
+  group.add(ribMesh);
+
+  // scale z on the 2 m waling box gives the edge's own length
+  const walingGeom = new THREE.BoxGeometry(RIB_PROUD * 1.4, 0.09, 2);
+  const walingMesh = new THREE.InstancedMesh(walingGeom, material, walings.length);
+  walings.forEach((m, i) => walingMesh.setMatrixAt(i, m));
+  walingMesh.instanceMatrix.needsUpdate = true;
+  walingMesh.castShadow = true;
+  walingMesh.frustumCulled = false;
+  group.add(walingMesh);
 
   return group;
 }
