@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import type { RealityData } from '../reality/RealityData';
 import type { LocalTangentPlane } from '../core/Coordinates';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { makeLabelTexture, makeMuralTexture } from './stationGeometry';
+import { makeLabelTexture, makeMuralTexture, makeStationNameboardTexture } from './stationGeometry';
+import { blockerFromLocalBox } from '../player/Collision';
 
 const DEFAULT_HEIGHT_M = 5;
 
@@ -62,6 +63,14 @@ function insetQuad(points: THREE.Vector2[], trim: number): THREE.Vector2[] {
   });
 }
 
+/**
+ * JR Hokkaido only began numbering stations (緑 = B67) in the second half of
+ * the 2010s, so the nameboard carries no number in the World's 2010 target
+ * year. Flip this together with the roof era in
+ * scripts/blender/build_station.py when moving the World to a later date.
+ */
+const NAMEBOARD_WITH_NUMBER = false;
+
 /** Directive 09.1/10: a live position resolved from the Spatial Index —
  * never a coordinate baked into Reality Data for this feature. */
 export interface ResolvedPosition {
@@ -113,16 +122,15 @@ async function buildStationBuilding(
   // model, so they come from the same Reality Data values the Blender
   // script's constants were taken from.
   const props = feature.properties as Record<string, number>;
-  const width = props.width_m ?? 7.0;
+  const width = props.width_m ?? 7.4;
   const depth = props.depth_m ?? 6.0;
-  const eaveH = props.eave_height_m ?? 3.5;
-  const porchBaseH = props.porch_base_height_m ?? 2.6;
-  const porchApex = props.porch_apex_height_m ?? 4.8;
-  const porchWidth = props.porch_width_m ?? 2.6;
+  const porchBaseH = props.porch_base_height_m ?? 2.5;
+  const porchApex = props.porch_apex_height_m ?? 5.0;
   const porchDepth = props.porch_depth_m ?? 1.0;
-  const foundationRise = props.foundation_rise_m ?? 0.4;
-  const doorHeight = props.door_height_m ?? 2.25;
-  const doorWidth = props.door_width_m ?? 1.8;
+  const foundationRise = props.foundation_rise_m ?? 0.3;
+  const doorHeight = props.door_height_m ?? 2.16;
+  const doorWidth = props.door_width_m ?? 1.6;
+  const wallThickness = props.wall_thickness_m ?? 0.15;
 
   const group = new THREE.Group();
   group.name = feature.id;
@@ -154,75 +162,118 @@ async function buildStationBuilding(
   shell.name = `${feature.id}__SHELL`;
   group.add(shell);
 
-  // "緑　駅" sign on the pediment
-  const signTexture = makeLabelTexture('緑　駅', { bg: 'rgba(0,0,0,0)', fg: '#1f7a3f', fontPx: 40 });
+  // ---------------------------------------------------------------
+  // Planar elements. Positions are measured off the near-orthographic
+  // front elevation photograph, scaled on the 3.5 m eave height.
+  // ---------------------------------------------------------------
+  const FRONT = halfD + 0.02;   // just clear of the facade
+  const REAR = -halfD - 0.02;   // just clear of the platform-side wall
+
+  // 「緑　駅」 raised lettering on the porch pediment. The porch tip is at
+  // z = halfD + porchDepth, and the pediment face sits a little inside it.
+  const signTexture = makeLabelTexture('緑　駅', { bg: 'rgba(0,0,0,0)', fg: '#2f9e6e', fontPx: 46 });
   const signMat = new THREE.MeshBasicMaterial({ map: signTexture, transparent: true, side: THREE.DoubleSide });
-  const sign = new THREE.Mesh(new THREE.PlaneGeometry(porchWidth * 0.75, (porchApex - porchBaseH) * 0.7), signMat);
-  sign.position.set(0, porchBaseH + (porchApex - porchBaseH) * 0.4, halfD + porchDepth + 0.02);
+  const sign = new THREE.Mesh(new THREE.PlaneGeometry(1.55, 0.78), signMat);
+  sign.position.set(0, porchBaseH + (porchApex - porchBaseH) * 0.42, halfD + porchDepth + 0.08);
   group.add(sign);
 
-  // central double glass door, set into the front (east) wall
+  // Entrance: an aluminium-framed glazed double door standing in the
+  // opening the GLB leaves in the facade. It is deliberately see-through so
+  // the waiting room reads from outside.
   const door = new THREE.Mesh(new THREE.PlaneGeometry(doorWidth, doorHeight), doorMat);
-  door.position.set(0, foundationRise + doorHeight / 2, halfD + 0.02);
+  door.position.set(0, foundationRise + doorHeight / 2, halfD - 0.04);
   group.add(door);
 
-  // Directive 10 / spec v1.2 §4.6: windows are glass, distinct from the
-  // navy "みどり" signboards — left→right: 2 small waist-high windows,
-  // 1 large window, [door], 2 large windows. Exact widths/positions are
-  // not given by the spec (confidence C/U on window dimensions) — laid
-  // out to fill the wall either side of the door without overlapping it.
-  const smallWindowY = 1.0 + 0.275; // waist-high, ~0.55m tall centered ~1.0-1.55m from ground
-  const smallWindow = () => new THREE.Mesh(new THREE.PlaneGeometry(0.55, 0.55), windowMat);
-  const w1 = smallWindow(); w1.position.set(-2.85, smallWindowY, halfD + 0.02); group.add(w1);
-  const w2 = smallWindow(); w2.position.set(-2.2, smallWindowY, halfD + 0.02); group.add(w2);
+  // Windows. The photograph shows, left to right: two small square windows
+  // set high, one large window, the door, then one more large window. They
+  // share a common head height; only the sills differ.
+  const HEAD_Y = 2.10;
+  const addWindow = (w: number, h: number, x: number, z: number, ry = 0) => {
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), windowMat);
+    mesh.position.set(x, HEAD_Y - h / 2, z);
+    mesh.rotation.y = ry;
+    group.add(mesh);
+  };
+  addWindow(0.75, 0.52, -2.55, FRONT);   // small, sill 1.58 m
+  addWindow(0.75, 0.52, -1.72, FRONT);   // small, sill 1.58 m
+  addWindow(1.60, 1.08, -0.95, FRONT);   // large, sill 1.02 m
+  addWindow(1.60, 1.08, 1.75, FRONT);    // large, sill 1.02 m
+  // platform side: a long band of glazing beside the exit
+  addWindow(1.70, 1.08, -1.30, REAR, Math.PI);
+  addWindow(1.20, 1.08, 1.60, REAR, Math.PI);
 
-  const bigWindowY = 1.6;
-  const bigWindow = (w: number) => new THREE.Mesh(new THREE.PlaneGeometry(w, 1.8), windowMat);
-  const w3 = bigWindow(1.0); w3.position.set(-1.4, bigWindowY, halfD + 0.02); group.add(w3);
-  const w4 = bigWindow(1.1); w4.position.set(1.55, bigWindowY, halfD + 0.02); group.add(w4);
-  const w5 = bigWindow(0.9); w5.position.set(2.6, bigWindowY, halfD + 0.02); group.add(w5);
-
-  // ホーロー縦型駅名標 (platform-side enamel nameboard) — separate from windows/boards
-  const namebandTexture = makeLabelTexture('みどり', { bg: '#111111', fg: '#f5f5f5', fontPx: 40 });
-  const namebandMat = new THREE.MeshBasicMaterial({ map: namebandTexture });
-  const nameband = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 1.4), namebandMat);
-  nameband.position.set(halfW * 0.5, eaveH * 0.55, -halfD - 0.02);
-  nameband.rotation.y = Math.PI;
-  group.add(nameband);
-
-  // 4x「みどり」縦看板 (2 front, 2 platform side) — navy boards, distinct
-  // from the glass windows above (spec v1.2 §4.6/§4.7)
-  const boardTexture = makeLabelTexture('みどり', { bg: '#16215c', fg: '#ffffff', fontPx: 36 });
-  const boardMat = new THREE.MeshBasicMaterial({ map: boardTexture });
-  const boardPositions: [number, number, number, number][] = [
-    [-3.1, eaveH * 0.6, halfD + 0.02, 0],
-    [3.1, eaveH * 0.6, halfD + 0.02, 0],
-    [-halfW * 0.75, eaveH * 0.6, -halfD - 0.02, Math.PI],
-    [halfW * 0.3, eaveH * 0.6, -halfD - 0.02, Math.PI],
-  ];
-  for (const [x, y, z, ry] of boardPositions) {
-    const board = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 1.1), boardMat);
-    board.position.set(x, y, z);
-    board.rotation.y = ry;
-    group.add(board);
+  // 駅名標 — the standing nameboard on the platform, not a sign on the wall.
+  // Directive 11 keeps flat, sign-like elements on this side of the boundary.
+  const nameboardTexture = makeStationNameboardTexture(NAMEBOARD_WITH_NUMBER);
+  const nameboardMat = new THREE.MeshStandardMaterial({ map: nameboardTexture, roughness: 0.8, side: THREE.DoubleSide });
+  const nameboard = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 0.85), nameboardMat);
+  nameboard.position.set(-2.2, 1.85, -halfD - 2.2);
+  group.add(nameboard);
+  const postMat = new THREE.MeshStandardMaterial({ color: 0x7a3b32, roughness: 0.8 });
+  for (const px of [-3.0, -1.4]) {
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 1.9, 8), postMat);
+    post.position.set(px, 0.95, -halfD - 2.2);
+    group.add(post);
   }
+  const namebeam = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 1.6, 8), postMat);
+  namebeam.rotation.z = Math.PI / 2;
+  namebeam.position.set(-2.2, 1.9, -halfD - 2.2);
+  group.add(namebeam);
 
-  // 腰壁の壁画 (mural band): a continuous band along the FULL width of the
-  // front (east) and platform-side (west) walls, low on the wall (spec
-  // v1.2 §4.8: "地面から約1.0–1.2mの帯" — a band whose top sits ~1.0-1.2m
-  // up from the ground, not a fragment covering only part of the wall).
-  const muralTexture = makeMuralTexture();
-  const muralMat = new THREE.MeshBasicMaterial({ map: muralTexture });
-  const muralBottom = 0; // "地面から" — true ground, not the foundation top
-  const muralTop = 1.1;
-  const muralHeight = muralTop - muralBottom;
+  // 腰壁の壁画 — the painted band low on the wall. The photograph puts it
+  // between roughly 0.40 m and 0.85 m above the ground, on the facade and
+  // continuing around onto the platform side.
+  const MURAL_BOTTOM = 0.40;
+  const MURAL_TOP = 0.88;
+  const muralHeight = MURAL_TOP - MURAL_BOTTOM;
+  const muralMat = new THREE.MeshStandardMaterial({ map: makeMuralTexture(4), roughness: 0.9 });
   const muralFront = new THREE.Mesh(new THREE.PlaneGeometry(width, muralHeight), muralMat);
-  muralFront.position.set(0, muralBottom + muralHeight / 2, halfD + 0.015);
+  muralFront.position.set(0, MURAL_BOTTOM + muralHeight / 2, halfD + 0.015);
   group.add(muralFront);
   const muralRear = new THREE.Mesh(new THREE.PlaneGeometry(width, muralHeight), muralMat);
-  muralRear.position.set(0, muralBottom + muralHeight / 2, -halfD - 0.015);
+  muralRear.position.set(0, MURAL_BOTTOM + muralHeight / 2, -halfD - 0.015);
   muralRear.rotation.y = Math.PI;
   group.add(muralRear);
+
+  // Two fluorescent battens on the waiting room's ceiling. Every photograph
+  // of the interior has them lit, and without them the room the player just
+  // walked into is a dark box.
+  const ceilingH = (props.interior_ceiling_height_m ?? 2.6) + foundationRise;
+  const battenMat = new THREE.MeshBasicMaterial({ color: 0xfff6e2 });
+  for (const bz of [-1.3, 1.1]) {
+    const batten = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.06, 0.12), battenMat);
+    batten.position.set(0, ceilingH - 0.06, bz);
+    group.add(batten);
+
+    const lamp = new THREE.PointLight(0xffeccd, 12, 9, 2);
+    lamp.position.set(0, ceilingH - 0.25, bz);
+    group.add(lamp);
+  }
+
+  // ---------------------------------------------------------------
+  // Wall collision. Without this the player walks straight through the
+  // building and it never reads as a place with an inside — so the walls
+  // become solid and the doorway becomes the way in. The lintel over the
+  // door is deliberately not a blocker: that gap is the entrance.
+  // ---------------------------------------------------------------
+  const yaw = new THREE.Euler().setFromQuaternion(group.quaternion, 'YXZ').y;
+  const halfDoor = doorWidth / 2;
+  const innerX = halfW - wallThickness;
+  const wallTop = 3.4;
+  const box = (x0: number, x1: number, z0: number, z1: number) =>
+    blockerFromLocalBox(
+      group.position,
+      yaw,
+      new THREE.Vector3(x0, 0, z0),
+      new THREE.Vector3(x1, wallTop, z1),
+    );
+  group.userData.blockers = [
+    box(-innerX, -halfDoor, halfD - wallThickness, halfD),  // facade, left of the door
+    box(halfDoor, innerX, halfD - wallThickness, halfD),    // facade, right of the door
+    box(-innerX, innerX, -halfD, -halfD + wallThickness),   // platform-side wall
+    box(-halfW, -innerX, -halfD, halfD),                    // left end wall
+    box(innerX, halfW, -halfD, halfD),                      // right end wall
+  ];
 
   return group;
 }

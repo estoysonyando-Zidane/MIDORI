@@ -10,6 +10,8 @@ import { DebugMode } from './debug/DebugMode';
 import { Settings } from './state/Settings';
 import { SpatialIndexLoader } from './spatial/SpatialIndexLoader';
 import { IndexOverlay } from './spatial/IndexOverlay';
+import { CollisionWorld } from './player/Collision';
+import type { Blocker } from './player/Collision';
 import type { ResolvedPosition } from './generators/BuildingGenerator';
 
 const PLACE_PATH = 'JP.01.546.MIDORI';
@@ -91,21 +93,26 @@ async function bootstrap(): Promise<void> {
   world.group.add(RoadGenerator.generate(world.find('road'), world.tangentPlane, heightAt));
   world.group.add(BuildingGenerator.generate(world.find('building'), world.tangentPlane, heightAt));
 
+  // Structures the player cannot walk through — currently the station
+  // building's walls, so its waiting room is a room you enter through the
+  // door rather than a shape you pass through.
+  const collision = new CollisionWorld();
+
   const stationBuildingEntity = spatialIndex?.entities.find((e) => e.id === `${PLACE_PATH}/STATION_BUILDING`);
   const stationBuildingFeature = world.findById('STR_MIDORI_STATION_BUILDING');
   if (stationBuildingEntity?.geometry?.type === 'Point' && stationBuildingEntity.orientation && stationBuildingFeature) {
     const [lon, lat] = stationBuildingEntity.geometry.coordinates;
     const position: ResolvedPosition = { lat, lon, facadeBearingDeg: stationBuildingEntity.orientation.facade_bearing_deg };
     try {
-      world.group.add(
-        await BuildingGenerator.generateStationBuilding(
-          stationBuildingFeature,
-          position,
-          world.tangentPlane,
-          heightAt,
-          STATION_MODEL_URL,
-        ),
+      const stationGroup = await BuildingGenerator.generateStationBuilding(
+        stationBuildingFeature,
+        position,
+        world.tangentPlane,
+        heightAt,
+        STATION_MODEL_URL,
       );
+      world.group.add(stationGroup);
+      collision.addAll((stationGroup.userData.blockers as Blocker[] | undefined) ?? []);
     } catch (err) {
       // Directive 11 §4: the station's solid form is an external glTF asset
       // now, so it can fail to load where generated geometry could not. The
@@ -117,7 +124,6 @@ async function bootstrap(): Promise<void> {
   }
 
   sceneManager.scene.add(world.group);
-
   const debugMode = new DebugMode(world);
   sceneManager.scene.add(debugMode.group);
 
@@ -140,6 +146,7 @@ async function bootstrap(): Promise<void> {
     start: new THREE.Vector3(startX, startY, startZ),
     joystickElement: joystick,
     settings,
+    collision,
   });
 
   debugToggleTouch?.addEventListener('click', () => debugMode.toggle());

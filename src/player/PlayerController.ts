@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import type { CollisionWorld } from './Collision';
 import type { Settings } from '../state/Settings';
 
 // Directive 07 §3: 4.2 m/s (~15 km/h) was a light jog, not a walk — average
@@ -32,6 +33,12 @@ export interface PlayerControllerOptions {
   heightAt: (x: number, z: number) => number;
   start: THREE.Vector3;
   /**
+   * Solid structures the player cannot walk through. Without one the player
+   * passes through every wall, so a building never has an inside. Omit for a
+   * World with nothing solid in it.
+   */
+  collision?: CollisionWorld | null;
+  /**
    * On-screen virtual joystick element (Directive 06 §3). When present, touch
    * input inside it drives movement and touch elsewhere on `domElement`
    * drives look — this is how the iOS Safari path replaces Pointer Lock,
@@ -63,6 +70,7 @@ export class PlayerController {
   private readonly camera: THREE.PerspectiveCamera;
   private readonly domElement: HTMLElement;
   private readonly heightAt: (x: number, z: number) => number;
+  private readonly collision: CollisionWorld | null;
   private readonly joystick: HTMLElement | null;
   private readonly joystickKnob: HTMLElement | null;
   private readonly joystickRod: HTMLElement | null;
@@ -110,6 +118,7 @@ export class PlayerController {
     this.camera = options.camera;
     this.domElement = options.domElement;
     this.heightAt = options.heightAt;
+    this.collision = options.collision ?? null;
     this.position = options.start.clone();
     this.joystick = options.joystickElement ?? null;
     this.joystickKnob = this.joystick?.querySelector('.knob') ?? null;
@@ -313,6 +322,9 @@ export class PlayerController {
     if (move.lengthSq() > 1) move.normalize();
     if (move.lengthSq() > 0) {
       this.position.addScaledVector(move, WALK_SPEED * dt);
+      // Push back out of any wall the step ended up inside, so doorways are
+      // the way into a building rather than the walls being scenery.
+      this.collision?.resolve(this.position, EYE_HEIGHT);
     }
 
     const ground = this.heightAt(this.position.x, this.position.z) + EYE_HEIGHT;
