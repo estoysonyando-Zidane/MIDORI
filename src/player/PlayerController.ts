@@ -27,6 +27,53 @@ const OVERVIEW_HEIGHT_M = 1300; // above the terrain height at the World origin
 const OVERVIEW_PITCH = -1.35; // rad, close to straight down (a plan-ish view, not a grazing horizon shot)
 const OVERVIEW_TRANSITION_S = 1.1;
 
+// ---------------------------------------------------------------------
+// ロードバイク移動モード
+//
+// The World is 2 km across and 緑町 is strung out along a valley, so on foot
+// most of it is somewhere you never go. A bicycle is also what the place is
+// actually like to move through: the road runs the length of the settlement
+// and the ground rolls.
+//
+// This is not a walking speed multiplier. A bicycle has momentum, and that
+// is the whole point of asking for one: you spend effort getting up to
+// speed, you carry it, you have to brake for the corner, and the hill out
+// of the valley costs you.
+// ---------------------------------------------------------------------
+
+/** 最高時速 55 km/h. */
+const BIKE_MAX_SPEED = 55 / 3.6; // 15.28 m/s
+/**
+ * Acceleration from a standstill, tapering to nothing at top speed.
+ *
+ * A rider puts out roughly constant power, so the force at the wheel falls
+ * as speed rises; squaring the speed ratio is the usual cheap stand-in for
+ * that together with aerodynamic drag. Losses are folded into this taper
+ * rather than subtracted separately, so the flat-road terminal speed is
+ * BIKE_MAX_SPEED exactly — a first pass subtracted the coasting losses on
+ * top of the taper as well and the bike could not pass 39 km/h, whatever
+ * the constant said.
+ *
+ * 2.6 m/s² from rest reaches 30 km/h in about 3.5 s and 55 km/h in about
+ * 16 s of steady effort, which is what a road bike on the flat is like.
+ */
+const BIKE_ACCEL = 2.6;
+/** Brakes. Road calipers on dry tarmac; short of the pitch-over limit. */
+const BIKE_BRAKE = 5.0;
+/** Rolling resistance while coasting, plus a drag term that rises with speed. */
+const BIKE_ROLL = 0.35;
+const BIKE_DRAG = 1.9;
+/** Gravity along the slope: the reason a valley has a shape you can feel. */
+const BIKE_SLOPE_GRAVITY = 9.8;
+/** Steering. A bicycle at speed does not turn on the spot, so the rate falls
+ *  away as the speed rises. */
+const BIKE_TURN_RATE_REST = 2.4; // rad/s
+const BIKE_TURN_RATE_FAST = 0.55; // rad/s at top speed
+/** Eye height on the saddle, drops of a hand's width from standing. */
+const BIKE_EYE_HEIGHT = 1.55;
+/** Below this the bike is treated as stopped, so it does not creep. */
+const BIKE_STOP_SPEED = 0.15;
+
 export interface PlayerControllerOptions {
   camera: THREE.PerspectiveCamera;
   domElement: HTMLElement;
@@ -62,6 +109,10 @@ export interface PlayerControllerOptions {
  */
 export class PlayerController {
   readonly position: THREE.Vector3;
+  /** Which way the player is getting about. */
+  private riding = false;
+  /** Scalar speed along the heading, m/s. Only meaningful while riding. */
+  private speed = 0;
   private velocityY = 0;
   private yaw = 0;
   private pitch = 0;
@@ -86,6 +137,7 @@ export class PlayerController {
   private readonly savedGroundState = { pos: new THREE.Vector3(), yaw: 0, pitch: 0 };
   private readonly onOverviewKeyDown = (e: KeyboardEvent) => {
     if (e.code === 'KeyM') this.toggleOverview();
+    if (e.code === 'KeyB') this.toggleBike();
   };
 
   // Touch joystick state
@@ -279,6 +331,79 @@ export class PlayerController {
     return this.overviewActive;
   }
 
+  /** True while the road bike is out. */
+  get isRiding(): boolean { return this.riding; }
+  /** Current speed in km/h, for the readout. Zero on foot. */
+  get speedKmh(): number { return this.riding ? this.speed * 3.6 : 0; }
+
+  /** Gets on or off the bike. Speed is dropped either way — you do not
+   *  step off a moving bicycle and keep going. */
+  toggleBike(): void {
+    if (this.overviewActive || this.transitioning) return;
+    this.riding = !this.riding;
+    this.speed = 0;
+    document.body.classList.toggle('bike-mode', this.riding);
+  }
+
+  /**
+   * One step on the bike.
+   *
+   * Speed is a scalar carried along the heading rather than a velocity
+   * vector, because that is what riding a bicycle is: you cannot move
+   * sideways, and turning turns the whole machine. W (or the stick forward)
+   * pedals, S brakes, A/D and the stick sideways steer.
+   */
+  private rideStep(dt: number, forward: THREE.Vector3, eyeHeight: number): void {
+    const pedal = (this.keys.has('KeyW') ? 1 : 0) + Math.max(0, -this.joyY);
+    const brake = (this.keys.has('KeyS') ? 1 : 0) + Math.max(0, this.joyY);
+    let steer = (this.keys.has('KeyD') ? 1 : 0) - (this.keys.has('KeyA') ? 1 : 0) + this.joyX;
+    steer = THREE.MathUtils.clamp(steer, -1, 1);
+
+    // Steering: heavier the faster you are going.
+    const speedRatio = THREE.MathUtils.clamp(this.speed / BIKE_MAX_SPEED, 0, 1);
+    const turnRate = BIKE_TURN_RATE_REST + (BIKE_TURN_RATE_FAST - BIKE_TURN_RATE_REST) * speedRatio;
+    this.yaw -= steer * turnRate * dt;
+
+    // The slope under the wheels, measured along the direction of travel.
+    const probe = 2;
+    const here = this.heightAt(this.position.x, this.position.z);
+    const ahead = this.heightAt(
+      this.position.x + forward.x * probe,
+      this.position.z + forward.z * probe,
+    );
+    const gradient = (ahead - here) / probe;
+    const slopeAccel = -BIKE_SLOPE_GRAVITY * (gradient / Math.hypot(1, gradient));
+
+    let accel = slopeAccel;
+    if (pedal > 0) {
+      // Constant-power stand-in, with the losses already inside the taper:
+      // the push falls away as the speed rises and reaches nothing exactly
+      // at 55 km/h.
+      accel += Math.min(1, pedal) * BIKE_ACCEL * (1 - speedRatio * speedRatio);
+    } else {
+      // Freewheeling: rolling resistance plus drag that grows with speed.
+      accel -= BIKE_ROLL + BIKE_DRAG * speedRatio * speedRatio;
+    }
+    if (brake > 0) accel -= Math.min(1, brake) * BIKE_BRAKE;
+
+    this.speed = Math.max(0, this.speed + accel * dt);
+    // Freewheeling downhill still has a ceiling: this is a road bike, not a
+    // falling object, and 55 km/h is the figure asked for.
+    this.speed = Math.min(this.speed, BIKE_MAX_SPEED);
+    if (this.speed < BIKE_STOP_SPEED && pedal === 0) this.speed = 0;
+
+    if (this.speed > 0) {
+      const before = this.position.clone();
+      this.position.addScaledVector(forward, this.speed * dt);
+      this.collision?.resolve(this.position, eyeHeight);
+      // If the wall pushed back nearly as far as the step, the ride stopped
+      // against something solid — carrying the speed through would leave the
+      // rider grinding along a wall at 50 km/h.
+      const travelled = Math.hypot(this.position.x - before.x, this.position.z - before.z);
+      if (travelled < this.speed * dt * 0.4) this.speed *= 0.25;
+    }
+  }
+
   update(dt: number): void {
     if (this.transitioning) {
       this.transitionT = Math.min(1, this.transitionT + dt / OVERVIEW_TRANSITION_S);
@@ -311,23 +436,29 @@ export class PlayerController {
     const forward = new THREE.Vector3(0, 0, -1).applyEuler(lookEuler);
     const right = new THREE.Vector3(1, 0, 0).applyEuler(lookEuler);
 
-    const move = new THREE.Vector3();
-    if (this.keys.has('KeyW')) move.add(forward);
-    if (this.keys.has('KeyS')) move.sub(forward);
-    if (this.keys.has('KeyD')) move.add(right);
-    if (this.keys.has('KeyA')) move.sub(right);
-    // Joystick forward axis is inverted screen-Y (up on the stick = forward).
-    move.addScaledVector(forward, -this.joyY);
-    move.addScaledVector(right, this.joyX);
-    if (move.lengthSq() > 1) move.normalize();
-    if (move.lengthSq() > 0) {
-      this.position.addScaledVector(move, WALK_SPEED * dt);
-      // Push back out of any wall the step ended up inside, so doorways are
-      // the way into a building rather than the walls being scenery.
-      this.collision?.resolve(this.position, EYE_HEIGHT);
+    const eyeHeight = this.riding ? BIKE_EYE_HEIGHT : EYE_HEIGHT;
+
+    if (this.riding) {
+      this.rideStep(dt, forward, eyeHeight);
+    } else {
+      const move = new THREE.Vector3();
+      if (this.keys.has('KeyW')) move.add(forward);
+      if (this.keys.has('KeyS')) move.sub(forward);
+      if (this.keys.has('KeyD')) move.add(right);
+      if (this.keys.has('KeyA')) move.sub(right);
+      // Joystick forward axis is inverted screen-Y (up on the stick = forward).
+      move.addScaledVector(forward, -this.joyY);
+      move.addScaledVector(right, this.joyX);
+      if (move.lengthSq() > 1) move.normalize();
+      if (move.lengthSq() > 0) {
+        this.position.addScaledVector(move, WALK_SPEED * dt);
+        // Push back out of any wall the step ended up inside, so doorways are
+        // the way into a building rather than the walls being scenery.
+        this.collision?.resolve(this.position, EYE_HEIGHT);
+      }
     }
 
-    const ground = this.heightAt(this.position.x, this.position.z) + EYE_HEIGHT;
+    const ground = this.heightAt(this.position.x, this.position.z) + eyeHeight;
     this.velocityY += GRAVITY * dt;
     this.position.y += this.velocityY * dt;
     if (this.position.y <= ground) {

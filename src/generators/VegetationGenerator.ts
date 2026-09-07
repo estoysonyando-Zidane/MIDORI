@@ -40,7 +40,16 @@ export interface VegetationOptions {
    *  planted outside it, so the treeline is the real one instead of the
    *  edge of a random ring. */
   canopyAt?: (x: number, z: number) => boolean;
+  /** The scrub ring at the edge of the wood, from the same mask. Low bushes
+   *  go here and, more thinly, inside the wood as undergrowth. */
+  scrubAt?: (x: number, z: number) => boolean;
   count: number;
+  /** How many bushes to plant, if a scrub test is given. */
+  scrubCount?: number;
+  /** How far out to plant them. Scrub is a near-field thing — at 300 m a
+   *  bush is two pixels — so it is kept close and dense rather than spread
+   *  thin over the whole extent. */
+  scrubExtentM?: number;
 }
 
 /** Deterministic scatter, so the forest is the same on every load. */
@@ -86,6 +95,19 @@ function coniferGeometry(): THREE.BufferGeometry {
   upper.translate(0, 6.4, 0);
   parts.push(trunk, lower, upper);
   return mergeGeometries(parts);
+}
+
+/** 藪: a low clump, two overlapping squashed spheres on almost no stem.
+ *  ササ and scrub at the edge of the wood, which is what the lineside and
+ *  the field margins here actually are. */
+function scrubGeometry(): THREE.BufferGeometry {
+  const a = new THREE.SphereGeometry(0.85, 6, 4);
+  a.scale(1.25, 0.62, 1.05);
+  a.translate(0, 0.5, 0);
+  const b = new THREE.SphereGeometry(0.62, 5, 3);
+  b.scale(1.1, 0.7, 1.15);
+  b.translate(0.55, 0.36, -0.3);
+  return mergeGeometries([a, b]);
 }
 
 /** A birch: a pale slender trunk with a rounded crown. */
@@ -134,6 +156,9 @@ export class VegetationGenerator {
 
     const coniferGeom = coniferGeometry();
     const birchGeom = birchGeometry();
+    const scrubGeom = scrubGeometry();
+    // Scrub reads darker and greyer than a crown in leaf.
+    const scrubMat = new THREE.MeshStandardMaterial({ color: 0x4a5c34, roughness: 1 });
 
     const placements: { conifer: THREE.Matrix4[]; birch: THREE.Matrix4[] } = { conifer: [], birch: [] };
     const matrix = new THREE.Matrix4();
@@ -172,9 +197,36 @@ export class VegetationGenerator {
       (isConifer ? placements.conifer : placements.birch).push(matrix.clone());
     }
 
+    // 藪. The mask's scrub ring is the edge of the wood; a thinner scatter
+    // goes inside the wood too, as the undergrowth under the canopy.
+    const scrub: THREE.Matrix4[] = [];
+    if (options.scrubAt) {
+      const wanted = options.scrubCount ?? Math.round(options.count * 0.55);
+      const extent = Math.min(options.scrubExtentM ?? options.extentM, options.extentM);
+      let tries = 0;
+      while (scrub.length < wanted && tries < wanted * 30) {
+        tries++;
+        const angle = random() * Math.PI * 2;
+        const radius = options.clearingRadiusM + random() * (extent - options.clearingRadiusM);
+        const x = options.clearingCentre.x + Math.cos(angle) * radius;
+        const z = options.clearingCentre.z + Math.sin(angle) * radius;
+        const onEdge = options.scrubAt(x, z);
+        const under = !onEdge && options.canopyAt?.(x, z) === true && random() < 0.35;
+        if (!onEdge && !under) continue;
+        if (distanceToPolylines(x, z, options.keepClearOf) < options.keepClearRadiusM * 0.5) continue;
+        if (options.keepClearOfCircles?.some((c) => Math.hypot(x - c.x, z - c.z) < c.radius)) continue;
+        position.set(x, options.heightAt(x, z), z);
+        quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), random() * Math.PI * 2);
+        const s = 0.65 + random() * 0.8;
+        scale.set(s, s * (0.7 + random() * 0.6), s);
+        scrub.push(matrix.compose(position, quaternion, scale).clone());
+      }
+    }
+
     for (const [geometry, material, list] of [
       [coniferGeom, conifer, placements.conifer],
       [birchGeom, birch, placements.birch],
+      [scrubGeom, scrubMat, scrub],
     ] as [THREE.BufferGeometry, THREE.Material, THREE.Matrix4[]][]) {
       if (list.length === 0) continue;
       const mesh = new THREE.InstancedMesh(geometry, material, list.length);

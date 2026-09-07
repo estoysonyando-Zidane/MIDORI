@@ -202,6 +202,95 @@ function flatRoofGeometry(points: THREE.Vector2[], thickness: number): THREE.Buf
  * a raised deck under a roof on posts, open to the square — is what an
  * outdoor community stage is, not a measurement of this one.
  */
+/**
+ * 長胴太鼓 on an X-stand.
+ *
+ * A 二尺 drum: a single hollowed trunk with a belly wider than its heads,
+ * hide tacked round each rim, sitting tilted on two crossed timbers so it
+ * can be struck standing. The shape is the standard one — no photograph of
+ * クマゲラ太鼓's own drums could be found — and the feature that places it
+ * says so.
+ */
+function buildTaiko(
+  feature: RealityData,
+  tangentPlane: LocalTangentPlane,
+  heightAt: (x: number, z: number) => number,
+): THREE.Group {
+  const group = new THREE.Group();
+  group.name = feature.id;
+  group.userData.realityData = feature;
+
+  const [lon, lat] = feature.geometry.coordinates as [number, number];
+  const local = tangentPlane.project(lat, lon);
+  const base = heightAt(local.x, local.z);
+  const facing = ((feature.properties.facing_bearing_deg as number | undefined) ?? 0) * (Math.PI / 180);
+
+  const head = ((feature.properties.head_diameter_m as number | undefined) ?? 0.6) / 2;
+  const belly = head * 1.20;
+  const length = head * 2.35;          // 胴長, a little over one head diameter
+  const standHeight = 0.62;
+
+  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x6b3f24, roughness: 0.7 });
+  const headMat = new THREE.MeshStandardMaterial({ color: 0xe4d3ac, roughness: 0.85 });
+  const tackMat = new THREE.MeshStandardMaterial({ color: 0xb8a271, roughness: 0.45, metalness: 0.6 });
+  const standMat = new THREE.MeshStandardMaterial({ color: 0x3a2b1e, roughness: 0.8 });
+
+  // The barrel: a lathe so the belly bulges, rather than a plain cylinder.
+  const half = length / 2;
+  const points: THREE.Vector2[] = [];
+  const steps = 10;
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const y = -half + t * length;
+    const bulge = Math.sin(t * Math.PI);
+    points.push(new THREE.Vector2(head + (belly - head) * bulge, y));
+  }
+  const barrel = new THREE.Mesh(new THREE.LatheGeometry(points, 20), bodyMat);
+
+  const drum = new THREE.Group();
+  drum.add(barrel);
+  for (const end of [-1, 1]) {
+    const skin = new THREE.Mesh(new THREE.CylinderGeometry(head * 1.04, head * 1.04, 0.03, 20), headMat);
+    skin.position.y = end * half;
+    drum.add(skin);
+    // 鋲: the row of tacks holding the hide to the shell
+    const tacks = new THREE.InstancedMesh(
+      new THREE.SphereGeometry(0.014, 6, 5), tackMat, 20,
+    );
+    for (let i = 0; i < 20; i++) {
+      const a = (i / 20) * Math.PI * 2;
+      tacks.setMatrixAt(i, new THREE.Matrix4().makeTranslation(
+        Math.cos(a) * head * 1.01, end * (half - 0.045), Math.sin(a) * head * 1.01,
+      ));
+    }
+    tacks.instanceMatrix.needsUpdate = true;
+    drum.add(tacks);
+  }
+  // Lay it on its side and tilt it back, the way a 斜め台 holds it.
+  drum.rotation.z = Math.PI / 2;
+  drum.rotation.x = -0.42;
+  drum.position.y = standHeight + belly * 0.55;
+  drum.castShadow = true;
+
+  const stand = new THREE.Group();
+  for (const side of [-1, 1]) {
+    for (const lean of [-1, 1]) {
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.055, standHeight + belly * 0.5, 0.055), standMat);
+      leg.position.set(side * head * 0.75, (standHeight + belly * 0.5) / 2, lean * head * 0.5);
+      leg.rotation.x = lean * 0.28;
+      stand.add(leg);
+    }
+  }
+
+  const whole = new THREE.Group();
+  whole.add(stand, drum);
+  whole.rotation.y = -facing;
+  whole.position.set(local.x, base, local.z);
+  whole.traverse((o) => { o.castShadow = true; o.receiveShadow = true; });
+  group.add(whole);
+  return group;
+}
+
 function buildStage(
   feature: RealityData,
   tangentPlane: LocalTangentPlane,
@@ -327,6 +416,10 @@ export class TownGenerator {
       const type = feature.properties.structure_type as string | undefined;
       if (type === 'stage') {
         group.add(buildStage(feature, tangentPlane, heightAt));
+        continue;
+      }
+      if (type === 'taiko') {
+        group.add(buildTaiko(feature, tangentPlane, heightAt));
         continue;
       }
       if (type !== 'town_building'
