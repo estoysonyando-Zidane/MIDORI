@@ -79,6 +79,77 @@
         ],
         "evidence_type": "official_record"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.5077588,
+          43.71997136
+        ]
+      },
+      "properties": {
+        "id": "LOC_GSI_POLICE_BOX",
+        "name": "斜里警察署緑駐在所",
+        "facility_kind": "police_box",
+        "confidence": "B",
+        "historical_status": "plausible",
+        "position_status": "located",
+        "source_ids": [
+          "SRC_GSI_BVMAP"
+        ],
+        "evidence_type": "public_gis",
+        "note": "国土地理院 電子国土基本図の注記（分類コード 883）。注記点は文字の配置位置なので、37 m 離れた最寄りの建築物フットプリントの重心に寄せた。注記が指す建物がこの建物であることは注記点の近さから推定したもので、地理院が両者を結び付けているわけではない。"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.5006727,
+          43.7192461
+        ]
+      },
+      "properties": {
+        "id": "LOC_GSI_SKI_AREA",
+        "name": "緑スキー場",
+        "name_kana": "みどりすきーじょう",
+        "facility_kind": "ski_area",
+        "confidence": "B",
+        "historical_status": "plausible",
+        "position_status": "approximate",
+        "position_accuracy_m": 80,
+        "source_ids": [
+          "SRC_GSI_BVMAP"
+        ],
+        "evidence_type": "public_gis",
+        "note": "国土地理院 電子国土基本図の注記（分類コード 531）。文字の配置位置そのもので、施設の位置ではない。範囲を持つ地物なので建物には寄せていない。2010-05-30 当時の営業状況は確認していない。"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.5078598125,
+          43.7191277625
+        ]
+      },
+      "properties": {
+        "id": "LOC_GSI_POST_OFFICE",
+        "name": "緑郵便局",
+        "facility_kind": "post_office",
+        "confidence": "B",
+        "historical_status": "plausible",
+        "position_status": "located",
+        "source_ids": [
+          "SRC_GSI_BVMAP"
+        ],
+        "evidence_type": "public_gis",
+        "note": "国土地理院 電子国土基本図の注記（分類コード 887）。注記点は文字の配置位置なので、32 m 離れた最寄りの建築物フットプリントの重心に寄せた。注記が指す建物がこの建物であることは注記点の近さから推定したもので、地理院が両者を結び付けているわけではない。"
+      }
     }
   ]
 }
