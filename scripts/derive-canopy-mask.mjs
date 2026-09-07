@@ -45,6 +45,17 @@ const MIN_GREEN_OVER_RED = -6;
 const GRID = 512;
 /** A cell counts as wooded when this share of its pixels are. */
 const CELL_THRESHOLD = 0.5;
+/**
+ * How far out from the wood the scrub band reaches, in cells.
+ *
+ * 藪 cannot be separated from grass by colour at 2.4 m a pixel — that is a
+ * limit of the photograph, not of the classifier. What CAN be derived is
+ * where the wood ends, and in Hokkaido a forest edge carries ササ and low
+ * scrub for a few metres before it gives way to worked ground. So the scrub
+ * band is the ring just outside the canopy: derived from the mask by
+ * morphology, not invented, and not claimed to be a survey of undergrowth.
+ */
+const EDGE_CELLS = 2;
 
 function main() {
   const meta = JSON.parse(readFileSync(join(TEXTURES, 'midori_orthophoto.json'), 'utf8'));
@@ -75,6 +86,31 @@ function main() {
     }
   }
 
+  // The scrub ring: not wooded, but within EDGE_CELLS of something that is.
+  const edge = new Uint8Array((GRID * GRID) / 8);
+  let edgeCount = 0;
+  const wooded_at = (x, y) => {
+    if (x < 0 || y < 0 || x >= GRID || y >= GRID) return false;
+    const c = y * GRID + x;
+    return ((bytes[c >> 3] >> (c & 7)) & 1) === 1;
+  };
+  for (let y = 0; y < GRID; y++) {
+    for (let x = 0; x < GRID; x++) {
+      if (wooded_at(x, y)) continue;
+      let near = false;
+      for (let dy = -EDGE_CELLS; dy <= EDGE_CELLS && !near; dy++) {
+        for (let dx = -EDGE_CELLS; dx <= EDGE_CELLS; dx++) {
+          if (wooded_at(x + dx, y + dy)) { near = true; break; }
+        }
+      }
+      if (near) {
+        const c = y * GRID + x;
+        edge[c >> 3] |= 1 << (c & 7);
+        edgeCount++;
+      }
+    }
+  }
+
   const out = {
     note: 'Canopy extent classified from the draped aerial photograph by scripts/derive-canopy-mask.mjs. '
       + 'Bit c of the packed array is cell (c % grid, floor(c / grid)), x east from bounds.west and '
@@ -87,10 +123,14 @@ function main() {
     grid: GRID,
     metres_per_cell: Number((meta.metres_per_pixel * (meta.size_px / GRID)).toFixed(2)),
     wooded_fraction: Number((wooded / (GRID * GRID)).toFixed(3)),
+    scrub_fraction: Number((edgeCount / (GRID * GRID)).toFixed(3)),
+    edge_cells: EDGE_CELLS,
     packed_base64: Buffer.from(bytes).toString('base64'),
+    scrub_packed_base64: Buffer.from(edge).toString('base64'),
   };
   writeFileSync(join(TEXTURES, 'midori_canopy.json'), `${JSON.stringify(out, null, 2)}\n`);
-  console.log(`canopy mask ${GRID}x${GRID}, ${out.metres_per_cell} m a cell, wooded ${(out.wooded_fraction * 100).toFixed(1)}%`);
+  console.log(`canopy mask ${GRID}x${GRID}, ${out.metres_per_cell} m a cell, `
+    + `wooded ${(out.wooded_fraction * 100).toFixed(1)}%, scrub band ${(out.scrub_fraction * 100).toFixed(1)}%`);
   console.log(`written to public/assets/textures/midori_canopy.json (${(bytes.length / 1024).toFixed(0)} KB packed)`);
 }
 

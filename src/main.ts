@@ -48,6 +48,8 @@ async function bootstrap(): Promise<void> {
   const joystick = document.getElementById('joystick');
   const debugToggleTouch = document.getElementById('debugToggleTouch');
   const overviewToggleTouch = document.getElementById('overviewToggleTouch');
+  const bikeToggleTouch = document.getElementById('bikeToggleTouch');
+  const speedo = document.getElementById('speedo');
   const indexOverlaySvg = document.getElementById('indexOverlay') as unknown as SVGSVGElement;
   const unlocatedListEl = document.getElementById('unlocatedList') as HTMLElement;
   const osmCredit = document.getElementById('osmCredit') as HTMLElement;
@@ -246,6 +248,9 @@ async function bootstrap(): Promise<void> {
       keepClearRadiusM: 13,
       keepClearOfCircles,
       canopyAt: canopy ? (x, z) => canopy.at(x, z) : undefined,
+      scrubAt: canopy ? (x, z) => canopy.scrubAt(x, z) : undefined,
+      scrubCount: 7000,
+      scrubExtentM: 380,
       count: canopy ? 18000 : 7000,
     }));
   }
@@ -278,6 +283,7 @@ async function bootstrap(): Promise<void> {
 
   debugToggleTouch?.addEventListener('click', () => debugMode.toggle());
   overviewToggleTouch?.addEventListener('click', () => player.toggleOverview());
+  bikeToggleTouch?.addEventListener('click', () => player.toggleBike());
 
   // Directive 09.1 §6: the Spatial Index is overlaid directly inside the 3D
   // World (no separate /map page) once the camera is far enough above the
@@ -341,8 +347,17 @@ async function bootstrap(): Promise<void> {
     });
   }
 
+  let shownSpeed = -1;
+
   sceneManager.start((dt) => {
     player.update(dt);
+    if (speedo && player.isRiding) {
+      const kmh = Math.round(player.speedKmh);
+      if (kmh !== shownSpeed) {
+        shownSpeed = kmh;
+        speedo.innerHTML = `<b>${kmh}</b> km/h`;
+      }
+    }
     train?.update(dt);
     debugMode.update(player.position);
 

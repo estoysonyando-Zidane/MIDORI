@@ -51,6 +51,7 @@ export const STATION_TERRACE_HEIGHT_M = RAIL_HEAD_M + PLATFORM_ABOVE_RAIL_M;
 const TOWN_STRUCTURE_TYPES = new Set([
   'town_building', 'bathhouse', 'school', 'post_office',
   'community_centre', 'police_box', 'fire_station', 'stage', 'school_annex',
+  'taiko',
 ]);
 
 /** Flat ground surfaces: school grounds, the sports field, the park golf
