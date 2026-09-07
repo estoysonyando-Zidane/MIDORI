@@ -116,6 +116,16 @@ export function sweepProfile(path: TrackPoint[], profile: [number, number][]): T
   const normals: number[] = [];
   const uvs: number[] = [];
 
+  // v runs in metres around the profile rather than by point index, so a
+  // material can tile at a real size — ballast has to look like 40 mm stone
+  // whichever face of the prism you are looking at.
+  const perimeter: number[] = [0];
+  for (let p = 1; p <= profile.length; p++) {
+    const a = profile[p - 1];
+    const b = profile[p % profile.length];
+    perimeter.push(perimeter[p - 1] + Math.hypot(b[0] - a[0], b[1] - a[1]));
+  }
+
   const at = (point: TrackPoint, u: number, v: number) => new THREE.Vector3()
     .copy(point.position).addScaledVector(point.side, u).addScaledVector(UP, v);
 
@@ -134,10 +144,15 @@ export function sweepProfile(path: TrackPoint[], profile: [number, number][]): T
       const edge = new THREE.Vector3().subVectors(b0, a0);
       const rung = new THREE.Vector3().subVectors(a1, a0);
       const normal = new THREE.Vector3().crossVectors(edge, rung).normalize();
+      // quad order is a0, b0, b1, a0, b1, a1 — the first of each pair is on
+      // the `a` cross-section, and the 1-suffixed ones are the next profile
+      // point round
+      const vAlong = [a.distance, b.distance, b.distance, a.distance, b.distance, a.distance];
+      const vRound = [perimeter[p], perimeter[p], perimeter[p + 1], perimeter[p], perimeter[p + 1], perimeter[p + 1]];
       for (let k = 0; k < quad.length; k++) {
         positions.push(quad[k].x, quad[k].y, quad[k].z);
         normals.push(normal.x, normal.y, normal.z);
-        uvs.push(k % 3 === 0 ? a.distance : b.distance, p);
+        uvs.push(vAlong[k], vRound[k]);
       }
     }
   }

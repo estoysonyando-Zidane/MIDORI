@@ -24,16 +24,67 @@ import {
  * 39 per 25 m, and 50kgN rail in its real section at 1,067 mm gauge. See
  * TrackGeometry.ts for every figure and where it comes from.
  *
- * Sleepers are instanced and only placed near the player's part of the
- * World; the ballast and the rails run the full length of every line,
- * because a rail that stops being a rail at 700 m is the thing you would
- * notice from the platform.
+ * Ballast, sleepers and rails all run the full length of every line — out
+ * to 札弦 one way and 川湯温泉 the other, past the World's own 2 km radius.
+ * Track that stops being track partway is the thing you would notice from
+ * the platform, and 8,500 sleepers is one instanced draw.
  */
 
-/** How far from the World's centre the sleepers are laid. Beyond this the
- *  rails still run, on ballast, but the sleepers are below the size of a
- *  pixel and cost more than they show. */
-const SLEEPER_RADIUS_M = 750;
+/**
+ * A crushed-stone pattern for the ballast.
+ *
+ * Ballast at a flat colour is the same failure as ground at a flat colour:
+ * at eye level it reads as a painted ramp rather than as loose stone. This
+ * is 40 mm crushed rock — angular, high contrast, no colour of its own
+ * beyond the grey it multiplies.
+ */
+function makeBallastTexture(): THREE.Texture {
+  const size = 256;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d')!;
+  ctx.fillStyle = '#6f6862';
+  ctx.fillRect(0, 0, size, size);
+
+  // deterministic, so the track looks the same on every load
+  let seed = 0x2545f491;
+  const rand = () => {
+    seed = (Math.imul(seed ^ (seed >>> 15), seed | 1) + 0x6d2b79f5) >>> 0;
+    return ((seed >>> 8) & 0xffff) / 0xffff;
+  };
+
+  // Each stone is drawn four times, wrapped, so the tile has no seam.
+  for (let i = 0; i < 900; i++) {
+    const cx = rand() * size;
+    const cy = rand() * size;
+    const r = 2.5 + rand() * 4.5;
+    const shade = 90 + Math.floor(rand() * 95);
+    ctx.fillStyle = `rgb(${shade},${shade - 4},${shade - 10})`;
+    for (const [ox, oy] of [[0, 0], [size, 0], [0, size], [size, size], [-size, 0], [0, -size]]) {
+      ctx.beginPath();
+      const n = 5 + Math.floor(rand() * 2);
+      for (let k = 0; k < n; k++) {
+        const a = (k / n) * Math.PI * 2;
+        const rr = r * (0.65 + 0.35 * ((k * 7 + i) % 5) / 4);
+        const x = cx + ox + Math.cos(a) * rr;
+        const y = cy + oy + Math.sin(a) * rr;
+        if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  // one tile per 1.6 m of ballast — a 256 px tile over 1.6 m is 6 mm a pixel,
+  // about right for 40 mm stone
+  texture.repeat.set(1 / 1.6, 1 / 1.6);
+  return texture;
+}
 
 export class RailwayGenerator {
   static generate(
@@ -44,13 +95,14 @@ export class RailwayGenerator {
     const group = new THREE.Group();
     group.name = 'Railway';
 
-    const ballastMat = new THREE.MeshStandardMaterial({ color: 0x7a7168, roughness: 1 });
+    const ballastMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff, roughness: 1, map: makeBallastTexture(),
+    });
     const sleeperMat = new THREE.MeshStandardMaterial({ color: 0x3a2f26, roughness: 0.95 });
     // Rail: the head is polished by wheels and the web is rusted. One
     // material, biased to the bright side, because the head is what is seen.
     const railMat = new THREE.MeshStandardMaterial({ color: 0x9a9490, roughness: 0.35, metalness: 0.85 });
 
-    const origin = new THREE.Vector3(0, 0, 0);
     const sleeperGeometry = new THREE.BoxGeometry(SLEEPER_WIDTH_M, SLEEPER_DEPTH_M, SLEEPER_LENGTH_M);
     const allSleepers: THREE.Matrix4[] = [];
 
@@ -73,7 +125,13 @@ export class RailwayGenerator {
         group.add(rail);
       }
 
-      allSleepers.push(...sleeperPlacements(path, origin, SLEEPER_RADIUS_M));
+      // The whole line, both ways out of the station — 札弦 to the north-west
+      // and 川湯温泉 to the south-east. An earlier version laid sleepers only
+      // within 750 m of the World's centre, so the track stopped being track
+      // at exactly the distance you can still see it from the platform. At
+      // the standard pitch the full 5.5 km is about 8,500 boxes, which is one
+      // instanced draw.
+      allSleepers.push(...sleeperPlacements(path, null, 0));
     }
 
     if (allSleepers.length > 0) {
@@ -84,6 +142,14 @@ export class RailwayGenerator {
       sleepers.receiveShadow = true;
       sleepers.frustumCulled = false;
       sleepers.name = 'Sleepers';
+      // Creosoted timber weathers unevenly; a flat brown row of 8,500
+      // identical boxes reads as a comb rather than as sleepers.
+      sleepers.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(allSleepers.length * 3), 3);
+      for (let i = 0; i < allSleepers.length; i++) {
+        const t = 0.78 + 0.44 * (((i * 2654435761) >>> 0) % 1000) / 1000;
+        sleepers.instanceColor.setXYZ(i, t, t * 0.97, t * 0.92);
+      }
+      sleepers.instanceColor.needsUpdate = true;
       group.add(sleepers);
     }
 
