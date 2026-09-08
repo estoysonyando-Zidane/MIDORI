@@ -1952,7 +1952,7 @@
           "wall_colour": "B (photograph — 赤褐色の縦板張り)",
           "porch_and_rail": "not modelled — 写真には丸太柱の切妻ポーチと木の格子手すりが写るが、それが平面のどの面かは判断できないので作っていない"
         },
-        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。 scripts/identify-midorinoyu.mjs: 緑の湯の同定をこの外形に移した。屋根と壁の色は写真から。軒高・棟高は写真から平屋と読んだ推定で、実測ではない。",
+        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。 scripts/identify-midorinoyu.mjs: 緑の湯の同定をこの外形に移した。屋根と壁の色は写真から。軒高・棟高は写真から平屋と読んだ推定で、実測ではない。 scripts/identify-midorinoyu.mjs: 緑の湯の同定をこの外形に移した。屋根と壁の色は写真から。軒高・棟高は写真から平屋と読んだ推定で、実測ではない。",
         "wall_colour": "#6e4530"
       }
     },
