@@ -51,7 +51,27 @@ const page = await browser.newPage({ viewport: { width: 900, height: 600 } });
 const errors = [];
 page.on('pageerror', (e) => errors.push(String(e).slice(0, 300)));
 
-await page.goto(URL, { waitUntil: 'networkidle', timeout: 180000 });
+/**
+ * Wait for the server by trying to reach it, not by asking a separate tool.
+ *
+ * This used `wait-on` in CI, whose default probe is a HEAD request; the
+ * preview server answers a single-page app's path with something wait-on
+ * would not accept, so it waited out its timeout while the server sat there
+ * serving perfectly well. Retrying the navigation itself removes both the
+ * dependency and the class of failure: the thing that has to work is the
+ * page loading, so that is what is waited on.
+ */
+const deadline = Date.now() + 120000;
+for (let attempt = 1; ; attempt++) {
+  try {
+    await page.goto(URL, { waitUntil: 'networkidle', timeout: 180000 });
+    break;
+  } catch (err) {
+    if (Date.now() > deadline) throw err;
+    console.log(`  ${URL} not up yet (attempt ${attempt}); retrying`);
+    await page.waitForTimeout(2000);
+  }
+}
 await page.waitForFunction(() => window.__world, null, { timeout: 180000 });
 // Everything the World builds is added before the first frame it draws, so
 // a handful of real frames is "settled".
