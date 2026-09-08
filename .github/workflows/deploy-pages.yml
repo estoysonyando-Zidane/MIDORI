@@ -52,3 +52,38 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # The join checks: does the World that was BUILT agree with the Reality
+  # Data it was built from? validate-reality-data checks the data and tsc
+  # checks the types; until this existed, nothing checked the solids in
+  # between — which is where every defect a person found on their phone
+  # actually lived (sleepers laid along the rails, a bathhouse's name on the
+  # wrong building, a post office and a police box each claimed by two).
+  #
+  # It runs as its own job on purpose. It has never been executed on GitHub
+  # Actions — it was written and proven in a sandbox where the browser is
+  # already installed — so it must not be able to stop the site from
+  # deploying while that is still true. When it has run green a few times,
+  # fold it into `build` and let it gate.
+  joins:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Serve the build and dump what was placed in it
+        run: |
+          npx vite preview --port 4174 &
+          npx wait-on http://127.0.0.1:4174/MIDORI/ --timeout 120000
+          node scripts/dump-world.mjs world-dump.json
+      - run: node scripts/check-joins.mjs world-dump.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: world-dump
+          path: world-dump.json

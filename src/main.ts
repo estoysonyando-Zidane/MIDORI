@@ -7,6 +7,7 @@ import { BuildingGenerator } from './generators/BuildingGenerator';
 import { SceneManager } from './rendering/SceneManager';
 import { PlayerController } from './player/PlayerController';
 import { DebugMode } from './debug/DebugMode';
+import { installWorldInspect } from './debug/WorldInspect';
 import { Settings } from './state/Settings';
 import { SpatialIndexLoader } from './spatial/SpatialIndexLoader';
 import { IndexOverlay } from './spatial/IndexOverlay';
@@ -346,6 +347,10 @@ async function bootstrap(): Promise<void> {
       }
     });
   }
+
+  // The permanent inspection surface. It ships: it is how every automated
+  // check and every screenshot sees the World (src/debug/WorldInspect.ts).
+  installWorldInspect(sceneManager.scene, sceneManager.renderer, Promise.resolve());
 
   let shownSpeed = -1;
 

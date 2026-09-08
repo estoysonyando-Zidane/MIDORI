@@ -89,6 +89,27 @@ function main() {
 
     let coordinates = [lon, lat];
     if (snapped) {
+      // 国土地理院's own placement of the name wins over an earlier
+      // identification that matched an OSM/Wikipedia name to whatever
+      // outline happened to be nearest. That older method put 緑の湯 on a
+      // building 22 m from the real one, and left 緑郵便局 and
+      // 斜里警察署緑駐在所 each claimed by two outlines 33 m apart. Clearing
+      // the other claim here is what stops this import from creating the
+      // duplicate rather than merely not being the cause of it.
+      for (const other of buildings.features) {
+        if (other === best) continue;
+        if (other.properties.name !== label.tags.knj) continue;
+        other.properties.name = null;
+        other.properties.structure_type = 'town_building';
+        other.properties.detail_confidence = {
+          ...other.properties.detail_confidence,
+          identification: `U (unknown — 以前この外形を「${label.tags.knj}」としていたが、`
+            + '国土地理院の注記はより近い別の外形を指している。実測された建築物であることは確かで、用途は不明)',
+        };
+        other.properties.note = `${other.properties.note ?? ''} `
+          + `scripts/import-gsi-labels.mjs: 「${label.tags.knj}」の同定をこの外形から外した。`;
+        report.push(`${label.tags.knj.padEnd(12)} 旧同定 ${other.properties.id} を用途不明に戻した`);
+      }
       coordinates = centroid(best.geometry.coordinates[0]);
       best.properties.name = label.tags.knj;
       best.properties.gsi_label_applied = true;

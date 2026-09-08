@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { noteRenderedFrame } from '../debug/WorldInspect';
 import { createCamera } from './Camera';
 import { createLighting } from './Lighting';
 
@@ -112,6 +113,10 @@ export class SceneManager {
     this.lastTime = now;
     this.animationHandle?.(dt);
     this.renderer.render(this.scene, this.camera);
+    // The inspection surface counts real frames, so automated checks can
+    // wait on rendering rather than on wall-clock time — at under 1 fps in
+    // the headless rasteriser a timeout is a guess, not a wait.
+    noteRenderedFrame(this.renderer);
   }
 
   dispose(): void {
