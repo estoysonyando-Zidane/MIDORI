@@ -124,6 +124,9 @@ export class RailwayGenerator {
     // pitch — they overlapped three deep and the track read as a plank.
     const sleeperGeometry = new THREE.BoxGeometry(SLEEPER_LENGTH_M, SLEEPER_DEPTH_M, SLEEPER_WIDTH_M);
     const allSleepers: THREE.Matrix4[] = [];
+    // The track's direction near the World's centre, for the orientation
+    // check: every element repeated along the line is measured against it.
+    let railTangent: [number, number] = [1, 0];
     const allTiePlates: THREE.Matrix4[] = [];
     const allFishplates: THREE.Matrix4[] = [];
     // Everything bolted to the rail is drawn only where the player can be —
@@ -159,6 +162,12 @@ export class RailwayGenerator {
       // at exactly the distance you can still see it from the platform. At
       // the standard pitch the full 5.5 km is about 8,500 boxes, which is one
       // instanced draw.
+      const nearest = path.reduce((a, b) => (
+        Math.hypot(b.position.x, b.position.z) < Math.hypot(a.position.x, a.position.z) ? b : a));
+      if (Math.hypot(nearest.position.x, nearest.position.z) < 400) {
+        railTangent = [nearest.tangent.x, nearest.tangent.z];
+      }
+
       allSleepers.push(...sleeperPlacements(path, null, 0));
 
       // タイプレート: one under each rail seat, on the sleeper's top face.
@@ -199,6 +208,11 @@ export class RailwayGenerator {
       sleepers.receiveShadow = true;
       sleepers.frustumCulled = false;
       sleepers.name = 'Sleepers';
+      // A sleeper lies ACROSS the track. Declaring it here means the check
+      // travels with the thing it is about: this exact assertion, written
+      // down, is what would have caught the sleepers being laid along the
+      // rails at a 0.64 m pitch, three deep, so the track read as a plank.
+      sleepers.userData.inspect = { kind: 'sleeper', alongPath: 'perpendicular', tangent: railTangent };
       // Creosoted timber weathers unevenly; a flat brown row of 8,500
       // identical boxes reads as a comb rather than as sleepers.
       sleepers.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(allSleepers.length * 3), 3);
@@ -221,6 +235,7 @@ export class RailwayGenerator {
       plates.receiveShadow = true;
       plates.frustumCulled = false;
       plates.name = 'TiePlates';
+      plates.userData.inspect = { kind: 'tie_plate', alongPath: 'perpendicular', tangent: railTangent };
       group.add(plates);
     }
 
@@ -234,6 +249,7 @@ export class RailwayGenerator {
       plates.castShadow = true;
       plates.frustumCulled = false;
       plates.name = 'Fishplates';
+      plates.userData.inspect = { kind: 'fishplate', alongPath: 'parallel', tangent: railTangent };
       group.add(plates);
     }
 

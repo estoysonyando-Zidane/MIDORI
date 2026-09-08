@@ -4069,8 +4069,8 @@
       },
       "properties": {
         "id": "STR_MIDORI_POLICE_BOX",
-        "name": "斜里警察署緑駐在所",
-        "structure_type": "police_box",
+        "name": null,
+        "structure_type": "town_building",
         "gsi_ft_code": 3101,
         "area_m2": 143,
         "eave_height_m": 2.9,
@@ -4085,12 +4085,12 @@
         ],
         "detail_confidence": {
           "footprint": "B (public_gis — 国土地理院 電子国土基本図 ftCode 3101, 1/25000)",
-          "identification": "C (inference — 名称は地理院注記由来、最寄りのGSI外形に2 mで対応付けたもの)",
+          "identification": "U (unknown — 以前この外形を「斜里警察署緑駐在所」としていたが、国土地理院の注記はより近い別の外形を指している。実測された建築物であることは確かで、用途は不明)",
           "eave_ridge_height": "C (inference — 面積から段階分け。GSIも高さを持たない)",
           "roof_colour": "C (inference — 写真003の色をIDのハッシュで割当)",
           "roof_shape": "C (inference)"
         },
-        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。"
+        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。 scripts/import-gsi-labels.mjs: 「斜里警察署緑駐在所」の同定をこの外形から外した。"
       }
     },
     {
@@ -6118,8 +6118,8 @@
       },
       "properties": {
         "id": "STR_MIDORI_POST_OFFICE",
-        "name": "緑郵便局",
-        "structure_type": "post_office",
+        "name": null,
+        "structure_type": "town_building",
         "gsi_ft_code": 3101,
         "area_m2": 230,
         "eave_height_m": 3.2,
@@ -6134,12 +6134,12 @@
         ],
         "detail_confidence": {
           "footprint": "B (public_gis — 国土地理院 電子国土基本図 ftCode 3101, 1/25000)",
-          "identification": "C (inference — 名称は地理院注記由来、最寄りのGSI外形に2 mで対応付けたもの)",
+          "identification": "U (unknown — 以前この外形を「緑郵便局」としていたが、国土地理院の注記はより近い別の外形を指している。実測された建築物であることは確かで、用途は不明)",
           "eave_ridge_height": "C (inference — 面積から段階分け。GSIも高さを持たない)",
           "roof_colour": "C (inference — 写真003の色をIDのハッシュで割当)",
           "roof_shape": "C (inference)"
         },
-        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。"
+        "note": "scripts/import-gsi-town.mjs による取り込み。出典: 国土地理院「地理院地図Vector（地理院タイル）」。外形は実測（電子国土基本図）だが、高さ・屋根形状・屋根色はGSIも持たないため推定。 scripts/import-gsi-labels.mjs: 「緑郵便局」の同定をこの外形から外した。"
       }
     },
     {
@@ -11501,7 +11501,7 @@
       },
       "properties": {
         "id": "STR_MIDORI_TAIKO_1",
-        "name": "クマゲラ太鼓 長胴太鼓",
+        "name": "クマゲラ太鼓 くり抜き胴の太鼓",
         "structure_type": "taiko",
         "bore_diameter_m": 0.5,
         "shell_length_m": 0.92,
@@ -11535,7 +11535,7 @@
       },
       "properties": {
         "id": "STR_MIDORI_TAIKO_2",
-        "name": "クマゲラ太鼓 長胴太鼓",
+        "name": "クマゲラ太鼓 くり抜き胴の太鼓",
         "structure_type": "taiko",
         "bore_diameter_m": 0.5,
         "shell_length_m": 0.92,
@@ -11569,7 +11569,7 @@
       },
       "properties": {
         "id": "STR_MIDORI_TAIKO_3",
-        "name": "クマゲラ太鼓 長胴太鼓",
+        "name": "クマゲラ太鼓 くり抜き胴の太鼓",
         "structure_type": "taiko",
         "bore_diameter_m": 0.5,
         "shell_length_m": 0.92,
@@ -11603,7 +11603,7 @@
       },
       "properties": {
         "id": "STR_MIDORI_TAIKO_4",
-        "name": "クマゲラ太鼓 長胴太鼓",
+        "name": "クマゲラ太鼓 くり抜き胴の太鼓",
         "structure_type": "taiko",
         "bore_diameter_m": 0.5,
         "shell_length_m": 0.92,
@@ -11637,7 +11637,7 @@
       },
       "properties": {
         "id": "STR_MIDORI_TAIKO_5",
-        "name": "クマゲラ太鼓 長胴太鼓",
+        "name": "クマゲラ太鼓 くり抜き胴の太鼓",
         "structure_type": "taiko",
         "bore_diameter_m": 0.5,
         "shell_length_m": 0.92,
@@ -11671,7 +11671,7 @@
       },
       "properties": {
         "id": "STR_MIDORI_TAIKO_6",
-        "name": "クマゲラ太鼓 長胴太鼓",
+        "name": "クマゲラ太鼓 くり抜き胴の太鼓",
         "structure_type": "taiko",
         "bore_diameter_m": 0.5,
         "shell_length_m": 0.92,

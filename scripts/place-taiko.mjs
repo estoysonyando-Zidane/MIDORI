@@ -90,7 +90,7 @@ function main() {
       geometry: { type: 'Point', coordinates: [lon + e / mLon, lat + n / mLat] },
       properties: {
         id,
-        name: 'クマゲラ太鼓 長胴太鼓',
+        name: 'クマゲラ太鼓 くり抜き胴の太鼓',
         structure_type: 'taiko',
         bore_diameter_m: BORE_DIAMETER_M,
         shell_length_m: SHELL_LENGTH_M,
