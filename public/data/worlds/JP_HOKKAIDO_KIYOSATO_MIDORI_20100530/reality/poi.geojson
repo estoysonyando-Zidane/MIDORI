@@ -72,10 +72,11 @@
         "existence": "probable",
         "existence_confidence": "B",
         "geometry_confidence": "B",
-        "geometry_note": "Directive 09.1: replaced with a real WGS84 coordinate the operator read off Google Maps (evidence_type user_survey) -- 211m north / 6m east of the station, consistent with the town site's 'JR緑駅から徒歩3分' description. The earlier direction-unsourced ~65m NW distance-only estimate (Directive 04) is retired; see evidence/removed_coordinates.json.",
+        "geometry_note": "Directive 09.1: replaced with a real WGS84 coordinate the operator read off Google Maps (evidence_type user_survey) -- 211m north / 6m east of the station, consistent with the town site's 'JR緑駅から徒歩3分' description. The earlier direction-unsourced ~65m NW distance-only estimate (Directive 04) is retired; see evidence/removed_coordinates.json. 2026年追記: 国土地理院の実測外形 BLDG_GSI_kyy3y7 (590 m2) が 10 m の位置にあり、これを建物本体とした。以前は22 m離れた131 m²の別の外形に名前が付いていた。 2026年追記: 国土地理院の実測外形 BLDG_GSI_kyy3y7 (590 m2) が 10 m の位置にあり、これを建物本体とした。以前は22 m離れた131 m²の別の外形に名前が付いていた。",
         "source_ids": [
           "SRC_KIYOSATO_TOWN_MIDORINOYU",
-          "SRC_USER_GEOCODE_MIDORINOYU"
+          "SRC_USER_GEOCODE_MIDORINOYU",
+          "SRC_MIDORINOYU_PHOTOS"
         ],
         "evidence_type": "official_record"
       }
