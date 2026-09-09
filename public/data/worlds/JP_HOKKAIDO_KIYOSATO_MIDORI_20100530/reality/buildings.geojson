@@ -11693,6 +11693,226 @@
         },
         "note": "scripts/place-taiko.mjs。舞台の正面 3.2 m 前、1.7 m 間隔で 6 台。位置の根拠は舞台（国土地理院の実測外形）とその向き。太鼓と台と幟の形は演奏中の写真(SRC_KUMAGERA_PHOTO)から。舞台からの距離と間隔は写真からは測れないので推定のまま。"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.5054801528182,
+          43.718409557519735
+        ]
+      },
+      "properties": {
+        "id": "STR_MIDORI_SIGNAL_DEP_1_S",
+        "name": "緑駅 1番線 出発信号機（札弦方）",
+        "structure_type": "signal",
+        "facing_bearing_deg": 147,
+        "arm_length_m": -4.17,
+        "confidence": "C",
+        "evidence_type": "inference",
+        "historical_status": "plausible",
+        "position_status": "approximate",
+        "position_accuracy_m": 40,
+        "source_ids": [
+          "SRC_WP_SENMO",
+          "SRC_WIKI_JA_MIDORI",
+          "SRC_MLIT_TECH_KAISHAKU",
+          "SRC_COMMONS_MIDORI_PLATFORM_2018",
+          "SRC_COMMONS_MIDORI_CROSSING_2018"
+        ],
+        "signal_kind": "departure",
+        "track_number": 1,
+        "detail_confidence": {
+          "existence": "B (official_record — 釧網本線は特殊自動閉塞式。省令解釈基準 第54条関係4 は単線の特殊自動閉塞式について「進路が相対する出発信号機相互間を連鎖させる」と定める。2018年の写真2点にも構内の色灯式信号機が写る)",
+          "position": "C (inference — ホーム端から8 m。緑駅の実際の建植位置は文献に当たれていない)",
+          "appearance": "C (省令解釈基準 第55条関係1(1)の図と備考による三位式色灯。灯の直径100 mm・中心間隔200 mmは同備考の下限であって実測ではない。背板正面の黒は同1(10)。背面の錆色は2018年の写真の実測)"
+        },
+        "note": "scripts/place-signals.mjs。現示は停止で固定。2010-05-30当日の在線状況は分からないので、進路の設定されていない信号機が示す現示を置いている。ワールド内の列車とは連動していない。"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.50532536765652,
+          43.718336769332765
+        ]
+      },
+      "properties": {
+        "id": "STR_MIDORI_SIGNAL_DEP_2_S",
+        "name": "緑駅 2番線 出発信号機（札弦方）",
+        "structure_type": "signal",
+        "facing_bearing_deg": 147,
+        "arm_length_m": 4.17,
+        "confidence": "C",
+        "evidence_type": "inference",
+        "historical_status": "plausible",
+        "position_status": "approximate",
+        "position_accuracy_m": 40,
+        "source_ids": [
+          "SRC_WP_SENMO",
+          "SRC_WIKI_JA_MIDORI",
+          "SRC_MLIT_TECH_KAISHAKU",
+          "SRC_COMMONS_MIDORI_PLATFORM_2018",
+          "SRC_COMMONS_MIDORI_CROSSING_2018"
+        ],
+        "signal_kind": "departure",
+        "track_number": 2,
+        "detail_confidence": {
+          "existence": "B (official_record — 釧網本線は特殊自動閉塞式。省令解釈基準 第54条関係4 は単線の特殊自動閉塞式について「進路が相対する出発信号機相互間を連鎖させる」と定める。2018年の写真2点にも構内の色灯式信号機が写る)",
+          "position": "C (inference — ホーム端から8 m。緑駅の実際の建植位置は文献に当たれていない)",
+          "appearance": "C (省令解釈基準 第55条関係1(1)の図と備考による三位式色灯。灯の直径100 mm・中心間隔200 mmは同備考の下限であって実測ではない。背板正面の黒は同1(10)。背面の錆色は2018年の写真の実測)"
+        },
+        "note": "scripts/place-signals.mjs。現示は停止で固定。2010-05-30当日の在線状況は分からないので、進路の設定されていない信号機が示す現示を置いている。ワールド内の列車とは連動していない。"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.50640092310448,
+          43.71738328230481
+        ]
+      },
+      "properties": {
+        "id": "STR_MIDORI_SIGNAL_DEP_1_K",
+        "name": "緑駅 1番線 出発信号機（川湯温泉方）",
+        "structure_type": "signal",
+        "facing_bearing_deg": 327,
+        "arm_length_m": 4.17,
+        "confidence": "C",
+        "evidence_type": "inference",
+        "historical_status": "plausible",
+        "position_status": "approximate",
+        "position_accuracy_m": 40,
+        "source_ids": [
+          "SRC_WP_SENMO",
+          "SRC_WIKI_JA_MIDORI",
+          "SRC_MLIT_TECH_KAISHAKU",
+          "SRC_COMMONS_MIDORI_PLATFORM_2018",
+          "SRC_COMMONS_MIDORI_CROSSING_2018"
+        ],
+        "signal_kind": "departure",
+        "track_number": 1,
+        "detail_confidence": {
+          "existence": "B (official_record — 釧網本線は特殊自動閉塞式。省令解釈基準 第54条関係4 は単線の特殊自動閉塞式について「進路が相対する出発信号機相互間を連鎖させる」と定める。2018年の写真2点にも構内の色灯式信号機が写る)",
+          "position": "C (inference — ホーム端から8 m。緑駅の実際の建植位置は文献に当たれていない)",
+          "appearance": "C (省令解釈基準 第55条関係1(1)の図と備考による三位式色灯。灯の直径100 mm・中心間隔200 mmは同備考の下限であって実測ではない。背板正面の黒は同1(10)。背面の錆色は2018年の写真の実測)"
+        },
+        "note": "scripts/place-signals.mjs。現示は停止で固定。2010-05-30当日の在線状況は分からないので、進路の設定されていない信号機が示す現示を置いている。ワールド内の列車とは連動していない。"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.5062461379428,
+          43.71731049411784
+        ]
+      },
+      "properties": {
+        "id": "STR_MIDORI_SIGNAL_DEP_2_K",
+        "name": "緑駅 2番線 出発信号機（川湯温泉方）",
+        "structure_type": "signal",
+        "facing_bearing_deg": 327,
+        "arm_length_m": -4.17,
+        "confidence": "C",
+        "evidence_type": "inference",
+        "historical_status": "plausible",
+        "position_status": "approximate",
+        "position_accuracy_m": 40,
+        "source_ids": [
+          "SRC_WP_SENMO",
+          "SRC_WIKI_JA_MIDORI",
+          "SRC_MLIT_TECH_KAISHAKU",
+          "SRC_COMMONS_MIDORI_PLATFORM_2018",
+          "SRC_COMMONS_MIDORI_CROSSING_2018"
+        ],
+        "signal_kind": "departure",
+        "track_number": 2,
+        "detail_confidence": {
+          "existence": "B (official_record — 釧網本線は特殊自動閉塞式。省令解釈基準 第54条関係4 は単線の特殊自動閉塞式について「進路が相対する出発信号機相互間を連鎖させる」と定める。2018年の写真2点にも構内の色灯式信号機が写る)",
+          "position": "C (inference — ホーム端から8 m。緑駅の実際の建植位置は文献に当たれていない)",
+          "appearance": "C (省令解釈基準 第55条関係1(1)の図と備考による三位式色灯。灯の直径100 mm・中心間隔200 mmは同備考の下限であって実測ではない。背板正面の黒は同1(10)。背面の錆色は2018年の写真の実測)"
+        },
+        "note": "scripts/place-signals.mjs。現示は停止で固定。2010-05-30当日の在線状況は分からないので、進路の設定されていない信号機が示す現示を置いている。ワールド内の列車とは連動していない。"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.5045385824757,
+          43.7194131755322
+        ]
+      },
+      "properties": {
+        "id": "STR_MIDORI_SIGNAL_HOME_S",
+        "name": "緑駅 場内信号機（札弦方から進入する列車に対する）",
+        "structure_type": "signal",
+        "facing_bearing_deg": 327,
+        "arm_length_m": 0,
+        "confidence": "C",
+        "evidence_type": "inference",
+        "historical_status": "plausible",
+        "position_status": "approximate",
+        "position_accuracy_m": 40,
+        "source_ids": [
+          "SRC_WP_SENMO",
+          "SRC_WIKI_JA_MIDORI",
+          "SRC_MLIT_TECH_KAISHAKU",
+          "SRC_COMMONS_MIDORI_PLATFORM_2018",
+          "SRC_COMMONS_MIDORI_CROSSING_2018"
+        ],
+        "signal_kind": "home",
+        "detail_confidence": {
+          "existence": "B (official_record — 省令解釈基準 第117条関係1「場内信号機 停車場に進入する列車に対し信号を現示するもの」。緑は交換設備を持つ停車場)",
+          "position": "C (inference — 分岐器の外方 60 m。分岐器の位置じたい 2番線の再構成に依る)",
+          "heads": "C (inference — 第55条関係5 は進路ごとに場内信号機を設けるか進路表示機を附属させることを求める。緑は各方向から2進路あるが、どちらであったかは分からないので1機のみを置いている)"
+        },
+        "note": "scripts/place-signals.mjs。現示は停止で固定。建植は進行方向左側という慣行によるが、これを述べた条文は手元にない。"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.50723044358244,
+          43.71632697250716
+        ]
+      },
+      "properties": {
+        "id": "STR_MIDORI_SIGNAL_HOME_K",
+        "name": "緑駅 場内信号機（川湯温泉方から進入する列車に対する）",
+        "structure_type": "signal",
+        "facing_bearing_deg": 147,
+        "arm_length_m": 0,
+        "confidence": "C",
+        "evidence_type": "inference",
+        "historical_status": "plausible",
+        "position_status": "approximate",
+        "position_accuracy_m": 40,
+        "source_ids": [
+          "SRC_WP_SENMO",
+          "SRC_WIKI_JA_MIDORI",
+          "SRC_MLIT_TECH_KAISHAKU",
+          "SRC_COMMONS_MIDORI_PLATFORM_2018",
+          "SRC_COMMONS_MIDORI_CROSSING_2018"
+        ],
+        "signal_kind": "home",
+        "detail_confidence": {
+          "existence": "B (official_record — 省令解釈基準 第117条関係1「場内信号機 停車場に進入する列車に対し信号を現示するもの」。緑は交換設備を持つ停車場)",
+          "position": "C (inference — 分岐器の外方 60 m。分岐器の位置じたい 2番線の再構成に依る)",
+          "heads": "C (inference — 第55条関係5 は進路ごとに場内信号機を設けるか進路表示機を附属させることを求める。緑は各方向から2進路あるが、どちらであったかは分からないので1機のみを置いている)"
+        },
+        "note": "scripts/place-signals.mjs。現示は停止で固定。建植は進行方向左側という慣行によるが、これを述べた条文は手元にない。"
+      }
     }
   ]
 }

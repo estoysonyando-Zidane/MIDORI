@@ -468,6 +468,10 @@ export class TownGenerator {
         group.add(buildTaiko(feature, tangentPlane, heightAt, taikoBanner));
         continue;
       }
+      if (type === 'signal') {
+        group.add(buildSignal(feature, tangentPlane, heightAt));
+        continue;
+      }
       if (type !== 'town_building'
         && type !== 'bathhouse' && type !== 'school' && type !== 'school_annex'
         && type !== 'post_office' && type !== 'community_centre'
@@ -535,4 +539,147 @@ export class TownGenerator {
 
     return group;
   }
+}
+
+/* ------------------------------------------------------------------ *
+ * 常置信号機 — the colour-light signals in the station yard.
+ * ------------------------------------------------------------------ */
+
+/** 省令解釈基準 Ⅶ-2 第55条関係 1(1) 備考3: 灯の直径は100ミリメートル以上. The
+ *  floor is what is modelled; the real lens at 緑 was not measured. */
+const SIGNAL_LAMP_DIAMETER_M = 0.10;
+/** 同 備考4: 灯の中心間隔は200ミリメートル以上. Again the floor. */
+const SIGNAL_LAMP_PITCH_M = 0.20;
+/** The 背板 in the same figure is a stadium — straight sides, semicircular
+ *  ends — with the lamps in one vertical column down its middle. */
+const SIGNAL_BOARD_WIDTH_M = 0.44;
+const SIGNAL_BOARD_DEPTH_M = 0.09;
+/** Head height above the rail, and mast diameter. NOT from any document:
+ *  read off the two 2018 photographs, where the head stands roughly a
+ *  railcar's height above the track and the mast is a slim steel tube. */
+const SIGNAL_HEAD_CENTRE_M = 4.05;
+const SIGNAL_MAST_DIAMETER_M = 0.165;
+/** 第55条 1(10): 色灯式信号機及び灯列式信号機の背板の正面は、黒色とすること。 */
+const SIGNAL_BOARD_FRONT = 0x14161a;
+/** The back of the head and its snow hoods. Measured off the two 2018
+ *  photographs, where every signal's back is the same weathered rust
+ *  orange: rgb(155-180, 95-105, 80-90). */
+const SIGNAL_BOARD_BACK = 0x9c5c4a;
+const SIGNAL_STEEL = 0x9aa0a6;
+
+/**
+ * One 三位式色灯信号機: mast, optional cantilever arm, and a head carrying
+ * green over yellow over red, in that order down the board, as 第55条関係
+ * 1(1) の図 draws it.
+ *
+ * Every signal in this World stands at 停止 — the aspect a signal rests at
+ * when no route is set, and the only one that can be shown without claiming
+ * to know what was on the line at 10:30 on 2010-05-30. Nothing here is wired
+ * to the train that runs through.
+ */
+function buildSignal(
+  feature: RealityData,
+  tangentPlane: LocalTangentPlane,
+  heightAt: (x: number, z: number) => number,
+): THREE.Group {
+  const group = new THREE.Group();
+  group.name = feature.id;
+  group.userData.realityData = feature;
+
+  const [lon, lat] = feature.geometry.coordinates as [number, number];
+  const local = tangentPlane.project(lat, lon);
+  const base = heightAt(local.x, local.z);
+  group.position.set(local.x, base, local.z);
+
+  // `facing_bearing_deg` is the way the LAMPS look — back down the track at
+  // the train that has to read them, so it is the reverse of that train's
+  // direction of travel. `arm_length_m` is how far the head hangs out from
+  // the mast, signed: positive is to the head's own left — left as the LAMPS
+  // look, which is the reverse of the left of the train that reads them.
+  //
+  // The convention this file already uses for facing_bearing_deg (buildTaiko,
+  // buildStage) is that local −Z points along the bearing once the group is
+  // turned by −facing. So the extruded board needs no turn of its own: its
+  // front face sits at z = 0 and looks down −Z.
+  const facing = ((feature.properties.facing_bearing_deg as number) ?? 0) * (Math.PI / 180);
+  const arm = (feature.properties.arm_length_m as number) ?? 0;
+  group.rotation.y = -facing;
+
+  const steel = new THREE.MeshStandardMaterial({ color: SIGNAL_STEEL, roughness: 0.7, metalness: 0.5 });
+  const boardTop = SIGNAL_HEAD_CENTRE_M + SIGNAL_BOARD_WIDTH_M / 2 + SIGNAL_LAMP_PITCH_M;
+
+  const mast = new THREE.Mesh(
+    new THREE.CylinderGeometry(SIGNAL_MAST_DIAMETER_M / 2, SIGNAL_MAST_DIAMETER_M / 2, boardTop, 10),
+    steel,
+  );
+  mast.position.y = boardTop / 2;
+  mast.castShadow = true;
+  group.add(mast);
+
+  // The arm runs from the mast to the head. Local +X is the head's right, so
+  // a positive arm — the head to the mast's left — puts the head at −X.
+  if (Math.abs(arm) > 0.05) {
+    const beam = new THREE.Mesh(new THREE.BoxGeometry(Math.abs(arm), 0.12, 0.12), steel);
+    beam.position.set(-arm / 2, boardTop - 0.1, 0);
+    group.add(beam);
+  }
+  const headX = Math.abs(arm) > 0.05 ? -arm : 0;
+
+  const boardShape = new THREE.Shape();
+  const r = SIGNAL_BOARD_WIDTH_M / 2;
+  const straight = SIGNAL_LAMP_PITCH_M;               // half the lamp column
+  boardShape.absarc(0, straight, r, 0, Math.PI, false);
+  boardShape.absarc(0, -straight, r, Math.PI, 2 * Math.PI, false);
+  boardShape.closePath();
+  const boardGeom = new THREE.ExtrudeGeometry(boardShape, {
+    depth: SIGNAL_BOARD_DEPTH_M, bevelEnabled: false, curveSegments: 10,
+  });
+  const board = new THREE.Mesh(
+    boardGeom,
+    new THREE.MeshStandardMaterial({ color: SIGNAL_BOARD_FRONT, roughness: 0.85 }),
+  );
+  board.position.set(headX, SIGNAL_HEAD_CENTRE_M, 0);
+  board.castShadow = true;
+  group.add(board);
+
+  // the hooded back, so the signal reads as rust orange from behind — which
+  // is how it is seen from the platform in both photographs
+  const backing = new THREE.Mesh(
+    new THREE.BoxGeometry(SIGNAL_BOARD_WIDTH_M, SIGNAL_BOARD_WIDTH_M + 2 * straight, 0.05),
+    new THREE.MeshStandardMaterial({ color: SIGNAL_BOARD_BACK, roughness: 0.9 }),
+  );
+  backing.position.set(headX, SIGNAL_HEAD_CENTRE_M, SIGNAL_BOARD_DEPTH_M + 0.025);
+  group.add(backing);
+
+  // green over yellow over red, the order in the figure. Only the red is
+  // alight: a signal with no route set shows 停止.
+  const aspects: Array<[number, number, boolean]> = [
+    [SIGNAL_LAMP_PITCH_M, 0x2f7a3a, false],
+    [0, 0x8a6a1e, false],
+    [-SIGNAL_LAMP_PITCH_M, 0xd6402c, true],
+  ];
+  for (const [dy, colour, lit] of aspects) {
+    const lens = new THREE.Mesh(
+      new THREE.CylinderGeometry(SIGNAL_LAMP_DIAMETER_M / 2, SIGNAL_LAMP_DIAMETER_M / 2, 0.03, 12),
+      new THREE.MeshStandardMaterial({
+        color: colour,
+        emissive: lit ? colour : 0x000000,
+        emissiveIntensity: lit ? 1.4 : 0,
+        roughness: 0.35,
+      }),
+    );
+    lens.rotation.x = Math.PI / 2;
+    lens.position.set(headX, SIGNAL_HEAD_CENTRE_M + dy, -0.02);
+    group.add(lens);
+    // the hood over each lamp, open toward the driver
+    const hood = new THREE.Mesh(
+      new THREE.CylinderGeometry(SIGNAL_LAMP_DIAMETER_M * 0.62, SIGNAL_LAMP_DIAMETER_M * 0.62, 0.13, 12, 1, true),
+      new THREE.MeshStandardMaterial({ color: SIGNAL_BOARD_BACK, roughness: 0.9, side: THREE.DoubleSide }),
+    );
+    hood.rotation.x = Math.PI / 2;
+    hood.position.set(headX, SIGNAL_HEAD_CENTRE_M + dy + 0.015, -0.09);
+    group.add(hood);
+  }
+
+  return group;
 }
