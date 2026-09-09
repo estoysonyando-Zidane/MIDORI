@@ -183,6 +183,104 @@
           "form": "U (落差・幅・岩の形は測っていない。造形なし)"
         }
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.550175,
+          43.645211
+        ]
+      },
+      "properties": {
+        "id": "LOC_KAMINOKOIKE",
+        "name": "神の子池",
+        "name_en": "Kaminoko-ike",
+        "poi_type": "spring",
+        "confidence": "B",
+        "evidence_type": "public_gis",
+        "historical_status": "confirmed",
+        "position_status": "located",
+        "outside_world": true,
+        "distance_from_origin_m": 8846,
+        "bearing_from_origin_deg": 156.2,
+        "within_far_terrain": true,
+        "source_ids": [
+          "SRC_GSI_PLACE_SEARCH",
+          "SRC_WIKI_JA_KIYOSATO"
+        ],
+        "detail_confidence": {
+          "position": "B (public_gis — 国土地理院の地名検索が返す点。Wikipedia「神の子池」の座標 43°38′43″N 144°33′01″E とは 10 m 以内で一致する)",
+          "rendering": "U (造形なし。遠景地形は1セル 243 m で、これらはその1〜2個分の大きさしかない。写真を貼った風景の上に浮く名札は、場所ではなく図の要素になる)"
+        },
+        "note": "scripts/place-distant-landmarks.mjs。緑駅から 8846 m・方位 156°。World は半径 2.5 km で作っており、これはその外。遠景地形（半径 35 km）の範囲内には入る。摩周湖の伏流水が湧く池。清里町の記事が町の観光地として挙げる。造形はしていない — 遠景地形は1セル 243 m で、この池はその1つ分ほどしかない。"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.570948,
+          43.60382
+        ]
+      },
+      "properties": {
+        "id": "LOC_URA_MASHU_LOOKOUT",
+        "name": "裏摩周展望台",
+        "name_en": "Ura-Mashu Lookout",
+        "poi_type": "viewpoint",
+        "confidence": "B",
+        "evidence_type": "public_gis",
+        "historical_status": "confirmed",
+        "position_status": "located",
+        "outside_world": true,
+        "distance_from_origin_m": 13733,
+        "bearing_from_origin_deg": 157.5,
+        "within_far_terrain": true,
+        "source_ids": [
+          "SRC_GSI_PLACE_SEARCH",
+          "SRC_WIKI_JA_KIYOSATO"
+        ],
+        "detail_confidence": {
+          "position": "B (public_gis — 国土地理院の地名検索が名前つきで返す点)",
+          "rendering": "U (造形なし。遠景地形は1セル 243 m で、これらはその1〜2個分の大きさしかない。写真を貼った風景の上に浮く名札は、場所ではなく図の要素になる)"
+        },
+        "note": "scripts/place-distant-landmarks.mjs。緑駅から 13733 m・方位 158°。World は半径 2.5 km で作っており、これはその外。遠景地形（半径 35 km）の範囲内には入る。摩周湖東部、清里町側の展望台。清里町の記事が町の観光地として挙げるのはこちらで、摩周湖第一展望台（43.4979, 144.4533 付近）は弟子屈町側。依頼の「摩周湖展望台」がどちらを指すかは確認できていないので、清里町の側であるこちらを置いた。造形はしていない。"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.629167,
+          43.670278
+        ]
+      },
+      "properties": {
+        "id": "LOC_MIDORI_DAM",
+        "name": "緑ダム",
+        "name_en": "Midori Dam",
+        "poi_type": "dam",
+        "confidence": "C",
+        "evidence_type": "encyclopedia",
+        "historical_status": "confirmed",
+        "position_status": "located",
+        "outside_world": true,
+        "distance_from_origin_m": 11258,
+        "bearing_from_origin_deg": 118.1,
+        "within_far_terrain": true,
+        "source_ids": [
+          "SRC_WIKI_JA_MIDORIDAM"
+        ],
+        "detail_confidence": {
+          "position": "C (encyclopedia — Wikipedia「緑ダム」の緯度経度 43°40′13″N 144°37′45″E。国土地理院の地名検索には無く、独立した裏づけは取れていない)",
+          "rendering": "U (造形なし。遠景地形は1セル 243 m で、これらはその1〜2個分の大きさしかない。写真を貼った風景の上に浮く名札は、場所ではなく図の要素になる)"
+        },
+        "note": "scripts/place-distant-landmarks.mjs。緑駅から 11258 m・方位 118°。World は半径 2.5 km で作っており、これはその外。遠景地形（半径 35 km）の範囲内には入る。斜里川水系アタクチャ川のロックフィルダム。堤高 73 m・堤頂長 345 m・総貯水容量 710万 m³、灌漑用、事業主体は網走市。着工 1974年・竣工 2003年なので、2010-05-30 には在る。造形はしていない。遠景地形の1セルは 243 m で、堤頂長 345 m はその 1.4 個分。堤体の形を 243 m 標本の上に作るのは、地形が持っていない情報を足すことになる。"
+      }
     }
   ]
 }

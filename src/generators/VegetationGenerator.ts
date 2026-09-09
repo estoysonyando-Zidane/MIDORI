@@ -21,6 +21,11 @@ import * as THREE from 'three';
  * random number generator put it, across fields and short of the hillside.
  */
 
+/** How hard the scatter is pulled in toward the player. 1 is the plain
+ *  uniform-by-radius sampling this used to do; 2 halves the budget needed
+ *  for the same density under 200 m. See the note at the sampling itself. */
+const RADIAL_BIAS = 2;
+
 export interface VegetationOptions {
   heightAt: (x: number, z: number) => number;
   /** Centre of the clearing — the station. */
@@ -174,8 +179,33 @@ export class VegetationGenerator {
       // uniformly by RADIUS puts density ∝ 1/r: thick where the player
       // stands, thinning with distance, where the photograph on the terrain
       // carries the colour anyway.
+      //
+      // RADIAL_BIAS carries that same argument one step further, because the
+      // scatter turned out to be 78% of everything this World draws
+      // (1,504,872 triangles of 1,930,206 — scripts/measure-budget.mjs).
+      // Raising the uniform sample to a power concentrates it further in: at
+      // bias 2 the density falls as 1/(r·√r) instead of 1/r, so a smaller
+      // budget can hold the near wood while thinning the far one, where a
+      // tree is two pixels and the photograph on the ground is carrying the
+      // colour anyway.
+      //
+      // COUNTED, not assumed — the canopy mask rejects so many candidates
+      // that the analytic distribution does not survive it. 25,000 plants at
+      // bias 1 against 15,800 at bias 2, binned by distance from the
+      // platform:
+      //
+      //     0-100 m     568 → 746   (+31%)
+      //     100-200 m  2,926 → 2,738  (−6%)
+      //     200-400 m  8,689 → 5,805 (−33%)
+      //     400-600 m  5,172 → 2,992 (−42%)
+      //     600-900 m  7,645 → 3,519 (−54%)
+      //
+      // Inside 200 m: 3,494 → 3,484, which is the same wood to stand in.
+      // A first pass at 13,000 was 16% thinner inside 200 m and the budget
+      // was raised until the near bands held.
       const angle = random() * Math.PI * 2;
-      const radius = options.clearingRadiusM + random() * (options.extentM - options.clearingRadiusM);
+      const radius = options.clearingRadiusM
+        + (options.extentM - options.clearingRadiusM) * random() ** RADIAL_BIAS;
       const x = options.clearingCentre.x + Math.cos(angle) * radius;
       const z = options.clearingCentre.z + Math.sin(angle) * radius;
 
@@ -207,7 +237,8 @@ export class VegetationGenerator {
       while (scrub.length < wanted && tries < wanted * 30) {
         tries++;
         const angle = random() * Math.PI * 2;
-        const radius = options.clearingRadiusM + random() * (extent - options.clearingRadiusM);
+        const radius = options.clearingRadiusM
+          + (extent - options.clearingRadiusM) * random() ** RADIAL_BIAS;
         const x = options.clearingCentre.x + Math.cos(angle) * radius;
         const z = options.clearingCentre.z + Math.sin(angle) * radius;
         const onEdge = options.scrubAt(x, z);

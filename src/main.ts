@@ -317,9 +317,15 @@ async function bootstrap(): Promise<void> {
       keepClearOfCircles,
       canopyAt: canopy ? (x, z) => canopy.at(x, z) : undefined,
       scrubAt: canopy ? (x, z) => canopy.scrubAt(x, z) : undefined,
-      scrubCount: 7000,
+      // 11,000 and 4,800, not 18,000 and 7,000. RADIAL_BIAS pulls the
+      // scatter in, so this smaller budget holds the same wood inside 200 m
+      // (3,484 plants against 3,494) while dropping a half to two thirds of
+      // what stood past 400 m — where a tree is two pixels. The scatter was
+      // 78% of everything this World drew. See VegetationGenerator for the
+      // counted distribution, and scripts/measure-budget.mjs for the cost.
+      scrubCount: 4800,
       scrubExtentM: 380,
-      count: canopy ? 18000 : 7000,
+      count: canopy ? 11000 : 4800,
     }));
   }
 
