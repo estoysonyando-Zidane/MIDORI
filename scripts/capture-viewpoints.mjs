@@ -60,6 +60,7 @@ function measure(jpegBuffer) {
   const im = jpeg.decode(jpegBuffer, { useTArray: true });
   const { width, height, data } = im;
   let sky = 0, green = 0, lumaSum = 0, luma2 = 0, n = 0;
+  let skyTop = 0, skyBottom = 0, nThird = 0;
   const colours = new Set();
   const lum = new Float32Array(width * height);
   let firstNonSkyRow = height;
@@ -75,6 +76,9 @@ function measure(jpegBuffer) {
       // 空: 青が赤より明確に強く、かつ明るい
       const isSky = B > R + 18 && L > 120;
       if (isSky) { sky++; rowSky++; }
+      // 上1/3 と 下1/3 の空の量。まともな眺めは上に空があり下に地面がある。
+      if (y < height / 3) { if (isSky) skyTop++; nThird++; }
+      else if (y >= (height * 2) / 3 && isSky) skyBottom++;
       // 植生: 緑が他の2つより強い
       if (G > R + 12 && G > B + 12) green++;
       colours.add(((R >> 3) << 10) | ((G >> 3) << 5) | (B >> 3));
@@ -100,6 +104,10 @@ function measure(jpegBuffer) {
     edges: +(edge / edgeN / 2).toFixed(2),
     unique: colours.size,
     horizon: +(firstNonSkyRow / height).toFixed(3),
+    // 上の空 − 下の空。正なら普通。負なら空が下にある = 地面の下にいるか
+    // 上下が反転している。地形は片面描画なので、地下からは地面を透かして
+    // 空が見え、他の指標はどれも正常に見えてしまう。これが唯一の手掛かり。
+    skyBalance: +((skyTop - skyBottom) / Math.max(1, nThird)).toFixed(3),
   };
 }
 
@@ -111,6 +119,9 @@ function sanity(m) {
   if (m.luma > 245) bad.push('ほぼ真っ白（露出破綻）');
   if (m.sky > 0.92) bad.push('画面のほぼ全部が空 — カメラが上を向いているか World が無い');
   if (m.edges < 0.6 && m.sky < 0.9) bad.push('エッジがほぼ無い — 何も建っていない可能性');
+  // 空が下に多い = 地面の下から見上げている。地形が片面描画なので、他の
+  // 指標（輝度・色数・エッジ）はどれも正常に見える。これでしか捕まらない。
+  if (m.skyBalance < -0.15) bad.push(`空が画面の下側に偏っている(${m.skyBalance}) — 地面の下にいる可能性`);
   return bad;
 }
 
@@ -222,12 +233,12 @@ async function main() {
   writeFileSync(join(OUT, 'metrics.json'), `${JSON.stringify(report, null, 2)}\n`);
 
   console.log('=== 定点撮影 ===');
-  console.log('id                 sky   green  luma  contr edges uniq  horizon');
+  console.log('id                 sky   green  luma  contr edges uniq  horiz skyBal');
   for (const s of shots) {
     const m = s.metrics;
     console.log(`${s.id.padEnd(18)} ${String(m.sky).padEnd(6)} ${String(m.green).padEnd(6)} `
       + `${String(m.luma).padEnd(5)} ${String(m.contrast).padEnd(5)} ${String(m.edges).padEnd(5)} `
-      + `${String(m.unique).padEnd(5)} ${m.horizon}`);
+      + `${String(m.unique).padEnd(5)} ${String(m.horizon).padEnd(5)} ${m.skyBalance}`);
     for (const p of s.problems) console.log(`    ！ ${p}`);
   }
   if (errors.length) { console.log('\nページのエラー:'); for (const e of errors) console.log('  ' + e); }
@@ -242,7 +253,7 @@ async function main() {
     console.log(`\n基準値を更新した → ${BASELINE}`);
   } else if (!NO_COMPARE && existsSync(BASELINE)) {
     const base = JSON.parse(readFileSync(BASELINE, 'utf8')).views;
-    const LIMITS = { sky: 0.08, green: 0.08, luma: 22, contrast: 12, edges: 1.2, unique: 0.4 };
+    const LIMITS = { sky: 0.08, green: 0.08, luma: 22, contrast: 12, edges: 1.2, unique: 0.4, skyBalance: 0.12 };
     const drift = [];
     for (const s of shots) {
       const b = base[s.id];
