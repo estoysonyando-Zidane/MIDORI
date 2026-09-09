@@ -125,7 +125,20 @@ const MIN_TRACK_CENTRES_M = 3.6;
  *  120 m platform with a train's length of standing room at each end. The
  *  1974-78 aerial photograph (SRC_GSI_PHOTO_GAZO1) shows the yard widened
  *  over several hundred metres, which is consistent, but at 1.2 m a pixel it
- *  cannot place a turnout. */
+ *  cannot place a turnout.
+ *
+ *  ONE UNRESOLVED READING, left here for whoever picks it up. OpenStreetMap
+ *  carries two railway=switch nodes at 緑, traced from Bing imagery, at
+ *  along +260 and −268 — nearly twice as far out as the ±143 this builds,
+ *  and the 1977 photograph's yard throats are at about the same distance.
+ *  It is NOT adopted, because the same trace also carries the two platforms
+ *  as areas 66 m and 51 m long that barely overlap each other, and 相対式
+ *  platforms that do not face each other are a trace that has not been done
+ *  carefully. Taking the switches from it while rejecting the platforms
+ *  would be choosing the half that suits, which is the error that put 緑の湯
+ *  on the wrong building. Both readings need a better image than 国土地理院's
+ *  seamless composite gives over 緑町 — it is about 2 m a pixel here, and a
+ *  turnout is three pixels. */
 const TURNOUT_NUMBER = 8;
 const LOOP_STRAIGHT_HALF_M = 110;
 

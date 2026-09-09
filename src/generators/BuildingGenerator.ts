@@ -51,7 +51,7 @@ export const STATION_TERRACE_HEIGHT_M = RAIL_HEAD_M + PLATFORM_ABOVE_RAIL_M;
 const TOWN_STRUCTURE_TYPES = new Set([
   'town_building', 'bathhouse', 'school', 'post_office',
   'community_centre', 'police_box', 'fire_station', 'stage', 'school_annex',
-  'taiko',
+  'taiko', 'signal',
 ]);
 
 /** Flat ground surfaces: school grounds, the sports field, the park golf
@@ -576,11 +576,21 @@ function buildPlatform(
   // the whole ring, as this did, drew a line along the back of the platform
   // where nothing arrives — and on an opposed pair, along the two faces that
   // look at each other across the tracks.
-  // The painted line is off-white, weathered. It was ティール (0x1f7a72),
-  // which came from Directive 08 §4.2 with no photograph behind it — Street
-  // View shows a pale painted line on a dark cinder deck, and nothing on a
-  // Japanese platform edge is blue-green.
-  const edgeMat = new THREE.MeshStandardMaterial({ color: 0xcfc9b8, roughness: 0.85 });
+  // The painted line is TEAL, and this is the second time it has moved.
+  //
+  // Directive 08 §4.2 gave it as ティール (0x1f7a72) with no photograph behind
+  // it. Reading the Street View photospheres I made it weathered off-white
+  // and wrote that "nothing on a Japanese platform edge is blue-green" —
+  // a generalisation standing in for evidence, which is the error this
+  // project keeps making.
+  //
+  // Two CC BY-SA photographs taken on the platform at 緑 on 2018-05-04
+  // (SRC_COMMONS_MIDORI_PLATFORM_2018, SRC_COMMONS_MIDORI_CROSSING_2018)
+  // show a vivid jade line running the whole length of the edge. Measured
+  // off both, on the overcast day they were taken: the greenest pixel in
+  // each scanline across the stripe runs rgb(90-130, 213-232, 209-234).
+  // 0x4dbdb6 is that, one step down for a material lit again in engine.
+  const edgeMat = new THREE.MeshStandardMaterial({ color: 0x4dbdb6, roughness: 0.85 });
   const trackEdge = feature.properties.track_edge_index as number | undefined;
   const stripe = trackEdge === undefined
     ? extrudeFootprint(points, 0.02, insetQuad(points, edgeWidth))
