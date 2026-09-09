@@ -47,6 +47,7 @@ export interface WorldConfig {
     buildings?: string;
     poi?: string;
     events?: string;
+    water?: string;
   };
   /** Relative paths to this World's provenance records (Directive 02 §22-24). */
   evidence?: {

@@ -25,7 +25,8 @@
     "roads": "reality/roads.geojson",
     "buildings": "reality/buildings.geojson",
     "poi": "reality/poi.geojson",
-    "events": "reality/events.geojson"
+    "events": "reality/events.geojson",
+    "water": "reality/water.geojson"
   },
   "evidence": {
     "sources": "evidence/sources.json",

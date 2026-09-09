@@ -17,6 +17,7 @@ import { loadStationTextures } from './generators/stationTextures';
 import { VegetationGenerator } from './generators/VegetationGenerator';
 import { CanopyMask } from './generators/CanopyMask';
 import { StationTerrace } from './generators/StationTerrace';
+import { WaterGenerator } from './generators/WaterGenerator';
 import { TownGenerator } from './generators/TownGenerator';
 import type { Blocker } from './player/Collision';
 import type { ResolvedPosition } from './generators/BuildingGenerator';
@@ -131,6 +132,9 @@ async function bootstrap(): Promise<void> {
   // photographs show. See scripts/import-osm-town.mjs for what in this is
   // survey data (the outlines) and what is not (everything above them).
   world.group.add(TownGenerator.generate(world.find('building'), world.tangentPlane, heightAt));
+  // The water surface goes just under the bank top, so it is measured from
+  // the field the river runs through rather than from the bed it sits in.
+  world.group.add(WaterGenerator.generate(world.find('water'), world.tangentPlane, heightAt));
 
   // Structures the player cannot walk through — currently the station
   // building's walls, so its waiting room is a room you enter through the
@@ -195,8 +199,13 @@ async function bootstrap(): Promise<void> {
   // than a place. Scenery, not Reality Data — that the site is wooded is
   // evidence, where any individual tree stands is not.
   {
+    // The railway, the roads AND the water. The canopy mask is 9.7 m a cell,
+    // so it cannot exclude a 3.6 m stream: without this the scatter plants
+    // the wood straight over 札弦川 and the river is invisible from every
+    // angle — which is exactly what happened, and looked indistinguishable
+    // from the water never having been drawn at all.
     const keepClearOf: THREE.Vector3[][] = [];
-    for (const feature of [...world.find('railway'), ...world.find('road')]) {
+    for (const feature of [...world.find('railway'), ...world.find('road'), ...world.find('water')]) {
       if (feature.geometry.type !== 'LineString') continue;
       keepClearOf.push((feature.geometry.coordinates as [number, number][]).map(([lon, lat]) => {
         const p = world.tangentPlane.project(lat, lon);
@@ -348,13 +357,9 @@ async function bootstrap(): Promise<void> {
     });
   }
 
-  // The permanent inspection surface. It ships: it is how every automated
-  // check and every screenshot sees the World (src/debug/WorldInspect.ts).
-  installWorldInspect(sceneManager.scene, sceneManager.renderer, Promise.resolve());
-
   let shownSpeed = -1;
 
-  sceneManager.start((dt) => {
+  const frame = (dt: number) => {
     player.update(dt);
     if (speedo && player.isRiding) {
       const kmh = Math.round(player.speedKmh);
@@ -386,7 +391,16 @@ async function bootstrap(): Promise<void> {
     } else if (!showOverlay && !sceneManager.scene.fog && groundFog) {
       sceneManager.scene.fog = groundFog;
     }
-  });
+  };
+
+  // The permanent inspection surface. It ships: it is how every automated
+  // check and every screenshot sees the World (src/debug/WorldInspect.ts).
+  installWorldInspect(
+    sceneManager.scene, sceneManager.renderer, sceneManager.camera, Promise.resolve(),
+    () => sceneManager.start(frame),
+  );
+
+  sceneManager.start(frame);
 }
 
 bootstrap().catch((err) => {
