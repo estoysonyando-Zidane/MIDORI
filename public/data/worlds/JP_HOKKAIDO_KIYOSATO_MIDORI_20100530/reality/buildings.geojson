@@ -11913,6 +11913,40 @@
         },
         "note": "scripts/place-signals.mjs。現示は停止で固定。建植は進行方向左側という慣行によるが、これを述べた条文は手元にない。"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.50584177773192,
+          43.717849977617895
+        ]
+      },
+      "properties": {
+        "id": "STR_MIDORI_STABLED_KIHA40",
+        "name": "緑駅 2番線に留置されたキハ40 826",
+        "structure_type": "railcar",
+        "model": "kiha40",
+        "car_length_m": 21.3,
+        "facing_bearing_deg": 327,
+        "confidence": "C",
+        "evidence_type": "inference",
+        "historical_status": "plausible",
+        "position_status": "approximate",
+        "position_accuracy_m": 60,
+        "source_ids": [
+          "SRC_USER_DIRECTIVE_02",
+          "SRC_PHOTO_20090520",
+          "SRC_WIKI_JA_MIDORI"
+        ],
+        "detail_confidence": {
+          "vehicle": "B (contemporary_photo — SRC_PHOTO_20090520 は 2009-05-20 に緑駅のホームに停まるキハ40 826 を写した写真。駅の壁画と駅名標が同じ画面に入っている。この形式のこの塗色の車がこの駅に来ていたことは、写真で分かる)",
+          "standing_here": "U (依頼者の指示による配置。Wikipedia「緑駅」は「夜間滞泊は設定されておらず、当駅発着列車は知床斜里に留置され」と書いており、これは現在の運用についての記述だが、緑に車を置くことに対しては反証の側に立つ。2010-05-30 に留置車があったという根拠はない)",
+          "which_track": "C (inference — 2番線は本線を塞がずに車を置ける側で、交換設備とはそのためのもの。依頼者の指定でもある)"
+        },
+        "note": "scripts/place-stabled-railcar.mjs。ホーム中央、2番線の線路中心上に車体長 21.3 m の1両を置く。これは「一旦設置」であって、2010-05-30 当日に留置車があったという主張ではない。"
+      }
     }
   ]
 }

@@ -13,6 +13,7 @@ import { SpatialIndexLoader } from './spatial/SpatialIndexLoader';
 import { IndexOverlay } from './spatial/IndexOverlay';
 import { CollisionWorld } from './player/Collision';
 import { TrainController } from './generators/TrainController';
+import { StabledRailcar } from './generators/StabledRailcar';
 import { loadStationTextures } from './generators/stationTextures';
 import { VegetationGenerator } from './generators/VegetationGenerator';
 import { CanopyMask } from './generators/CanopyMask';
@@ -42,6 +43,10 @@ const STATION_MODEL_URL = `${import.meta.env.BASE_URL}assets/models/midori_stati
 
 // キハ54形500番台 — the railcar that worked these services through 緑駅.
 const RAILCAR_MODEL_URL = `${import.meta.env.BASE_URL}assets/models/kiha54.glb`;
+const STABLED_MODEL_URLS: Record<string, string> = {
+  kiha40: `${import.meta.env.BASE_URL}assets/models/kiha40.glb`,
+  kiha54: RAILCAR_MODEL_URL,
+};
 
 const IS_TOUCH_DEVICE = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
@@ -207,7 +212,11 @@ async function bootstrap(): Promise<void> {
   let train: TrainController | null = null;
   try {
     train = await TrainController.create({
-      railways: world.find('railway'),
+      // The 本線 only. The passing loop's ends sit mid-chain on the main
+      // line rather than at its endpoints, so the route builder drops it
+      // anyway — but it drops it by accident, and now that a car stands on
+      // 2番線 a through train wandering onto it would drive through that car.
+      railways: world.find('railway').filter((f) => f.properties.id !== 'RAIL_SENMO_MIDORI_TRACK2'),
       tangentPlane: world.tangentPlane,
       heightAt,
       modelUrl: RAILCAR_MODEL_URL,
@@ -216,6 +225,23 @@ async function bootstrap(): Promise<void> {
     if (train) world.group.add(train.group);
   } catch (err) {
     console.warn('Train not generated: model or route unavailable', err);
+  }
+
+  // Anything standing still on a track. 緑 has two platform tracks, which is
+  // the point of a 交換駅: the far one can hold a car without closing the
+  // line. What stands there is a placement rather than a finding, and the
+  // feature says so itself.
+  for (const feature of world.find('building')) {
+    if (feature.properties.structure_type !== 'railcar') continue;
+    const url = STABLED_MODEL_URLS[String(feature.properties.model ?? 'kiha40')];
+    if (!url) continue;
+    try {
+      world.group.add(await StabledRailcar.create({
+        feature, modelUrl: url, tangentPlane: world.tangentPlane, heightAt,
+      }));
+    } catch (err) {
+      console.warn(`Stabled railcar ${feature.id} not generated`, err);
+    }
   }
 
   // The forest. Every photograph of 緑 has trees in it; the World had none,
