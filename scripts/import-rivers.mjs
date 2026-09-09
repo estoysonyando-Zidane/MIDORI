@@ -18,13 +18,32 @@
  * Run: node scripts/import-rivers.mjs
  */
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const WORLD = join(ROOT, 'public/data/worlds/JP_HOKKAIDO_KIYOSATO_MIDORI_20100530');
+/** The wide vector block when it has been fetched, the narrow one otherwise.
+ *
+ *  The narrow block is 5 tiles square and reaches about 1.6 km at its
+ *  corners, so the World's water stopped 1.4 km out — and さくらの滝, which
+ *  turns out to be 2.07 km from the station and INSIDE the World, had no
+ *  river running to it at all. The wide block is fetched separately rather
+ *  than replacing the narrow one, because the town's identities have been
+ *  corrected by hand more than once and re-importing 175 buildings from four
+ *  times the area is not a change to make in passing.
+ *
+ *      GSI_OUT=scripts/data/gsi_midori_wide.json GSI_RADIUS_TILES=5 \
+ *        node scripts/fetch-gsi-basemap.mjs
+ */
+const GSI_WIDE = join(ROOT, 'scripts/data/gsi_midori_wide.json');
 const GSI = join(ROOT, 'scripts/data/gsi_midori.json');
+
+/** 緑駅. Water is clipped to the World's own buffer around it; the wide
+ *  block's corners reach 3.1 km, which is past where anything is built. */
+const ORIGIN = { lat: 43.718020, lon: 144.505750 };
+const WORLD_BUFFER_M = 2500;
 
 /** ftCode 5301: 水涯線. Drawn as one line, so under the 1/25,000 threshold
  *  for a two-bank watercourse. */
@@ -47,11 +66,25 @@ const NOTE = 'scripts/import-rivers.mjs による取り込み。出典: 国土�
   + '1/25000で水涯線が単線で描かれていることから、二条の岸を持つ幅には達しないと読んだもの。'
   + 'DEM(10 mメッシュ)に河道は刻まれていないので、地面はここで下げている。';
 
+/** Metres from the World's origin to the nearest point of a ring. */
+function nearestRadius(ring) {
+  const mLat = 111132.0;
+  const mLon = 111320.0 * Math.cos((ORIGIN.lat * Math.PI) / 180);
+  let best = Infinity;
+  for (const [lon, lat] of ring) {
+    best = Math.min(best, Math.hypot((lat - ORIGIN.lat) * mLat, (lon - ORIGIN.lon) * mLon));
+  }
+  return best;
+}
+
 function main() {
-  const gsi = readJson(GSI);
+  const wide = existsSync(GSI_WIDE);
+  const gsi = readJson(wide ? GSI_WIDE : GSI);
+  console.log(`読み込み: ${wide ? 'gsi_midori_wide.json (±5タイル)' : 'gsi_midori.json (±2タイル)'}`);
   const features = [];
   let lines = 0;
   let areas = 0;
+  let clipped = 0;
 
   for (const f of gsi.features) {
     if (f.layer !== 'river' && f.layer !== 'waterarea') continue;
@@ -60,6 +93,7 @@ function main() {
     if (f.type === 2 && ft === FT_WATER_EDGE) {
       for (const ring of f.rings) {
         if (ring.length < 2) continue;
+        if (nearestRadius(ring) > WORLD_BUFFER_M) { clipped++; continue; }
         lines++;
         features.push({
           type: 'Feature',
@@ -91,6 +125,7 @@ function main() {
     if (f.type === 3 && ft === FT_WATER_AREA) {
       for (const ring of f.rings) {
         if (ring.length < 4) continue;
+        if (nearestRadius(ring) > WORLD_BUFFER_M) { clipped++; continue; }
         areas++;
         const closed = ring[0][0] === ring[ring.length - 1][0] && ring[0][1] === ring[ring.length - 1][1]
           ? ring : [...ring, ring[0]];
@@ -121,6 +156,7 @@ function main() {
 
   writeJson(join(WORLD, 'reality/water.geojson'), { type: 'FeatureCollection', features });
   console.log(`水 ${features.length} 件（水涯線 ${lines}、水域 ${areas}）→ reality/water.geojson`);
+  console.log(`World の緩衝半径 ${WORLD_BUFFER_M} m の外にあって落としたもの: ${clipped} 件`);
 }
 
 main();

@@ -14,6 +14,7 @@ import { IndexOverlay } from './spatial/IndexOverlay';
 import { CollisionWorld } from './player/Collision';
 import { TrainController } from './generators/TrainController';
 import { StabledRailcar } from './generators/StabledRailcar';
+import type { RealityData } from './reality/RealityData';
 import { loadStationTextures } from './generators/stationTextures';
 import { VegetationGenerator } from './generators/VegetationGenerator';
 import { CanopyMask } from './generators/CanopyMask';
@@ -264,26 +265,33 @@ async function bootstrap(): Promise<void> {
     }
     // Every building and open-ground footprint becomes a circle the scatter
     // steps around, so the forest stops at the settlement instead of growing
-    // through it.
-    const keepClearOfCircles = world.find('building')
-      .filter((f) => f.geometry.type === 'Polygon')
-      .map((f) => {
-        const ring = (f.geometry.coordinates as [number, number][][])[0];
-        let x = 0;
-        let z = 0;
-        const n = ring.length - 1;
-        let maxR = 0;
-        for (let i = 0; i < n; i++) {
-          const local = world.tangentPlane.project(ring[i][1], ring[i][0]);
-          x += local.x / n;
-          z += local.z / n;
-        }
-        for (let i = 0; i < n; i++) {
-          const local = world.tangentPlane.project(ring[i][1], ring[i][0]);
-          maxR = Math.max(maxR, Math.hypot(local.x - x, local.z - z));
-        }
-        return { x, z, radius: maxR + 5 };
-      });
+    // through it — and so does every pond, because a pond reads DARK on the
+    // orthophoto and the canopy mask calls anything dark wooded.
+    const circleOf = (f: RealityData) => {
+      const ring = (f.geometry.coordinates as [number, number][][])[0];
+      let x = 0;
+      let z = 0;
+      const n = ring.length - 1;
+      let maxR = 0;
+      for (let i = 0; i < n; i++) {
+        const local = world.tangentPlane.project(ring[i][1], ring[i][0]);
+        x += local.x / n;
+        z += local.z / n;
+      }
+      for (let i = 0; i < n; i++) {
+        const local = world.tangentPlane.project(ring[i][1], ring[i][0]);
+        maxR = Math.max(maxR, Math.hypot(local.x - x, local.z - z));
+      }
+      return { x, z, radius: maxR + 5 };
+    };
+    const keepClearOfCircles = [
+      ...world.find('building').filter((f) => f.geometry.type === 'Polygon').map(circleOf),
+      // only compact water: past about 120 m across, a circle is a poor
+      // stand-in for a river's outline, and a reach that big is outside the
+      // scatter's 900 m anyway
+      ...world.find('water').filter((f) => f.geometry.type === 'Polygon').map(circleOf)
+        .filter((c) => c.radius < 125),
+    ];
 
     // Where the forest is, off 国土地理院's photograph rather than off a
     // random number generator. If it cannot be loaded the scatter still

@@ -151,6 +151,38 @@
         "evidence_type": "public_gis",
         "note": "国土地理院 電子国土基本図の注記（分類コード 887）。注記点は文字の配置位置なので、32 m 離れた最寄りの建築物フットプリントの重心に寄せた。注記が指す建物がこの建物であることは注記点の近さから推定したもので、地理院が両者を結び付けているわけではない。"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          144.523671,
+          43.731418
+        ]
+      },
+      "properties": {
+        "id": "LOC_SAKURA_NO_TAKI",
+        "name": "さくらの滝",
+        "name_en": "Sakura Falls",
+        "poi_type": "waterfall",
+        "confidence": "B",
+        "evidence_type": "secondary_photo",
+        "historical_status": "plausible",
+        "position_status": "located",
+        "source_ids": [
+          "SRC_COMMONS_SAKURA_FALLS",
+          "SRC_GSI_BVMAP",
+          "SRC_GSI_SEAMLESSPHOTO",
+          "SRC_WIKI_JA_KIYOSATO"
+        ],
+        "note": "斜里川の滝。緑駅から 2073 m・方位 44°で、この World の内側にある。位置はウィキメディア・コモンズ File:Sakura Falls 1.jpg の EXIF GPS (43.731418, 144.523671、2011-08-01撮影) による。2つの独立した資料が同じ場所を指す: 国土地理院の水域(ftCode 5000)がこの点の 58 m 以内にあり、シームレス空中写真(z=17)には同じ位置に林の中を流れる川と、その脇の駐車場と取付道路が写っている。滝そのものの形（落差・幅）は測っていないので造形はしていない。清里町の記事はこの滝を町の観光地として挙げている。",
+        "detail_confidence": {
+          "position": "B (secondary_photo — 撮影者のGPS。国土地理院の水域と空中写真の駐車場が同じ点を裏づける)",
+          "existence_in_2010": "B (1974-78の空中写真にも同じ河道が写る。滝は地形であって施設ではない)",
+          "form": "U (落差・幅・岩の形は測っていない。造形なし)"
+        }
+      }
     }
   ]
 }
