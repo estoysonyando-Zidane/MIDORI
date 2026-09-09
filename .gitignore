@@ -14,3 +14,10 @@ tsconfig.tsbuildinfo
 
 # 検査の出力（CI が毎回作る）
 world-dump.json
+
+# .cache/gsi-photo は無視しない。国土地理院から取得したタイルの凍結コピーで、
+# オルソ写真と樹冠マスクを再取得なしで作り直すための出典の写しにあたる。
+# 詳細は scripts/README.md 第0段。
+
+# Blender の確認用レンダリング
+build/
