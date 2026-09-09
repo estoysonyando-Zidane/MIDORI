@@ -29,11 +29,23 @@ import { fileURLToPath } from 'node:url';
 import { decodeTile, tileToLonLat } from './lib/mvt.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const OUT = join(ROOT, 'scripts/data/gsi_midori.json');
+/** Where the decoded features go, and how far out to fetch.
+ *
+ *  The default 5x5 block was sized around the settlement and reaches about
+ *  1.6 km at its corners — which is why the World's water stopped 1.4 km out
+ *  and さくらの滝, 2.07 km from the station and inside the World's own
+ *  bounds, had no river running to it.
+ *
+ *  Widening the shared file would re-import the town from four times the
+ *  area, and the town's identities have been fixed by hand more than once,
+ *  so the wide fetch writes its own file instead and only the importers that
+ *  ask for it read it: `--radius 5 --out scripts/data/gsi_midori_wide.json`.
+ */
+const OUT = join(ROOT, process.env.GSI_OUT ?? 'scripts/data/gsi_midori.json');
 
 const CENTRE = { lat: 43.718020, lon: 144.505750 };  // JP.01.546.MIDORI/STATION
 const ZOOM = 16;
-const RADIUS_TILES = 2;                              // ±2 tiles ≈ 2.2 km across
+const RADIUS_TILES = Number(process.env.GSI_RADIUS_TILES ?? 2);   // ±2 tiles ≈ 2.2 km across
 const ENDPOINT = 'https://cyberjapandata.gsi.go.jp/xyz/experimental_bvmap';
 
 /** Layers worth keeping, and what each is. */

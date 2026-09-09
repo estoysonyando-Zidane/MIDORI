@@ -587,6 +587,36 @@
       "dataset_name": "File:JR Senmo-Main-Line Midori Station Premises railroad crossing.jpg",
       "description": "構内踏切から川湯温泉方を見た写真。撮影日時 2018-05-04 11:46。ここから読み取ったのは次の5点。(1) 縁端の線は青緑。上記の写真と独立に同じ色が出る。(2) 構内踏切は枕木状の板を両線に渡したもの。(3) 2番線ホームの土留めは横板積みで、端に黄黒の警戒帯とスロープ。(4) 構内踏切の見通し用に橙枠の角型ミラーが立つ。(5) 信号機が線路の左右と遠方に見える。背面は錆びた橙褐色。",
       "note": "CC BY-SA 4.0。2018年の撮影であり 2010-05-30 時点の証拠にはならない。形状と色の読み取りにのみ用い、画像そのものは複製しない。"
+    },
+    {
+      "id": "SRC_COMMONS_SAKURA_FALLS",
+      "provider": "ウィキメディア・コモンズ",
+      "dataset_name": "File:Sakura Falls 1.jpg",
+      "url": null,
+      "access_date": "2026-09-09",
+      "data_date": "2011-08-01 09:26",
+      "publication_date": "2011",
+      "license": "CC BY-SA 4.0（表示・継承）。位置情報の読み取りにのみ用い、画像は本リポジトリに複製しない。",
+      "temporal_coverage": "2011-08-01",
+      "status": "acquired",
+      "evidence_type": "secondary_photo",
+      "description": "さくらの滝の写真。ここから取ったのは EXIF の GPS 座標 43.731418, 144.523671 のみ。撮影者のカメラの記録であって測量ではないが、国土地理院の水域(ftCode 5000)がこの点の58 m以内にあり、シームレス空中写真(z=17)の同じ位置に林の中を流れる川と駐車場と取付道路が写っているので、2つの独立した資料が同じ場所を指している。",
+      "note": "2011年の撮影。滝は地形なので 2010-05-30 の存在は問題にならないが、座標の精度は撮影者のGPS依存で、数十メートルの誤差はありうる。"
+    },
+    {
+      "id": "SRC_WIKI_JA_KIYOSATO",
+      "provider": "Wikipedia (日本語版)",
+      "dataset_name": "清里町",
+      "url": "https://ja.wikipedia.org/wiki/清里町",
+      "access_date": "2026-09-09",
+      "data_date": "unknown",
+      "publication_date": "unknown",
+      "license": "CC BY-SA",
+      "temporal_coverage": "unknown",
+      "status": "acquired",
+      "evidence_type": "encyclopedia",
+      "description": "清里町の記事。観光地としてさくらの滝・神の子池・裏摩周展望台（摩周湖東部）を挙げる。",
+      "note": "百科事典であり一次資料ではない。confidence は B が上限。地物の存在と町との関係にのみ用いる。"
     }
   ]
 }
