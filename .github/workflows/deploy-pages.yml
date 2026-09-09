@@ -43,8 +43,16 @@ jobs:
         with:
           path: dist
 
+  # Only main publishes.
+  #
+  # The github-pages environment carries a deployment branch policy limiting
+  # it to the default branch, so this job failed in about two seconds on
+  # every push to a working branch — a red X on work whose build and checks
+  # had all passed. Guarding it says the same thing without the false alarm:
+  # a working branch builds and is checked, main is what the browser sees.
   deploy:
     needs: build
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
