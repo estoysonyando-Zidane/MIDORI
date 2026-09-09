@@ -67,11 +67,21 @@ export class SceneManager {
   constructor(container: HTMLElement) {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0xbfd8e8);
-    this.scene.fog = new THREE.Fog(0xbfd8e8, 200, 1800);
+    // Aerial perspective, not a curtain.
+    //
+    // Linear fog from 200 m to 1,800 m turned everything past the World's own
+    // edge into flat sky — which was fine while there was nothing out there,
+    // and wrong the moment 斜里岳 arrived 18 km east. Real distance haze
+    // fades a mountain toward the sky colour without erasing it: exponential
+    // falloff at this density leaves about a third of the contrast at 18 km,
+    // which is what the range looks like from 緑 on a clear day.
+    this.scene.fog = new THREE.FogExp2(0xbfd8e8, 0.00006);
 
     this.camera = createCamera(window.innerWidth / window.innerHeight);
 
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    // A 60 km far plane needs a depth buffer that can hold it: without this
+    // the near World z-fights itself.
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, logarithmicDepthBuffer: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;

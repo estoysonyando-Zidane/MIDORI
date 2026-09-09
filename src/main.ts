@@ -16,6 +16,7 @@ import { TrainController } from './generators/TrainController';
 import { loadStationTextures } from './generators/stationTextures';
 import { VegetationGenerator } from './generators/VegetationGenerator';
 import { CanopyMask } from './generators/CanopyMask';
+import { FarTerrainGenerator } from './generators/FarTerrainGenerator';
 import { StationTerrace } from './generators/StationTerrace';
 import { WaterGenerator } from './generators/WaterGenerator';
 import { TownGenerator } from './generators/TownGenerator';
@@ -93,6 +94,29 @@ async function bootstrap(): Promise<void> {
     });
     heightAt = terrain.heightAt;
     world.group.add(terrain.mesh);
+  }
+
+  // The land past the edge of the World: 斜里岳 18 km east, the valley's own
+  // hills, the 摩周 caldera rim, 清里の市街. None of it walkable, all of it
+  // visible — the horizon was a flat band of sky, which was the largest
+  // single untruth left in this World.
+  try {
+    const base = `${import.meta.env.BASE_URL}assets/terrain/`;
+    const meta = await fetch(`${base}midori_far_terrain.json`);
+    if (meta.ok && heightField) {
+      const far = await meta.json();
+      const binary = await (await fetch(`${base}midori_far_dem.bin`)).arrayBuffer();
+      world.group.add(FarTerrainGenerator.generate(
+        far, new Int16Array(binary), world.tangentPlane,
+        {
+          hole: heightField.bounds,
+          photoUrl: far.photo ? `${base}${far.photo}` : undefined,
+          renderer: sceneManager.renderer,
+        },
+      ));
+    }
+  } catch (err) {
+    console.warn('Far terrain not generated', err);
   }
 
   // Directive 10 §2/AC08: the station building's position must come from

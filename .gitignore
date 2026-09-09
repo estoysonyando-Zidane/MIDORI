@@ -11,3 +11,6 @@ tsconfig.tsbuildinfo
 .env
 .env.local
 .env.*.local
+
+# 検査の出力（CI が毎回作る）
+world-dump.json
