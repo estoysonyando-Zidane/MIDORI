@@ -617,6 +617,36 @@
       "evidence_type": "encyclopedia",
       "description": "清里町の記事。観光地としてさくらの滝・神の子池・裏摩周展望台（摩周湖東部）を挙げる。",
       "note": "百科事典であり一次資料ではない。confidence は B が上限。地物の存在と町との関係にのみ用いる。"
+    },
+    {
+      "id": "SRC_GSI_PLACE_SEARCH",
+      "provider": "国土地理院",
+      "dataset_name": "地名検索 API (address-search)",
+      "url": "https://msearch.gsi.go.jp/address-search/AddressSearch",
+      "access_date": "2026-09-09",
+      "data_date": "unknown（地理院地図の注記・地名情報に基づく。更新日は明示されない）",
+      "publication_date": "unknown",
+      "license": "国土地理院コンテンツ利用規約",
+      "temporal_coverage": "unknown",
+      "status": "acquired",
+      "evidence_type": "public_gis",
+      "description": "地名から緯度経度を返す国土地理院の検索。ここから取ったのは 神の子池 (43.645211, 144.550175) と 裏摩周展望台 (43.603820, 144.570948) の2点。さくらの滝・摩周湖第一展望台・緑ダムはこの索引では見つからなかった。",
+      "note": "返るのは注記の点であって施設の実測点ではない。緑駅の注記が駅の実測座標から 北へ42 m・西へ26 m ずれていたのと同じ性質のずれがありうる。数十メートルの精度として扱う。"
+    },
+    {
+      "id": "SRC_WIKI_JA_MIDORIDAM",
+      "provider": "Wikipedia (日本語版)",
+      "dataset_name": "緑ダム",
+      "url": "https://ja.wikipedia.org/wiki/緑ダム",
+      "access_date": "2026-09-09",
+      "data_date": "unknown",
+      "publication_date": "unknown",
+      "license": "CC BY-SA",
+      "temporal_coverage": "1974-現在",
+      "status": "acquired",
+      "evidence_type": "encyclopedia",
+      "description": "斜里川水系アタクチャ川のロックフィルダム。所在地 清里町国有林地内、緯度経度 43°40′13″N 144°37′45″E、堤高 73 m、堤頂長 345 m、堤体積 1,998,000 m³、総貯水容量 7,100,000 m³、有効貯水容量 6,400,000 m³、流域面積 20.3 km²、湛水面積 53 ha、利用目的 灌漑、事業主体 網走市、着工 1974年、竣工 2003年。出典として「ダム便覧」を挙げる。",
+      "note": "百科事典であり一次資料ではない。confidence は C。座標は国土地理院の地名検索では裏が取れていない。竣工 2003年 は 2010-05-30 に存在したことの根拠として使える。"
     }
   ]
 }

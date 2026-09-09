@@ -59,6 +59,27 @@ let eventSpatialLeakCount = 0; // Directive 08 §7.4
 function err(msg) { errors.push(msg); }
 function warn(msg) { warnings.push(msg); }
 
+/* A feature that says it is outside the World.
+ *
+ * The bounds checks exist to catch a coordinate that went wrong — a decimal
+ * in the wrong place, a lat/lon swapped. They are not meant to argue with a
+ * feature that is deliberately out there: 神の子池 is 8.8 km away because
+ * that is where it is, and it is recorded so the coordinate is not lost, not
+ * because anything is built at it.
+ *
+ * Such a feature declares `outside_world: true` and is counted rather than
+ * warned about. Counted, not silenced — if the count changes without anyone
+ * meaning it to, that still shows.
+ *
+ * The escape hatch is BOUNDED. A landmark may be outside the World; it may
+ * not be outside the far terrain, which reaches 35 km. Past that the flag is
+ * covering for a coordinate error — a decimal in the wrong place puts a pond
+ * in the Sea of Okhotsk and would otherwise pass silently — so the warning
+ * comes back. */
+const OUTSIDE_WORLD_CEILING_M = 35000;
+const outsideWorld = [];
+const declaresOutside = (f) => f.properties?.outside_world === true || f.outside_world === true;
+
 function readJSON(path) {
   return JSON.parse(readFileSync(path, 'utf8'));
 }
@@ -203,7 +224,14 @@ for (const f of allFeatures) {
     for (const c of coords) {
       const d = metersFromOrigin(originLat, originLon, c[1], c[0]);
       if (d > buffer) {
-        warn(`${f.type}/${f.id}: a vertex is ${d.toFixed(0)}m from World origin (bounds radius ${radius}m, buffer ${buffer.toFixed(0)}m)`);
+        if (declaresOutside(f) && d <= OUTSIDE_WORLD_CEILING_M) {
+          outsideWorld.push(`${f.type}/${f.id}: ${d.toFixed(0)}m — outside_world として記録`);
+        } else if (declaresOutside(f)) {
+          warn(`${f.type}/${f.id}: outside_world だが ${(d / 1000).toFixed(1)} km — `
+            + `遠景地形の届く ${OUTSIDE_WORLD_CEILING_M / 1000} km を超えている。座標を疑うこと`);
+        } else {
+          warn(`${f.type}/${f.id}: a vertex is ${d.toFixed(0)}m from World origin (bounds radius ${radius}m, buffer ${buffer.toFixed(0)}m)`);
+        }
         break;
       }
     }
@@ -274,7 +302,7 @@ if (station && station.geometry.type === 'Point') {
     if (f.geometry.type !== 'Point') continue;
     const [lon, lat] = f.geometry.coordinates;
     const d = metersFromOrigin(slat, slon, lat, lon);
-    if (d > radius) {
+    if (d > radius && !(declaresOutside(f) && d <= OUTSIDE_WORLD_CEILING_M)) {
       warn(`poi/${f.id}: ${d.toFixed(0)}m from the station — outside declared World bounds radius (${radius}m)`);
     }
   }
@@ -407,6 +435,11 @@ if (errors.length) {
   console.log(`ERRORS (${errors.length}):`);
   for (const e of errors) console.log(`  ✗ ${e}`);
 }
+if (outsideWorld.length) {
+  console.log(`\nWorld の外として記録された地物 (${outsideWorld.length}):`);
+  for (const line of outsideWorld) console.log(`  · ${line}`);
+}
+
 if (warnings.length) {
   console.log(`\nWARNINGS (${warnings.length}):`);
   for (const w of warnings) console.log(`  ! ${w}`);
