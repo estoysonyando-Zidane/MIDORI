@@ -64,7 +64,23 @@ export interface WorldInspect {
    *  timeout is either far too short or silently flaky on a faster machine. */
   frames(n: number): Promise<void>;
   dump(): PlacedObject[];
-  stats(): { objects: number; drawCalls: number; triangles: number };
+  /** The scene graph itself.
+   *
+   *  Every other method here answers one question. This one exists so a
+   *  check can ask a question nobody anticipated — where the triangles go,
+   *  which material is used twice, what is parented to what — without a new
+   *  method being added and shipped first. That cost is why almost no check
+   *  ever got written before this file existed. */
+  scene(): THREE.Object3D;
+  /** What the renderer itself is carrying. Draw calls and triangles are per
+   *  frame; geometries, textures and programs are what is resident. These
+   *  are the numbers that decide whether the World runs on a phone — frame
+   *  time measured here is not, because the headless rasteriser is software
+   *  and about a thousand times slower than the GPU in a handset. */
+  stats(): {
+    objects: number; drawCalls: number; triangles: number;
+    geometries: number; textures: number; programs: number;
+  };
   /**
    * Points the camera and draws one frame.
    *
@@ -244,11 +260,21 @@ export function installWorldInspect(
       const c = bounds.getCenter(new THREE.Vector3());
       return [c.x, c.y, c.z];
     },
+    scene() {
+      return scene;
+    },
     stats() {
       const info = renderer.info;
       let objects = 0;
       scene.traverse(() => { objects++; });
-      return { objects, drawCalls: info.render.calls, triangles: info.render.triangles };
+      return {
+        objects,
+        drawCalls: info.render.calls,
+        triangles: info.render.triangles,
+        geometries: info.memory.geometries,
+        textures: info.memory.textures,
+        programs: info.programs?.length ?? 0,
+      };
     },
   };
 
