@@ -119,8 +119,19 @@ npm run check:joins   # the solids BUILT FROM the data, against the data
 node scripts/measure-budget.mjs    # draw calls, triangles, transfer
 ```
 
-`check:joins` and `measure-budget` read a running World, so start
+```
+npm run viewpoints    # 定点を撮り、測り、基線と比べる — 「見る」側の検査
+npm run ledger        # 証拠台帳 FACT / INFERENCE / MEMORY
+```
+
+`check:joins`, `viewpoints` and `budget` read a running World, so start
 `npx vite preview --host 127.0.0.1 --port 4174 --strictPort` first.
+
+`viewpoints` is the check that catches what neither the data checks nor the
+type checker can: the platform edge painted the wrong colour, a signal head
+hung where a train has to be, a river laid under the ground, a horizon that
+is a flat band of sky. None of those failed a data check. All of them are
+obvious in a picture. See `.claude/skills/world-inspection/`.
 
 `check:joins` is the one that catches what the data checks cannot: elements
 repeated along a path lying the way they said they would, things not

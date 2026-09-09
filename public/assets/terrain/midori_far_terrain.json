@@ -1,7 +1,7 @@
 {
-  "note": "緑駅を中心に半径 35 km の地形。国土地理院の標高タイル(z=10)とシームレス空中写真(z=11)を、同じ緯度経度グリッドに再標本化したもの。歩ける精度ではなく、World の外の land の形と色。midori_far_dem.bin は Int16 リトルエンディアン、行は北から南、列は西から東。",
+  "note": "緑駅を中心に半径 35 km の地形。国土地理院の標高タイル(z=10)とシームレス空中写真(z=11)を、同じ緯度経度グリッドに再標本化したもの。歩ける精度ではなく、World の外の land の形と色。midori_far_dem.bin は Int16 リトルエンディアン、行は北から南、列は西から東。各セルは z=12 タイルを 9x9 に細かく読んだうちの最大値 — 稜線は最大値でできているため。",
   "attribution": "出典: 国土地理院（地理院タイル 標高タイル・シームレス空中写真）",
-  "source_dem": "https://cyberjapandata.gsi.go.jp/xyz/dem/10/{x}/{y}.txt",
+  "source_dem": "https://cyberjapandata.gsi.go.jp/xyz/dem/12/{x}/{y}.txt",
   "source_photo": "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/11/{x}/{y}.jpg",
   "fetched_at": "2026-09-09",
   "bounds": {
@@ -14,8 +14,8 @@
   "metres_per_cell": 243.1,
   "elevation_range_m": [
     0,
-    1477.45
+    1535.46
   ],
-  "missing_samples": 8738,
+  "missing_samples": 8637,
   "photo": "midori_far_photo.jpg"
 }

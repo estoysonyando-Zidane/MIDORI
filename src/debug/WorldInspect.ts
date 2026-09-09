@@ -59,7 +59,9 @@ export interface PlacedObject {
 
 export interface WorldInspect {
   ready: Promise<void>;
-  /** Resolves after `n` frames have actually been rendered. Never wait on
+  /** Resolves after `n` frames have actually been rendered. Throws if the
+   *  loop is paused, because then it would wait for ever — `look()` renders
+   *  on its own and needs no frame wait. Never wait on
    *  wall-clock time: the headless rasteriser here runs at under 1 fps, so a
    *  timeout is either far too short or silently flaky on a faster machine. */
   frames(n: number): Promise<void>;
@@ -160,10 +162,21 @@ export function installWorldInspect(
   const quaternion = new THREE.Quaternion();
   const scale = new THREE.Vector3();
   const raycaster = new THREE.Raycaster();
+  let paused = false;
 
   const inspect: WorldInspect = {
     ready,
     frames(n) {
+      // A paused World renders nothing, so frameCount never reaches the
+      // target and this waits for ever — a check that hangs is worse than
+      // one that fails, so say so instead. After pause(), look() draws by
+      // itself and no frame wait is needed.
+      if (paused) {
+        return Promise.reject(new Error(
+          'frames() was called while the World is paused; it would never resolve. '
+          + 'look() renders on its own — drop the frames() call, or resume() first.',
+        ));
+      }
       const target = frameCount + n;
       return new Promise<void>((resolve) => {
         const tick = () => (frameCount >= target ? resolve() : requestAnimationFrame(tick));
@@ -237,8 +250,8 @@ export function installWorldInspect(
       });
       return out;
     },
-    pause() { renderer.setAnimationLoop(null); },
-    resume() { resumeLoop?.(); },
+    pause() { paused = true; renderer.setAnimationLoop(null); },
+    resume() { paused = false; resumeLoop?.(); },
     look(from, at = [0, 0, 0]) {
       camera.position.set(from[0], from[1], from[2]);
       camera.lookAt(at[0], at[1], at[2]);

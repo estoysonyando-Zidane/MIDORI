@@ -21,3 +21,6 @@ world-dump.json
 
 # Blender の確認用レンダリング
 build/
+
+# 定点撮影の出力（build/ は既に無視しているが明示）
+build/viewpoints

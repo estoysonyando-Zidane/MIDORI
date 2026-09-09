@@ -1,0 +1,78 @@
+{
+  "note": "capture-viewpoints.mjs --baseline で更新する基準値。差分の判定にだけ使い、正しさの根拠にはしない。",
+  "captured_at": "2026-09-09T16:40:57.644Z",
+  "views": {
+    "platform_kawayu": {
+      "sky": 0.409,
+      "green": 0.0357,
+      "luma": 153.6,
+      "contrast": 58.4,
+      "edges": 3.05,
+      "unique": 2408,
+      "horizon": 0.414
+    },
+    "platform_sattsuru": {
+      "sky": 0.4089,
+      "green": 0.0323,
+      "luma": 155.2,
+      "contrast": 57.5,
+      "edges": 2.79,
+      "unique": 2371,
+      "horizon": 0.418
+    },
+    "station_front": {
+      "sky": 0.2876,
+      "green": 0.1834,
+      "luma": 158.2,
+      "contrast": 56,
+      "edges": 4.45,
+      "unique": 1780,
+      "horizon": 0.286
+    },
+    "sharidake": {
+      "sky": 0.4696,
+      "green": 0.0922,
+      "luma": 173.2,
+      "contrast": 43.6,
+      "edges": 2.16,
+      "unique": 1736,
+      "horizon": 0.475
+    },
+    "treeline": {
+      "sky": 0.3496,
+      "green": 0.1558,
+      "luma": 143,
+      "contrast": 58.1,
+      "edges": 5.86,
+      "unique": 1764,
+      "horizon": 0.289
+    },
+    "town_street": {
+      "sky": 0.4388,
+      "green": 0.0476,
+      "luma": 168.3,
+      "contrast": 58.6,
+      "edges": 3.17,
+      "unique": 2055,
+      "horizon": 0.436
+    },
+    "overview": {
+      "sky": 0.2219,
+      "green": 0.2015,
+      "luma": 138,
+      "contrast": 51.6,
+      "edges": 9.66,
+      "unique": 3023,
+      "horizon": 0.223
+    },
+    "sakura_falls": {
+      "sky": 0.0811,
+      "green": 0.1132,
+      "luma": 131.6,
+      "contrast": 41.1,
+      "edges": 6.64,
+      "unique": 1386,
+      "horizon": 0.071
+    }
+  }
+}

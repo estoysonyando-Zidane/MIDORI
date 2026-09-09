@@ -10,7 +10,10 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
     "validate": "node scripts/validate-reality-data.mjs public/data/worlds/JP_HOKKAIDO_KIYOSATO_MIDORI_20100530",
-    "check:joins": "node scripts/dump-world.mjs world-dump.json && node scripts/check-joins.mjs world-dump.json"
+    "check:joins": "node scripts/dump-world.mjs world-dump.json && node scripts/check-joins.mjs world-dump.json",
+    "viewpoints": "node scripts/capture-viewpoints.mjs",
+    "ledger": "node scripts/build-evidence-ledger.mjs",
+    "budget": "node scripts/measure-budget.mjs"
   },
   "dependencies": {
     "three": "^0.169.0"
