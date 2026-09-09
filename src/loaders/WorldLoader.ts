@@ -54,6 +54,12 @@ export class WorldLoader {
       );
     }
 
+    if (config.data.water) {
+      realityData.push(
+        ...(await GeoJSONLoader.load(`${worldDirUrl}/${config.data.water}`, 'water', 'WATER')),
+      );
+    }
+
     if (config.data.events) {
       realityData.push(
         ...(await GeoJSONLoader.load(`${worldDirUrl}/${config.data.events}`, 'event', 'EVENT')),

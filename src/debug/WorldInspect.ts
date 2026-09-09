@@ -65,6 +65,36 @@ export interface WorldInspect {
   frames(n: number): Promise<void>;
   dump(): PlacedObject[];
   stats(): { objects: number; drawCalls: number; triangles: number };
+  /**
+   * Points the camera and draws one frame.
+   *
+   * Screenshots belong on the permanent surface for the same reason dump()
+   * does: taking them used to mean adding window.__scene/__camera/__renderer
+   * by hand and stripping them afterwards, which is a cost paid every time
+   * and therefore a reason not to look. `at` defaults to the World origin.
+   */
+  look(from: [number, number, number], at?: [number, number, number]): void;
+  /**
+   * Stops the render loop so `look()` is the last thing drawn.
+   *
+   * Without it a screenshot catches whatever the player's camera drew on the
+   * next frame, and every shot comes back identical — which is exactly what
+   * happened, and is indistinguishable from "the change did nothing".
+   */
+  pause(): void;
+  resume(): void;
+  /** World position of a named object's bounding-box centre, for aiming. */
+  centreOf(name: string): [number, number, number] | null;
+  /**
+   * The height of the terrain SURFACE at a point, by raycast.
+   *
+   * Not the height function the generators sample — the mesh that is
+   * actually drawn. The two coming apart is this project's recurring defect:
+   * the station floated because the terrace raised the function and not the
+   * mesh. Anything that should sit on the ground can be checked against
+   * this, and anything that cannot be is an assumption nobody is testing.
+   */
+  groundY(x: number, z: number): number | null;
 }
 
 /**
@@ -102,7 +132,9 @@ function longAxisOf(object: THREE.Object3D, size: THREE.Vector3): [number, numbe
 export function installWorldInspect(
   scene: THREE.Scene,
   renderer: THREE.WebGLRenderer,
+  camera: THREE.PerspectiveCamera,
   ready: Promise<void>,
+  resumeLoop?: () => void,
 ): WorldInspect {
   let frameCount = 0;
   const box = new THREE.Box3();
@@ -111,6 +143,7 @@ export function installWorldInspect(
   const position = new THREE.Vector3();
   const quaternion = new THREE.Quaternion();
   const scale = new THREE.Vector3();
+  const raycaster = new THREE.Raycaster();
 
   const inspect: WorldInspect = {
     ready,
@@ -187,6 +220,29 @@ export function installWorldInspect(
         });
       });
       return out;
+    },
+    pause() { renderer.setAnimationLoop(null); },
+    resume() { resumeLoop?.(); },
+    look(from, at = [0, 0, 0]) {
+      camera.position.set(from[0], from[1], from[2]);
+      camera.lookAt(at[0], at[1], at[2]);
+      camera.updateMatrixWorld(true);
+      renderer.render(scene, camera);
+    },
+    groundY(x, z) {
+      const terrain = scene.getObjectByName('Terrain');
+      if (!terrain) return null;
+      raycaster.set(new THREE.Vector3(x, 5000, z), new THREE.Vector3(0, -1, 0));
+      const hits = raycaster.intersectObject(terrain, true);
+      return hits.length > 0 ? hits[0].point.y : null;
+    },
+    centreOf(name) {
+      const object = scene.getObjectByName(name);
+      if (!object) return null;
+      const bounds = new THREE.Box3().setFromObject(object);
+      if (bounds.isEmpty()) return null;
+      const c = bounds.getCenter(new THREE.Vector3());
+      return [c.x, c.y, c.z];
     },
     stats() {
       const info = renderer.info;
