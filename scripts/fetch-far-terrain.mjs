@@ -36,7 +36,7 @@ const REACH_M = 35000;
  *  mountain's silhouette at 18 km, and 166 KB as Int16. */
 const GRID = 288;
 
-const DEM_ZOOM = 10;
+const DEM_ZOOM = 12;
 const PHOTO_ZOOM = 11;
 const TILE = 256;
 
@@ -82,24 +82,51 @@ function fetchDem() {
   }
   console.log(`  標高タイル ${got} 枚 (z=${DEM_ZOOM})`);
 
+  // MAXIMUM over each output cell, not a point sample.
+  //
+  // This was a point sample at z=10 and it cost the World its mountain.
+  // A 243 m cell that happens to land on a shoulder records the shoulder,
+  // so every summit in the far terrain came out low — 斜里岳 at 1,477 m
+  // against its real 1,547 m. That 70 m is not cosmetic: measured from the
+  // platform, the ridge 7.3 km east subtends 4.34° and the sunken summit
+  // only 4.30°, so the mountain was hidden behind the ridge by four
+  // hundredths of a degree. At its true height it clears by 0.18°.
+  //
+  // A silhouette is made of ridge lines, and a ridge line is a maximum.
+  // Sampling at z=12 (27.6 m) and taking the highest sample in each output
+  // cell — about 80 of them — is what the far terrain should always have
+  // done. Nothing is invented: every value is still 国土地理院's own.
+  const SUB = 9;                       // 9x9 samples per output cell
   const heights = new Int16Array(GRID * GRID);
   let min = Infinity;
   let max = -Infinity;
   let missing = 0;
-  for (let j = 0; j < GRID; j++) {
-    const lat = bounds.north - ((j + 0.5) / GRID) * (bounds.north - bounds.south);
+  const sampleAt = (lat, lon) => {
     const fy = latToY(lat, DEM_ZOOM);
+    const fx = lonToX(lon, DEM_ZOOM);
     const ty = Math.floor(fy);
+    const tx = Math.floor(fx);
     const py = Math.min(TILE - 1, Math.floor((fy - ty) * TILE));
+    const px = Math.min(TILE - 1, Math.floor((fx - tx) * TILE));
+    return tiles.get(`${tx}/${ty}`)?.[py]?.[px];
+  };
+  const dLat = (bounds.north - bounds.south) / GRID;
+  const dLon = (bounds.east - bounds.west) / GRID;
+  for (let j = 0; j < GRID; j++) {
+    const lat0 = bounds.north - (j / GRID) * (bounds.north - bounds.south);
     for (let i = 0; i < GRID; i++) {
-      const lon = bounds.west + ((i + 0.5) / GRID) * (bounds.east - bounds.west);
-      const fx = lonToX(lon, DEM_ZOOM);
-      const tx = Math.floor(fx);
-      const px = Math.min(TILE - 1, Math.floor((fx - tx) * TILE));
-      const rows = tiles.get(`${tx}/${ty}`);
-      const value = rows?.[py]?.[px];
-      const h = Number.isFinite(value) ? value : 0;
-      if (!Number.isFinite(value)) missing++;
+      const lon0 = bounds.west + (i / GRID) * (bounds.east - bounds.west);
+      let best = NaN;
+      for (let sj = 0; sj < SUB; sj++) {
+        const lat = lat0 - ((sj + 0.5) / SUB) * dLat;
+        for (let si = 0; si < SUB; si++) {
+          const lon = lon0 + ((si + 0.5) / SUB) * dLon;
+          const v = sampleAt(lat, lon);
+          if (Number.isFinite(v) && !(v <= best)) best = v;
+        }
+      }
+      const h = Number.isFinite(best) ? best : 0;
+      if (!Number.isFinite(best)) missing++;
       heights[j * GRID + i] = Math.round(h);
       if (h < min) min = h;
       if (h > max) max = h;
@@ -291,7 +318,8 @@ async function main() {
   writeFileSync(join(OUT_DIR, 'midori_far_terrain.json'), `${JSON.stringify({
     note: '緑駅を中心に半径 35 km の地形。国土地理院の標高タイル(z=10)とシームレス空中写真(z=11)を、'
       + '同じ緯度経度グリッドに再標本化したもの。歩ける精度ではなく、World の外の land の形と色。'
-      + 'midori_far_dem.bin は Int16 リトルエンディアン、行は北から南、列は西から東。',
+      + 'midori_far_dem.bin は Int16 リトルエンディアン、行は北から南、列は西から東。'
+      + '各セルは z=12 タイルを 9x9 に細かく読んだうちの最大値 — 稜線は最大値でできているため。',
     attribution: '出典: 国土地理院（地理院タイル 標高タイル・シームレス空中写真）',
     source_dem: `https://cyberjapandata.gsi.go.jp/xyz/dem/${DEM_ZOOM}/{x}/{y}.txt`,
     source_photo: `https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/${PHOTO_ZOOM}/{x}/{y}.jpg`,

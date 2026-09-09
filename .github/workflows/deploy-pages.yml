@@ -89,6 +89,19 @@ jobs:
           npx vite preview --host 127.0.0.1 --port 4174 --strictPort &
           node scripts/dump-world.mjs world-dump.json
       - run: node scripts/check-joins.mjs world-dump.json
+      # 定点撮影。CI のラスタライザは手元と同じ絵を出すとは限らないので基準値
+      # との比較は切り、破綻（真っ黒・単色・空だけ）の検出だけを走らせる。
+      # コンタクトシートは成果物として上げるので、人が1枚見れば分かる。
+      # 直前の手順で立てた preview がそのまま使える（--strictPort なので二重に
+      # 立てると失敗する）。
+      - name: 定点を撮る
+        run: node scripts/capture-viewpoints.mjs --no-baseline
+        continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: viewpoints
+          path: build/viewpoints
+        continue-on-error: true
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -66,10 +66,17 @@
 
 ```
 npm run validate      # データの整合（出典・confidence・境界）
+npm run ledger        # 証拠台帳を生成（FACT/INFERENCE/MEMORY）
 npm run build
 npm run check:joins   # 建てた実体とデータの突き合わせ（要 vite preview）
-node scripts/measure-budget.mjs   # 描画の見積り（任意、要 vite preview）
+npm run viewpoints    # 定点を撮り、測り、基線と比べる（要 vite preview）
+npm run budget        # 描画コスト・転送量（要 vite preview）
 ```
+
+**`npm run viewpoints` が「見る」側の検査。** データ検査も型検査も、
+縁端の線の色・信号機の高さ・水没・空の帯といった不具合を1件も捕まえなかった。
+`build/viewpoints/contact-sheet.jpg` を1枚見るのが最も速い。
+意図した変更のあとは `node scripts/capture-viewpoints.mjs --baseline` で基線を更新する。
 
 `check:joins` と `measure-budget` は動いている World を読むので、先に
 `npx vite preview --host 127.0.0.1 --port 4174 --strictPort` を上げておくこと。
@@ -84,6 +91,8 @@ node scripts/measure-budget.mjs   # 描画の見積り（任意、要 vite previ
 | `check-joins.mjs` | その吸い出しを検査する |
 | `validate-reality-data.mjs` | Reality Data の検査 |
 | `measure-budget.mjs` | 描画コスト・転送量の測定 |
+| `capture-viewpoints.mjs` | 定点撮影・知覚指標の測定・基線比較 |
+| `build-evidence-ledger.mjs` | reality/ から証拠台帳を生成 |
 | `lib/mvt.mjs` | ベクトルタイル(MVT)のデコーダ |
 
 ## Blender

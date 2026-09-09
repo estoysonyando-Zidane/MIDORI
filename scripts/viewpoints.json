@@ -1,0 +1,144 @@
+{
+  "note": "この World を評価するための定点。漫然と眺めるのではなく、ここを見る。カメラは名前の付いた地物からの相対位置で書く — 構内の寸法が変われば定点も一緒に動き、座標を書き直さなくてよい。expect は「人が歩いたときにどう見えるか」の測れる部分の下限・上限で、実測値から起こしてある（推測ではない）。",
+  "metrics_note": "sky=空の画素比 / green=植生比 / luma=平均輝度(0-255) / contrast=輝度の標準偏差 / edges=エッジ密度(視覚的な密度) / unique=量子化色数。フレーム時間は測らない（ソフトウェア描画のため無意味）。",
+  "viewpoints": [
+    {
+      "id": "platform_kawayu",
+      "name": "1番線ホームから川湯温泉方を見る",
+      "why": "この World で人が最も長く立つ場所。2018年のCC BY-SA写真(SRC_COMMONS_MIDORI_PLATFORM_2018)と同じ構図で、縁端の青緑・信号機・林縁を突き合わせられる。",
+      "from": {
+        "feature": "STR_MIDORI_PLATFORM_1",
+        "offset": [
+          0,
+          1.6,
+          0
+        ]
+      },
+      "look": {
+        "bearing": 146.6,
+        "pitch": -2
+      }
+    },
+    {
+      "id": "platform_sattsuru",
+      "name": "1番線ホームから札弦方を見る",
+      "why": "駅舎・構内踏切・2番線の留置車が一度に入る向き。",
+      "from": {
+        "feature": "STR_MIDORI_PLATFORM_1",
+        "offset": [
+          0,
+          1.6,
+          0
+        ]
+      },
+      "look": {
+        "bearing": 326.6,
+        "pitch": -2
+      }
+    },
+    {
+      "id": "station_front",
+      "name": "駅前広場から駅舎の正面",
+      "why": "駅前広場から駅舎の正面。「駅を出たら道が正面にある」を直した向きの逆で、壁画・庇・緑色舗装が一度に入る。",
+      "from": {
+        "feature": "STR_MIDORI_STATION_BUILDING",
+        "offset": [
+          16.7,
+          1.6,
+          -11.0
+        ]
+      },
+      "look": {
+        "bearing": 236.6,
+        "pitch": -3
+      }
+    },
+    {
+      "id": "sharidake",
+      "name": "構内から斜里岳（東、17.9km）",
+      "why": "構内から斜里岳の方位(72.7°)。**見えないことが現状の正**: 7.3km先の稜線が4.49°、斜里岳(遠景DEMで1535m)が4.46°で、山は0.03°負けて隠れる。実測1547mでも4.52°対4.49°で、差は標高データの分解能より小さい。ここは『山が出た/消えた』の監視点であって、出るべきという主張ではない。",
+      "from": {
+        "feature": "STR_MIDORI_PLATFORM_1",
+        "offset": [
+          0,
+          2.0,
+          0
+        ]
+      },
+      "look": {
+        "bearing": 72.7,
+        "pitch": 1.5
+      }
+    },
+    {
+      "id": "treeline",
+      "name": "ホームから西の林縁",
+      "why": "ホームから西の林縁。樹冠マスクは方位240°を100%森としており、間引きの影響がここに出る。定点はホーム中央から川湯温泉方へ55m振ってある — 札弦側は駅舎と信号機が手前に入るため。",
+      "from": {
+        "feature": "STR_MIDORI_PLATFORM_1",
+        "offset": [
+          30.3,
+          1.6,
+          45.9
+        ]
+      },
+      "look": {
+        "bearing": 236.6,
+        "pitch": 0
+      }
+    },
+    {
+      "id": "town_street",
+      "name": "駅前通りを町側へ",
+      "why": "駅前通りを町側へ。建物密度と道幅 — 人が歩いて「町」と認識するかどうかが出る。",
+      "from": {
+        "feature": "STR_MIDORI_STATION_BUILDING",
+        "offset": [
+          100,
+          1.6,
+          -66
+        ]
+      },
+      "look": {
+        "bearing": 56.6,
+        "pitch": -2
+      }
+    },
+    {
+      "id": "overview",
+      "name": "俯瞰（M キーの視点に近い）",
+      "why": "町・線路・森・遠景の関係。全体の破綻を一枚で見る。",
+      "from": {
+        "feature": "STR_MIDORI_STATION_BUILDING",
+        "offset": [
+          300,
+          170,
+          300
+        ]
+      },
+      "look": {
+        "feature": "STR_MIDORI_STATION_BUILDING",
+        "pitch": -22
+      }
+    },
+    {
+      "id": "sakura_falls",
+      "name": "さくらの滝の谷（駅から 2.07 km）",
+      "why": "World の縁。斜里川が水域として通っているか、地形が破綻していないか。",
+      "from": {
+        "world": [
+          1442,
+          300,
+          -1230
+        ]
+      },
+      "look": {
+        "world": [
+          1442,
+          140,
+          -1489
+        ]
+      }
+    }
+  ]
+}
