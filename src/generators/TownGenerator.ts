@@ -554,9 +554,21 @@ const SIGNAL_LAMP_PITCH_M = 0.20;
  *  ends — with the lamps in one vertical column down its middle. */
 const SIGNAL_BOARD_WIDTH_M = 0.44;
 const SIGNAL_BOARD_DEPTH_M = 0.09;
-/** Head height above the rail, and mast diameter. NOT from any document:
- *  read off the two 2018 photographs, where the head stands roughly a
- *  railcar's height above the track and the mast is a slim steel tube. */
+/** Head height above the rail, and mast diameter.
+ *
+ *  4.05 m is read off the two 2018 photographs, where a signal beside the
+ *  track stands about a railcar's height above it and the mast is a slim
+ *  steel tube. That is fine BESIDE the track and wrong OVER it: 第64条 第4図
+ *  puts the 車両限界 at 4,100 mm high and 3,000 mm wide, so a head hung
+ *  1.2 m from the track centre at 4.05 m is inside the space a train
+ *  occupies — the roof corner would take it off. 第20条(1)(2) permits a
+ *  signal inside the 建築限界's 基礎限界 precisely because it is 車両の走行に
+ *  必要なもの, but only 「車両の走行の安全を支障するおそれがない」 もの, which
+ *  a head a train would strike is not.
+ *
+ *  So a bracket head is carried at 4.75 m: the board's underside then sits
+ *  at 4.33 m, 230 mm clear of the 車両限界. `head_height_m` on the feature
+ *  chooses; anything beside the track keeps the photographed 4.05 m. */
 const SIGNAL_HEAD_CENTRE_M = 4.05;
 const SIGNAL_MAST_DIAMETER_M = 0.165;
 /** 第55条 1(10): 色灯式信号機及び灯列式信号機の背板の正面は、黒色とすること。 */
@@ -606,7 +618,8 @@ function buildSignal(
   group.rotation.y = -facing;
 
   const steel = new THREE.MeshStandardMaterial({ color: SIGNAL_STEEL, roughness: 0.7, metalness: 0.5 });
-  const boardTop = SIGNAL_HEAD_CENTRE_M + SIGNAL_BOARD_WIDTH_M / 2 + SIGNAL_LAMP_PITCH_M;
+  const headCentre = (feature.properties.head_height_m as number | undefined) ?? SIGNAL_HEAD_CENTRE_M;
+  const boardTop = headCentre + SIGNAL_BOARD_WIDTH_M / 2 + SIGNAL_LAMP_PITCH_M;
 
   const mast = new THREE.Mesh(
     new THREE.CylinderGeometry(SIGNAL_MAST_DIAMETER_M / 2, SIGNAL_MAST_DIAMETER_M / 2, boardTop, 10),
@@ -638,7 +651,7 @@ function buildSignal(
     boardGeom,
     new THREE.MeshStandardMaterial({ color: SIGNAL_BOARD_FRONT, roughness: 0.85 }),
   );
-  board.position.set(headX, SIGNAL_HEAD_CENTRE_M, 0);
+  board.position.set(headX, headCentre, 0);
   board.castShadow = true;
   group.add(board);
 
@@ -648,7 +661,7 @@ function buildSignal(
     new THREE.BoxGeometry(SIGNAL_BOARD_WIDTH_M, SIGNAL_BOARD_WIDTH_M + 2 * straight, 0.05),
     new THREE.MeshStandardMaterial({ color: SIGNAL_BOARD_BACK, roughness: 0.9 }),
   );
-  backing.position.set(headX, SIGNAL_HEAD_CENTRE_M, SIGNAL_BOARD_DEPTH_M + 0.025);
+  backing.position.set(headX, headCentre, SIGNAL_BOARD_DEPTH_M + 0.025);
   group.add(backing);
 
   // green over yellow over red, the order in the figure. Only the red is
@@ -669,7 +682,7 @@ function buildSignal(
       }),
     );
     lens.rotation.x = Math.PI / 2;
-    lens.position.set(headX, SIGNAL_HEAD_CENTRE_M + dy, -0.02);
+    lens.position.set(headX, headCentre + dy, -0.02);
     group.add(lens);
     // the hood over each lamp, open toward the driver
     const hood = new THREE.Mesh(
@@ -677,7 +690,7 @@ function buildSignal(
       new THREE.MeshStandardMaterial({ color: SIGNAL_BOARD_BACK, roughness: 0.9, side: THREE.DoubleSide }),
     );
     hood.rotation.x = Math.PI / 2;
-    hood.position.set(headX, SIGNAL_HEAD_CENTRE_M + dy + 0.015, -0.09);
+    hood.position.set(headX, headCentre + dy + 0.015, -0.09);
     group.add(hood);
   }
 

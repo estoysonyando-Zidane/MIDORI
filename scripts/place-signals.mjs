@@ -61,6 +61,21 @@ const HOME_BEYOND_TURNOUT_M = 60;
  *  arm out over the track, not beside it. 1.2 m also clears the 建築限界 of
  *  省令解釈基準 第20条 第1図 at the head's height. */
 const HEAD_OVER_TRACK_M = 1.2;
+/* 第64条 第4図: 車両限界 最大高さ 4,100 mm、最大幅 3,000 mm（半幅 1,500 mm）。
+ * 第20条(1)(2) は、車両の走行に必要で、かつ走行の安全を支障するおそれのない
+ * ものに限り建築限界の基礎限界内に設けることを認める。信号機はその「必要な
+ * もの」だが、列車が当たる高さに吊るものはその但し書きに掛からない。 */
+const VEHICLE_GAUGE_HEIGHT_M = 4.10;
+const VEHICLE_GAUGE_HALF_WIDTH_M = 1.50;
+/** 背板の半分の高さ。TownGenerator の 背板幅 0.44 / 灯の中心間隔 0.20 から。 */
+const SIGNAL_BOARD_HALF_HEIGHT_M = 0.44 / 2 + 0.20;
+/** 余裕。実測ではなく、丸めのための値。 */
+const GAUGE_CLEARANCE_M = 0.23;
+/** 線路の上に張り出す頭部の高さ。下端が車両限界の上に出る最小の高さを丸めた。
+ *  線路の脇に立つものは写真から読んだ 4.05 m のまま。 */
+const BRACKET_HEAD_HEIGHT_M =
+  Math.ceil((VEHICLE_GAUGE_HEIGHT_M + SIGNAL_BOARD_HALF_HEIGHT_M + GAUGE_CLEARANCE_M) * 20) / 20;
+
 /** Home signals stand beside a single track, no arm. Japanese practice puts
  *  a signal to the LEFT of the direction of travel; no document in hand
  *  states it, so it is recorded as convention. */
@@ -163,6 +178,8 @@ function main() {
       // the lamps look — which is the reverse of the departing train's left,
       // because the two face opposite ways.
       const armLeft = (headOut - mastOut) * dir.sign;
+      // the head hangs over the track, so it has to clear the 車両限界
+      const overTrack = Math.abs(headOut - trackOut) < VEHICLE_GAUGE_HALF_WIDTH_M;
       push(
         `STR_MIDORI_SIGNAL_DEP_${track}_${dir.sign > 0 ? 'S' : 'K'}`,
         `緑駅 ${track}番線 出発信号機（${dir.name}方）`,
@@ -172,6 +189,7 @@ function main() {
         {
           signal_kind: 'departure',
           track_number: track,
+          head_height_m: overTrack ? BRACKET_HEAD_HEIGHT_M : undefined,
           detail_confidence: {
             existence: 'B (official_record — 釧網本線は特殊自動閉塞式。省令解釈基準 第54条関係4 は'
               + '単線の特殊自動閉塞式について「進路が相対する出発信号機相互間を連鎖させる」と定める。'
@@ -227,6 +245,7 @@ function main() {
   console.log(`track bearing   ${trackBearing.toFixed(1)}°  (札弦方)`);
   console.log(`platform        ${(platformCentre - platformHalf).toFixed(1)} .. ${(platformCentre + platformHalf).toFixed(1)} m`);
   console.log(`turnouts        ${(platformCentre - LOOP_STRAIGHT_HALF_M - lead).toFixed(1)} / ${(platformCentre + LOOP_STRAIGHT_HALF_M + lead).toFixed(1)} m`);
+  console.log(`腕木の頭部高さ  ${BRACKET_HEAD_HEIGHT_M.toFixed(2)} m  (背板下端 ${(BRACKET_HEAD_HEIGHT_M - SIGNAL_BOARD_HALF_HEIGHT_M).toFixed(2)} m、車両限界 ${VEHICLE_GAUGE_HEIGHT_M} m の上)`);
   for (const f of features) {
     console.log(`  ${f.properties.id.padEnd(30)} ${f.properties.name}`);
   }

@@ -54,6 +54,7 @@ function main() {
   checkAlongPath(objects);
   checkOverlap(objects);
   checkLabels(objects);
+  checkVehicleGauge();
   censusOfInference();
 
   console.log('=== 接合の検査 ===');
@@ -319,6 +320,75 @@ function checkLabels(objects) {
  * accurate this World can be, and it is the figure that would have made the
  * station building's position visible before anyone stood in it.
  */
+/* ------------------------------------------------------------------ *
+ * 車両限界 — is a signal head hung where a train has to be?
+ *
+ * 省令解釈基準 第64条 第4図 puts the 車両限界 at 4,100 mm high and 3,000 mm
+ * wide for 軌間 1,067 mm. 第20条(1)(2) lets a signal — 車両の走行に必要な
+ * もの — stand inside the 建築限界's 基礎限界, but only while it is
+ * 「車両の走行の安全を支障するおそれがない」, and a thing a train would hit
+ * is not that.
+ *
+ * This exists because the first pass at the signals hung a head 1.2 m from
+ * the track centre at 4.05 m — inside the box a railcar occupies, where the
+ * roof corner would have taken it off. Nothing in the World could say so.
+ *
+ * WHY THIS READS THE DATA AND NOT THE DUMP. A first attempt measured every
+ * placed object's bounding box against the envelope. It cannot work: a road
+ * draped down a slope has a bounding box several metres tall and a hundred
+ * long, an L-shaped bracket signal's box covers ground the signal does not
+ * occupy, and the dump has no rail height to measure against. It duly
+ * reported a road 86 m from the line as fouling the gauge. A check that
+ * reports the wrong thing is worse than no check — this project has been
+ * bitten three times by defects in its own QA — so the box approach was
+ * dropped rather than tuned.
+ *
+ * What CAN be checked exactly is the thing the defect was in: a signal's
+ * head position is not measured off geometry, it is stated by the feature
+ * (`arm_length_m` from the mast, `head_height_m` above the rail), and the
+ * mast's own offset from its track is fixed by the yard. So the arithmetic
+ * is done on those numbers. Anything else near the track is still unchecked,
+ * and this says so rather than pretending otherwise.
+ * ------------------------------------------------------------------ */
+
+/** [省令解釈基準] 第64条 第4図: 最大高さ H1 4,100 mm, 最大幅 L1 3,000 mm. */
+const VEHICLE_GAUGE_HEIGHT_M = 4.10;
+const VEHICLE_GAUGE_HALF_WIDTH_M = 1.50;
+/** The board's half-height, from TownGenerator's 背板幅 0.44 and 灯の中心間隔 0.20. */
+const SIGNAL_BOARD_HALF_HEIGHT_M = 0.44 / 2 + 0.20;
+/** The platform's back edge, where a bracket mast stands. */
+const PLATFORM_BACK_M = 1.475 + 3.5;
+
+function checkVehicleGauge() {
+  const buildings = readJson(join(WORLD, 'reality/buildings.geojson'));
+  const signals = buildings.features.filter((f) => f.properties.structure_type === 'signal');
+  if (signals.length === 0) { notes.push('車両限界  信号機なし — 検査せず'); return; }
+
+  let worst = null;
+  for (const f of signals) {
+    const p = f.properties;
+    const arm = Math.abs(p.arm_length_m ?? 0);
+    if (arm < 0.05) continue;                       // beside the track, not over it
+    // Each mast stands 0.4 m behind its OWN platform's back edge, on either
+    // side, so its offset from its own track is the same for both; the head
+    // comes back along the arm from there.
+    const mastFromTrack = PLATFORM_BACK_M + 0.4;
+    const headFromTrack = Math.abs(mastFromTrack - arm);
+    if (headFromTrack >= VEHICLE_GAUGE_HALF_WIDTH_M) continue;   // laterally clear
+    const underside = (p.head_height_m ?? 0) - SIGNAL_BOARD_HALF_HEIGHT_M;
+    const clearance = underside - VEHICLE_GAUGE_HEIGHT_M;
+    if (!worst || clearance < worst.clearance) worst = { id: p.id, headFromTrack, underside, clearance };
+  }
+  if (!worst) { notes.push('車両限界  線路上に張り出す頭部なし'); return; }
+  notes.push(`車両限界  線路上の頭部 最小余裕 ${worst.clearance.toFixed(2)} m`
+    + `（下端 ${worst.underside.toFixed(2)} m、限界 ${VEHICLE_GAUGE_HEIGHT_M} m）`
+    + `${worst.clearance >= 0 ? ' (ok)' : ''}`);
+  if (worst.clearance < 0) {
+    fail('車両限界', `${worst.id} の頭部が線路中心から ${worst.headFromTrack.toFixed(2)} m、`
+      + `下端 ${worst.underside.toFixed(2)} m で、高さ ${VEHICLE_GAUGE_HEIGHT_M} m の車両限界の中にある`);
+  }
+}
+
 function censusOfInference() {
   const dir = join(WORLD, 'reality');
   const rows = [];
