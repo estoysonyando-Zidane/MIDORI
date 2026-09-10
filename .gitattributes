@@ -1,0 +1,15 @@
+# 改行コードの正規化。
+#
+# Windows で開発するとき、git の既定 (core.autocrlf=true) はチェックアウト時に
+# LF を CRLF へ変え、コミット時に戻す。戻し損ねると **中身は同じなのに全行が
+# 変更として出る** 差分が生まれ、レビューも git blame も潰れる。
+# ここで明示しておけば、開発機の設定に関わらずリポジトリの中は常に LF になる。
+* text=auto eol=lf
+
+# バイナリ。テキストとして触られると壊れる。
+*.bin      binary
+*.jpg      binary
+*.jpeg     binary
+*.png      binary
+*.glb      binary
+*.blend    binary
